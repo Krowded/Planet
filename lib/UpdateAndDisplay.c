@@ -16,7 +16,7 @@ void display(void)
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	GLint i;
-	for (i = 0; i < 6; ++i) //////////////////////////////////////////////change to 6
+	for (i = 0; i < 6; ++i)
 	{
 		total = Mult(camMatrix, Planet.TerrainModelToWorld[i]);
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);

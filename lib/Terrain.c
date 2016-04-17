@@ -2,8 +2,6 @@
 
 	struct offset TerrainOffset;
 
-	const GLfloat terrainScale = 10.0;
-
 
 
 	void SetTerrainOffset(GLfloat x, GLfloat y, GLfloat z)

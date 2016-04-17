@@ -13,6 +13,8 @@ const GLfloat cameraHeight = 5;
 const GLfloat standardSpeed = 0.02;
 const GLfloat runSpeed = 1.0;
 
+const GLfloat terrainScale = 30.0;
+
 GLint globalTime = 0;
 mat4 camMatrix, camBaseMatrix, projectionMatrix;	
 Model *m, *m2, *terrainModel;
@@ -117,5 +119,5 @@ void initTerrain()
 	terrainModel = GenerateCubeTerrainSimple(&Planet);
 	//terrainModel = GenerateCubeTerrain(&Planet);
 	GLfloat radius = distanceToMiddleY;
-	terrainModel = MapCubeToFlatSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
+	terrainModel = MapCubeToSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
 }

@@ -22,26 +22,29 @@ GLuint terrainProgram, modelProgram;
 GLuint tex1, tex2;
 
 struct planetStruct Planet;
+vec3 middleOfPlanet ;
 
-void initAll()
+void InitAll()
 {	
-	initTerrain();
-	initPhysics();
-	initCamera();
-	intiCameraControls();
-	initShaders();
-	initTextures();
+	InitTerrain();
+	InitPhysics();
+	InitCamera();
+	InitCameraControls();
+	InitShaders();
+	InitTextures();
+
+	middleOfPlanet = SetVector(Planet.terrainTexture[0].width/2, 0, Planet.terrainTexture[0].height/2);
 }
 
-void initPhysics()
+void InitPhysics()
 {
 	PhysicsInit(maxFallSpeed, cameraHeight);
 }
 
-void initCamera()
+void InitCamera()
 {
-	vec3 cam = {0, 0, 0};
-	vec3 lookAtPoint = {0, 0, -4};
+	vec3 cam = {0, 200, 0};
+	vec3 lookAtPoint = {0, 200, -4};
 	vec3 upVector = {0.0, 1.0, 0.0};
 
 	projectionMatrix = frustum(-(windowWidth/windowHeight)*fov, (windowWidth/windowHeight)*fov, 
@@ -53,31 +56,31 @@ void initCamera()
 	camMatrix = camBaseMatrix;
 }
 
-void intiCameraControls()
+void InitCameraControls()
 {
 	CameraControlsInit(standardSpeed, runSpeed, windowWidth, windowHeight);
 }
 
-void initShaders()
+void InitShaders()
 {
 	// Load and compile shader
 	terrainProgram = loadShaders("shaders/terrain.vert", "shaders/terrain.frag");
 	modelProgram = loadShaders("shaders/models.vert", "shaders/models.frag");
 	glUseProgram(terrainProgram);
-	printError("init shader");
+	printError("Init shader");
 }
 
-void initTextures()
+void InitTextures()
 {
 
 	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
 
-	printError("init terrain");	
+	printError("Init terrain");	
 }
 
-void initModels()
+void InitModels()
 {
 	// Load models
 	m = LoadModelPlus("models/groundsphere.obj");
@@ -85,7 +88,7 @@ void initModels()
 }
 
 
-void initTerrain()
+void InitTerrain()
 {
 	// Load terrain data
 	GLint i;

@@ -1,5 +1,5 @@
-#ifndef INIT_H
-#define INIT_H
+#ifndef Init_H
+#define Init_H
 
 #include "loadobj.h"
 #include "LoadTGA.h"
@@ -44,14 +44,16 @@ extern GLint globalTime;
 
 extern struct planetStruct Planet;
 
+extern vec3 middleOfPlanet;
 
-void initAll();
-void initPhysics();
-void initCamera();
-void intiCameraControls();
-void initShaders();
-void initTextures();
-void initModels();
-void initTerrain();
+
+void InitAll();
+void InitPhysics();
+void InitCamera();
+void InitCameraControls();
+void InitShaders();
+void InitTextures();
+void InitModels();
+void InitTerrain();
 
 #endif

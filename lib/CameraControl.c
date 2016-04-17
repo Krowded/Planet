@@ -34,8 +34,13 @@
 
 	vec3 GetUpDirectionVec(mat4 camMatrix)
 	{
-		mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
-		return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+		//mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
+		//return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+		vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet));	
+		vec3 currentP = GetCurrentCameraPosition(camMatrix);
+		fprintf(stderr, "X: %f, Y: %f, Z: %f\n", currentP.x, currentP.y, currentP.z);
+		fprintf(stderr, "X: %f, Y: %f, Z: %f\n", upvec.x, upvec.y, upvec.z);
+		return upvec;
 	}
 
 	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camMatrix, mat4 camBaseMatrix)
@@ -53,10 +58,43 @@
 				y = (GLfloat)mouseY;
 			}
 
-			camMatrix = Mult(Ry(2*M_PI*x/512), Mult( ArbRotate(GetRightDirectionVec(camMatrix), 2*M_PI*y/324), camBaseMatrix));		
+			camMatrix = Mult(ArbRotate(GetUpDirectionVec(camMatrix), (2*M_PI*x/512)), Mult( ArbRotate(GetRightDirectionVec(camMatrix), 2*M_PI*y/324), camBaseMatrix));		
 			return camMatrix;
 	}
 
+
+	mat4 RotateArbAxis(mat4 matrix, vec3 axis, GLfloat angle)
+	{
+		axis = Normalize(axis);
+		mat4 Rot;
+		(Rot.m)[0] = cos(angle) + pow(axis.x, 2) * (1.0 - cos(angle));
+		(Rot.m)[1] = axis.x * axis.y * (1 - cos(angle)) - axis.z * sin(angle);
+		(Rot.m)[2] = axis.x * axis.z * (1 - cos(angle)) + axis.y * sin(angle);
+		(Rot.m)[3] = 0.0;
+
+		(Rot.m)[4] = axis.x * axis.y * (1 - cos(angle)) + axis.z * sin(angle);
+		(Rot.m)[5] = cos(angle) + pow(axis.z, 2) * (1 - cos(angle));
+		(Rot.m)[6] = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
+		(Rot.m)[7] = 0.0;
+
+		(Rot.m)[8] = axis.x * axis.z * (1 - cos(angle)) - axis.y * sin(angle);
+		(Rot.m)[9] = axis.y * axis.z * (1 - cos(angle)) + axis.x * sin(angle);
+		(Rot.m)[10] = axis.x * axis.z * (1 - cos(angle)) + axis.y * sin(angle);
+		(Rot.m)[11] = 1.0;
+
+		mat4 tempMatrix = matrix;
+		(tempMatrix.m)[3] = 0.0;
+		(tempMatrix.m)[7] = 0.0;
+		(tempMatrix.m)[11] = 1.0;
+
+		tempMatrix = Mult(Rot, tempMatrix);
+
+		(tempMatrix.m)[3] = (matrix.m)[3];
+		(tempMatrix.m)[7] = (matrix.m)[7];
+		(tempMatrix.m)[11] = (matrix.m)[11];
+
+		return tempMatrix;
+	}
 
 	//Read keyboard input and update camera position
 	mat4 CameraControl(GLint t, mat4 camMatrix, mat4 camBaseMatrix)
@@ -91,6 +129,10 @@
 			camBaseMatrix = Mult( T( 0, speed, 0), camBaseMatrix);
 		if (glutKeyIsDown('e') || glutKeyIsDown('E'))
 			camBaseMatrix = Mult( T( 0, -speed, 0), camBaseMatrix);
+
+		GLfloat angle = acos(DotProduct(GetUpDirectionVec(camMatrix), GetCurrentCameraPosition(camMatrix))/(Norm(GetUpDirectionVec(camMatrix)) * Norm(GetCurrentCameraPosition(camMatrix))));
+		vec3 axis = CrossProduct(GetUpDirectionVec(camMatrix), GetCurrentCameraPosition(camMatrix));
+
 		
 		{ //static scope limiter
 			static bool spacePressed = false;

@@ -3,20 +3,20 @@
 #include "UpdateAndDisplay.h"
 
 
-void init(void)
+void Init(void)
 {
-	// GL inits
+	// GL Inits
 	glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-	printError("GL inits");
+	printError("GL Inits");
 
-	initAll();
+	InitAll();
 
 	glUseProgram(modelProgram);
 	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 
-	initModels();
+	InitModels();
 }
 
 int main(int argc, char **argv)
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	//glutHideCursor();
 	glutWarpPointer(windowWidth*0.5, 0);
 	glutDisplayFunc(display);
-	init();
+	Init();
 
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
 	timer(globalTime);

@@ -316,13 +316,49 @@
 					triangleCount*3);
 	}
 
+	//Turn side of a unit cube to a unit sphere
 	Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight)
 	{	
-		//Turn side of a unit cube to a unit sphere
-
 		//Since corner is at 0:
 		GLfloat distanceFromOriginX = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 0];
-		GLfloat distanceFromOriginY = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 1] - radius;
+		GLfloat distanceFromOriginZ = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 2];
+
+
+		GLint x, z;
+		GLint vertexCount = arrayWidth * arrayHeight;
+		GLint triangleCount = (arrayWidth-1) * (arrayHeight-1) * 2;
+		GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+		for (x = 0; x < arrayWidth; x++)
+			for (z = 0; z < arrayHeight; z++)
+			{
+				vec3 tempvecFlat = SetVector(cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] - distanceFromOriginX, 
+											 radius, 
+											 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] - distanceFromOriginZ);
+				vec3 tempvecNorm = Normalize(tempvecFlat);
+				vec3 tempvecSphere = SetVector(tempvecNorm.x * radius, 
+											   tempvecNorm.y * radius,
+											   tempvecNorm.z * radius);
+
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] = cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] + (tempvecSphere.x - tempvecFlat.x);
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1] = cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1] + (tempvecSphere.y - tempvecFlat.y);
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] = cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] + (tempvecSphere.z - tempvecFlat.z);
+			}
+
+		return LoadDataToModel(
+					cubeModel->vertexArray,					
+					cubeModel->normalArray,
+					cubeModel->texCoordArray,
+					NULL,
+					cubeModel->indexArray,
+					vertexCount,
+					triangleCount*3);
+	}
+
+		//Turn side of a unit cube to a unit sphere
+	Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight)
+	{	
+		//Since corner is at 0:
+		GLfloat distanceFromOriginX = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 0];
 		GLfloat distanceFromOriginZ = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 2];
 
 
@@ -334,11 +370,12 @@
 			for (z = 0; z < arrayHeight; z++)
 			{
 				vec3 tempvec = SetVector(cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] - distanceFromOriginX, 
-										 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1], 
-										 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] = z / 1.0 - distanceFromOriginZ);
+											 radius, 
+											 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] - distanceFromOriginZ);
 				tempvec = Normalize(tempvec);
+				
 				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] = tempvec.x * radius + distanceFromOriginX;
-				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1] = tempvec.y * radius + distanceFromOriginY;
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1] = tempvec.y * radius - radius;
 				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] = tempvec.z * radius + distanceFromOriginZ;
 			}
 

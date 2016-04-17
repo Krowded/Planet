@@ -36,6 +36,8 @@ Model* GenerateCubeTerrain(TextureData *mainTexture,
 Model* GenerateCubeTerrainSimple(TextureData *mainTexture);
 
 Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
+Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
+
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);
 

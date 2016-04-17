@@ -116,5 +116,5 @@ void initTerrain()
 	terrainModel = GenerateCubeTerrainSimple(&terrainTexture);
 	//terrainModel = GenerateCubeTerrain(&terrainTexture, &terrainTexture, &terrainTexture, &terrainTexture, &terrainTexture, TerrainModelToWorld);
 	GLfloat radius = distanceToMiddleY;
-	terrainModel = MapCubeToSphere(terrainModel, radius, terrainTexture.width, terrainTexture.height);
+	terrainModel = MapCubeToFlatSphere(terrainModel, radius, terrainTexture.width, terrainTexture.height);
 }

@@ -317,10 +317,15 @@
 	}
 
 	Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight)
-	{
-
-
+	{	
 		//Turn side of a unit cube to a unit sphere
+
+		//Since corner is at 0:
+		GLfloat distanceFromOriginX = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 0];
+		GLfloat distanceFromOriginY = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 1] - radius;
+		GLfloat distanceFromOriginZ = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 2];
+
+
 		GLint x, z;
 		GLint vertexCount = arrayWidth * arrayHeight;
 		GLint triangleCount = (arrayWidth-1) * (arrayHeight-1) * 2;
@@ -328,32 +333,14 @@
 		for (x = 0; x < arrayWidth; x++)
 			for (z = 0; z < arrayHeight; z++)
 			{
-				// Vertex array to turn into unit sphere
-				vertexArray[(x + z * arrayWidth)*3 + 0] = x / 1.0;
-				vertexArray[(x + z * arrayWidth)*3 + 1] = 1 / 1.0;
-				vertexArray[(x + z * arrayWidth)*3 + 2] = z / 1.0;
+				vec3 tempvec = SetVector(cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] - distanceFromOriginX, 
+										 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1], 
+										 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] = z / 1.0 - distanceFromOriginZ);
+				tempvec = Normalize(tempvec);
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] = tempvec.x * radius + distanceFromOriginX;
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 1] = tempvec.y * radius + distanceFromOriginY;
+				cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] = tempvec.z * radius + distanceFromOriginZ;
 			}
-
-
-		//Map to sphere
-		GLfloat *sphereVertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
-		for (x = 0; x < arrayWidth; x++)
-			for (z = 0; z < arrayHeight; z++)
-			{
-				GLfloat posx = vertexArray[(x + z * arrayWidth)*3 + 0];
-				GLfloat posy = vertexArray[(x + z * arrayWidth)*3 + 1];
-				GLfloat posz = vertexArray[(x + z * arrayWidth)*3 + 2];
-
-				sphereVertexArray[(x + z * arrayWidth)*3 + 0] = posx * sqrt( 1.0 - pow(posy,2.0)/2.0 - pow(posz,2.0)/2.0 + pow(posy,2.0)*pow(posz,2.0)/3.0);
-				sphereVertexArray[(x + z * arrayWidth)*3 + 1] = posy * sqrt( 1.0 - pow(posx,2.0)/2.0 - pow(posz,2.0)/2.0 + pow(posx,2.0)*pow(posz,2.0)/3.0);
-				sphereVertexArray[(x + z * arrayWidth)*3 + 2] = posz * sqrt( 1.0 - pow(posx,2.0)/2.0 - pow(posy,2.0)/2.0 + pow(posx,2.0)*pow(posy,2.0)/3.0);
-			}
-
-		GLint index;
-		for(index = 0; index < 3*vertexCount; ++index)
-		{
-			cubeModel->vertexArray[index] = cubeModel->vertexArray[index] * sphereVertexArray[index];
-		}
 
 		return LoadDataToModel(
 					cubeModel->vertexArray,					

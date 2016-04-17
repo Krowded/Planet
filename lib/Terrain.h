@@ -5,6 +5,7 @@
 #include "loadobj.h"
 #include "LoadTGA.h"
 #include "math.h"
+#include "Init.h"
 
 typedef struct offset {
 	GLfloat x;
@@ -33,7 +34,7 @@ Model* GenerateCubeTerrain(TextureData *mainTexture,
 	                       TextureData *downConnectingTexture,
 	                       mat4 modelMatrices[6]);
 
-Model* GenerateCubeTerrainSimple(TextureData *mainTexture);
+Model* GenerateCubeTerrainSimple(struct planetStruct *planet);
 
 Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
 Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);

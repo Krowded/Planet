@@ -18,8 +18,8 @@ mat4 camMatrix, camBaseMatrix, projectionMatrix;
 Model *m, *m2, *terrainModel;
 GLuint terrainProgram, modelProgram;
 GLuint tex1, tex2;
-TextureData terrainTexture;
-mat4 TerrainModelToWorld[6];
+
+struct planetStruct Planet;
 
 void initAll()
 {	
@@ -86,20 +86,21 @@ void initModels()
 void initTerrain()
 {
 	// Load terrain data
-	LoadTGATextureData("textures/fft-terrain.tga", &terrainTexture);
+	GLint i;
+	for (i = 0; i < 6; i++)
+		LoadTGATextureData("textures/fft-terrain.tga", &(Planet.terrainTexture[i]));
 
 	//Generate terrain model matrix
-	GLint i;
 	GLfloat overlap = 0;
-	GLfloat distanceToMiddleX = (terrainTexture.width*0.5)-0.5;
-	GLfloat distanceToMiddleZ = (terrainTexture.height*0.5);
+	GLfloat distanceToMiddleX = (Planet.terrainTexture[0].width*0.5)-0.5;
+	GLfloat distanceToMiddleZ = (Planet.terrainTexture[0].height*0.5);
 	GLfloat distanceToMiddleY = distanceToMiddleX - overlap;
 
 
 	for (i = 0; i < 4; ++i)
 	{
-		TerrainModelToWorld[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		TerrainModelToWorld[i] = Mult( Rz(M_PI*0.5*(GLfloat)i), TerrainModelToWorld[i] );
+		Planet.TerrainModelToWorld[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
+		Planet.TerrainModelToWorld[i] = Mult( Rz(M_PI*0.5*(GLfloat)i), Planet.TerrainModelToWorld[i] );
 	}
 	//Last two sides
 
@@ -107,14 +108,14 @@ void initTerrain()
 	distanceToMiddleY = distanceToMiddleY - 0.5;
 	for (i = 0; i < 2; ++i)
 	{
-		TerrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		TerrainModelToWorld[4+i] = Mult( Rx(M_PI*(0.5 + (GLfloat)i)), TerrainModelToWorld[4+i] );
+		Planet.TerrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
+		Planet.TerrainModelToWorld[4+i] = Mult( Rx(M_PI*(0.5 + (GLfloat)i)), Planet.TerrainModelToWorld[4+i] );
 	}
 	
 
 	//Generate terrain
-	terrainModel = GenerateCubeTerrainSimple(&terrainTexture);
-	//terrainModel = GenerateCubeTerrain(&terrainTexture, &terrainTexture, &terrainTexture, &terrainTexture, &terrainTexture, TerrainModelToWorld);
+	terrainModel = GenerateCubeTerrainSimple(&Planet);
+	//terrainModel = GenerateCubeTerrain(&Planet);
 	GLfloat radius = distanceToMiddleY;
-	terrainModel = MapCubeToFlatSphere(terrainModel, radius, terrainTexture.width, terrainTexture.height);
+	terrainModel = MapCubeToFlatSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
 }

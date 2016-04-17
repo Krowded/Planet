@@ -4,9 +4,18 @@
 #include "loadobj.h"
 #include "LoadTGA.h"
 #include "VectorUtils3.h"
-#include "Terrain.h"
+
 #include "CameraControl.h"
 #include "Physics.h"
+
+//Because declaration order matters....
+struct planetStruct {
+	TextureData terrainTexture[6];
+	mat4 TerrainModelToWorld[6];	
+};
+
+#include "Terrain.h"
+
 
 //Declare globals
 
@@ -34,6 +43,9 @@ extern GLint globalTime;
 
 //Terrain model matrices
 extern mat4 TerrainModelToWorld[6];
+
+extern struct planetStruct Planet;
+
 
 void initAll();
 void initPhysics();

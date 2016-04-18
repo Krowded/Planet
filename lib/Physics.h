@@ -3,6 +3,7 @@
 
 #include "VectorUtils3.h"
 #include "math.h"
+#include "Init.h"
 	
 	//Bool if TGA not included
 	#ifndef __TGA_LOADER__

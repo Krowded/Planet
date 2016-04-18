@@ -1,5 +1,9 @@
 #include "UpdateAndDisplay.h"
 
+
+
+GLfloat radius = 128;
+
 void display(void)
 {
 	// clear the screen
@@ -35,8 +39,8 @@ void display(void)
 	ModelToWorld = IdentityMatrix();
 	ModelToWorld = Mult( T(25*globalTime*0.0001, 0, 0), ModelToWorld);
 	vec3 currentPosition = GetCurrentPosition(ModelToWorld);
-	ModelToWorld = AdjustModelToHeightMap(ModelToWorld, 
-		 								  GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
+	//ModelToWorld = AdjustModelToHeightMap(ModelToWorld, 
+	//	 								  GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
 	total = Mult(camMatrix, ModelToWorld);
 	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(m, modelProgram, "inPosition", "inNormal", "inTexCoord");
@@ -70,7 +74,7 @@ void UpdatePosition(GLint t)
 	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix);
 	vec3 currentPosition = GetCurrentCameraPosition(camBaseMatrix);
 	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
-											GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
+											radius);//GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
 	CamUpdate(0,0);
 }
 

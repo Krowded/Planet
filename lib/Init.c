@@ -22,7 +22,11 @@ GLuint terrainProgram, modelProgram;
 GLuint tex1, tex2;
 
 struct planetStruct Planet;
-vec3 middleOfPlanet ;
+vec3 middleOfPlanet;
+
+
+
+//GLfloat radius;
 
 void InitAll()
 {	

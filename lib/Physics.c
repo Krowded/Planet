@@ -31,13 +31,29 @@
 		return isGravityOnBool;
 	}
 
-	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, GLfloat height)
+	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, GLfloat groundHeight)
 	{
-		GLfloat heightDifference = (ModelToWorldMatrix.m)[7] - height;
-		if (heightDifference < 0)
-			(ModelToWorldMatrix.m)[7] = fmin((ModelToWorldMatrix.m)[7] - heightDifference, (ModelToWorldMatrix.m)[7] + MaxFallSpeed);
-		else
-			(ModelToWorldMatrix.m)[7] = fmax((ModelToWorldMatrix.m)[7] - heightDifference, (ModelToWorldMatrix.m)[7] - MaxFallSpeed);
+		vec3 currentHeightVector = VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet);
+		GLfloat currentHeight = Norm(currentHeightVector);
+		GLfloat heightDifference = -(currentHeight - groundHeight);
+
+		fprintf(stderr, "currentHeight: %f\n", currentHeight);
+		fprintf(stderr, "HeightDifference: %f\n", heightDifference);
+		fprintf(stderr, "groundHeight: %f\n", groundHeight);
+		vec3 upVec = GetUpDirectionVec(ModelToWorldMatrix);
+		
+		if(abs(heightDifference) > 10 )
+		{
+			if ( abs(heightDifference) > MaxFallSpeed)
+				heightDifference = MaxFallSpeed;
+			
+			if(currentHeight < groundHeight)
+				heightDifference = -heightDifference;
+
+
+			mat4 translation = T(upVec.x*heightDifference, upVec.y*heightDifference, upVec.z*heightDifference);
+			ModelToWorldMatrix = Mult(translation, ModelToWorldMatrix);
+		}
 		return ModelToWorldMatrix;
 	}
 
@@ -45,7 +61,7 @@
 	{
 		if( IsGravityOn() )
 		{
-			height = -height - CameraDefaultHeight;
+			height = CameraDefaultHeight + height;
 			camBaseMatrix = AdjustModelToHeightMap(camBaseMatrix, height);
 		}
 

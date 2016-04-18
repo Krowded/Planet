@@ -51,21 +51,7 @@
 		(tempVec.m)[5] = newUpVector.y;
 		(tempVec.m)[9] = newUpVector.z;
 
-		int i;
-		fprintf(stderr, "camMatrixOrig: ");
-		for(i = 0; i < 12; i++)
-		{
-			fprintf(stderr, " %f", (camMatrix.m)[i]);
-		}
-		fprintf(stderr, "\n");
 		camMatrix = Transpose(tempVec);
-
-		fprintf(stderr, "camMatrixNew: ");
-		for(i = 0; i < 12; i++)
-		{
-			fprintf(stderr, " %f", (camMatrix.m)[i]);
-		}
-		fprintf(stderr, "\n");
 
 		return camMatrix;
 	}
@@ -74,8 +60,6 @@
 	{
 		vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet));	
 		vec3 currentP = GetCurrentCameraPosition(camMatrix);
-		//fprintf(stderr, "Current: X: %f, Y: %f, Z: %f\n", currentP.x, currentP.y, currentP.z);
-		//fprintf(stderr, "UP X: %f, Y: %f, Z: %f\n", upvec.x, upvec.y, upvec.z);
 		return upvec;
 	}
 
@@ -103,7 +87,7 @@
 			vec3 axis = CrossProduct(GetUpDirectionVec(camMatrix), GetCurrentCameraPosition(camMatrix));
 			camMatrix = Mult( ArbRotate(axis, angle), camMatrix);
 */
-			camMatrix = Mult(ArbRotate(newUp, (2*M_PI*x/512)), Mult( ArbRotate(GetRightDirectionVec(camMatrix), 2*M_PI*y/324), camMatrix));		
+			camMatrix = Mult(ArbRotate(GetUpDirectionVec(camMatrix), (2*M_PI*x/512)), Mult( ArbRotate(GetRightDirectionVec(camMatrix), 2*M_PI*y/324), camMatrix));		
 			return camMatrix;
 	}
 

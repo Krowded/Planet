@@ -40,8 +40,16 @@
 
 	vec3 GetUpDirectionVec(mat4 camMatrix)
 	{
-		mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
-		return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+		if( IsGravityOn() )
+		{
+			//mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
+			//return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+			return Normalize( VectorSub( GetCurrentCameraPosition(camMatrix), middleOfPlanet));
+		}
+		else
+		{
+			return SetVector(0, 1, 0);
+		}
 	}
 
 	mat4 SetUpDirectionVec(mat4 camMatrix, vec3 newUpVector)
@@ -58,9 +66,17 @@
 
 	vec3 GetNewUpDirectionVec(mat4 camMatrix)
 	{
-		vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet));	
-		vec3 currentP = GetCurrentCameraPosition(camMatrix);
-		return upvec;
+		if(IsGravityOn())
+		{
+			vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet));	
+			vec3 currentP = GetCurrentCameraPosition(camMatrix);
+			return upvec;
+		}
+		else
+		{
+			return SetVector(0,1,0);
+		}
+
 	}
 
 	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camMatrix, mat4 camBaseMatrix)
@@ -78,16 +94,20 @@
 				y = (GLfloat)mouseY;
 			}
 
+			vec3 upVec = GetUpDirectionVec(camMatrix);
+			vec3 rightVec = GetRightDirectionVec(camMatrix);
+			vec3 backVec = GetBackDirectionVec(camMatrix);
+			
 			vec3 newUp = GetNewUpDirectionVec(camMatrix);
 			camMatrix = SetUpDirectionVec(camBaseMatrix, newUp);
 			//fprintf(stderr, "newup: x %f y %f z %f\n", newUp.x, newUp.y, newUp.z);
-	
+	/*
+			vec3 curpos = GetCurrentCameraPosition(camBaseMatrix);
+			GLfloat angle = acos(DotProduct(upvec, curpos)/(Norm(upvec) * Norm(curpos)));
+			vec3 axis = Normalize(CrossProduct(upvec, curpos));
+			camMatrix = Mult( ArbRotate(axis, angle), camMatrix);*/
 
-			/*GLfloat angle = acos(DotProduct(GetUpDirectionVec(camMatrix), GetCurrentCameraPosition(camMatrix))/(Norm(GetUpDirectionVec(camMatrix)) * Norm(GetCurrentCameraPosition(camMatrix))));
-			vec3 axis = CrossProduct(GetUpDirectionVec(camMatrix), GetCurrentCameraPosition(camMatrix));
-			camMatrix = Mult( ArbRotate(axis, angle), camMatrix);
-*/
-			camMatrix = Mult(ArbRotate(GetUpDirectionVec(camMatrix), (2*M_PI*x/512)), Mult( ArbRotate(GetRightDirectionVec(camMatrix), 2*M_PI*y/324), camMatrix));		
+			camMatrix = Mult(ArbRotate(upVec, (2*M_PI*x/512)), Mult( ArbRotate(rightVec, 2*M_PI*y/324), camMatrix));		
 			return camMatrix;
 	}
 
@@ -144,8 +164,8 @@
 		vec3 rightDirectionVec = GetRightDirectionVec(camMatrix);
 
 		//Cant move in y direction, y direction removed, speed added
-		vec3 backVec = ScalarMult( Normalize(SetVector(backDirectionVec.x, 0, backDirectionVec.z)), speed);
-		vec3 rightVec = ScalarMult( Normalize(SetVector(rightDirectionVec.x, 0, rightDirectionVec.z)), speed);
+		vec3 backVec = ScalarMult( Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z)), speed);
+		vec3 rightVec = ScalarMult( Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z)), speed);
 		if (glutKeyIsDown('w') || glutKeyIsDown('W'))
 			camBaseMatrix = Mult( T( backVec.x, backVec.y, backVec.z), camBaseMatrix);
 		if (glutKeyIsDown('a') || glutKeyIsDown('A')) 

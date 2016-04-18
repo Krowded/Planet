@@ -33,22 +33,25 @@
 
 	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, GLfloat groundHeight)
 	{
-		vec3 currentHeightVector = VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet);
+		vec3 currentHeightVector = VectorSub(GetCurrentCameraPosition(camBaseMatrix), middleOfPlanet);
 		GLfloat currentHeight = Norm(currentHeightVector);
-		GLfloat heightDifference = -(currentHeight - groundHeight);
+		GLfloat heightDifference = currentHeight - groundHeight;
+		vec3 upVec = Normalize(currentHeightVector);//GetUpDirectionVec(ModelToWorldMatrix);
 
 		fprintf(stderr, "currentHeight: %f\n", currentHeight);
 		fprintf(stderr, "HeightDifference: %f\n", heightDifference);
-		fprintf(stderr, "groundHeight: %f\n", groundHeight);
-		vec3 upVec = GetUpDirectionVec(ModelToWorldMatrix);
+		fprintf(stderr, "UpVec: X %f, Y %f, Z %f\n", upVec.x, upVec.y, upVec.z);
 		
-		if(abs(heightDifference) > 10 )
+		if(abs(heightDifference) > 0.0 )
 		{
 			if ( abs(heightDifference) > MaxFallSpeed)
+			{
 				heightDifference = MaxFallSpeed;
+
+				if(currentHeight < groundHeight)
+					heightDifference = -heightDifference;
+			}
 			
-			if(currentHeight < groundHeight)
-				heightDifference = -heightDifference;
 
 
 			mat4 translation = T(upVec.x*heightDifference, upVec.y*heightDifference, upVec.z*heightDifference);

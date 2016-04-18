@@ -7,7 +7,7 @@ const GLfloat windowHeight = 576.0;
 const GLint drawDistance = 10000.0;
 const GLfloat nearDrawDistance = 0.2;
 const vec4 backgroundColor = {1,1,1,0};
-const GLfloat fov = 0.2;
+const GLfloat fov = 90;
 const GLfloat maxFallSpeed = 10;
 const GLfloat cameraHeight = 5;
 const GLfloat standardSpeed = 0.02;
@@ -47,13 +47,17 @@ void InitPhysics()
 
 void InitCamera()
 {
-	vec3 cam = {0, 200, 0};
-	vec3 lookAtPoint = {0, 200, -4};
+	vec3 cam = {0, 50, 0};
+	vec3 lookAtPoint = cam;
+	lookAtPoint.z -= 4.0;
 	vec3 upVector = {0.0, 1.0, 0.0};
 
-	projectionMatrix = frustum(-(windowWidth/windowHeight)*fov, (windowWidth/windowHeight)*fov, 
+	/*projectionMatrix = frustum(-(windowWidth/windowHeight)*fov, (windowWidth/windowHeight)*fov, 
 		                       -(windowHeight/windowWidth)*fov, (windowHeight/windowWidth)*fov, 
-		                       									nearDrawDistance, drawDistance);
+		                       									nearDrawDistance, drawDistance);*/
+
+	projectionMatrix = perspective(fov, windowWidth/windowHeight, nearDrawDistance, drawDistance);
+
 	camBaseMatrix = lookAt(cam.x, cam.y, cam.z,
 			    lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
 				upVector.x, upVector.y, upVector.z);

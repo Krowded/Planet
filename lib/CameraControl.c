@@ -38,6 +38,12 @@
 		return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
 	}
 
+	vec3 GetNewUpDirectionVec(vec3 currentPosition)
+	{
+		vec3 upDirection = VectorSub(currentPosition, middleOfPlanet);
+		return Normalize(upDirection);
+	}
+
 	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camMatrix, mat4 camBaseMatrix)
 	{	
 			static GLfloat x = 0;

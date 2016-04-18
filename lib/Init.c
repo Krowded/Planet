@@ -33,7 +33,7 @@ void InitAll()
 	InitShaders();
 	InitTextures();
 
-	middleOfPlanet = SetVector(Planet.terrainTexture[0].width/2, 0, Planet.terrainTexture[0].height/2);
+	middleOfPlanet = SetVector(0,0,0);//SetVector(Planet.terrainTexture[0].width/2, 0, Planet.terrainTexture[0].height/2);
 }
 
 void InitPhysics()
@@ -122,5 +122,5 @@ void InitTerrain()
 	terrainModel = GenerateCubeTerrainSimple(&Planet);
 	//terrainModel = GenerateCubeTerrain(&Planet);
 	GLfloat radius = distanceToMiddleY;
-	terrainModel = MapCubeToSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
+	terrainModel = MapCubeToFlatSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
 }

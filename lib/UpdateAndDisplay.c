@@ -1,9 +1,5 @@
 #include "UpdateAndDisplay.h"
 
-
-
-GLfloat radius = 128;
-
 void display(void)
 {
 	// clear the screen

@@ -4,6 +4,7 @@
 #include "VectorUtils3.h"
 #include "math.h"
 #include "Init.h"
+#include "PhysicsGlobals.h"
 	
 	//Bool if TGA not included
 	#ifndef __TGA_LOADER__
@@ -19,9 +20,7 @@ void SetFallSpeed(GLfloat maxFallSpeed);
 void SetCameraHeight(GLfloat cameraHeight);
 bool IsGravityOn();
 
-mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, GLfloat height);
-
-mat4 AdjustCameraToHeightMap(mat4 camBaseMatrix, GLfloat height);
+mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, GLfloat height);
 
 vec3 GetCurrentPosition(mat4 ModelToWorldMatrix);
 

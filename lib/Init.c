@@ -8,6 +8,7 @@ const GLint drawDistance = 10000.0;
 const GLfloat nearDrawDistance = 0.2;
 const vec4 backgroundColor = {1,1,1,0};
 const GLfloat fov = 90;
+
 const GLfloat maxFallSpeed = 10;
 const GLfloat cameraHeight = 5;
 const GLfloat standardSpeed = 0.02;
@@ -22,6 +23,8 @@ GLuint terrainProgram, modelProgram;
 GLuint tex1, tex2;
 TextureData terrainTexture;
 
+const const GLfloat radius = 128;
+
 struct planetStruct Planet;
 vec3 middleOfPlanet;
 
@@ -29,17 +32,10 @@ void InitAll()
 {
 	middleOfPlanet = SetVector(0,0,0);	
 	InitTerrain();
-	InitPhysics();
 	InitCamera();
-	InitCameraControls();
 	InitShaders();
 	InitTextures();
-}
-
-void InitPhysics()
-{
-	PhysicsInit(maxFallSpeed, cameraHeight);
-}
+}	
 
 void InitCamera()
 {
@@ -58,11 +54,6 @@ void InitCamera()
 			    lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
 				upVector.x, upVector.y, upVector.z);
 	camMatrix = camBaseMatrix;
-}
-
-void InitCameraControls()
-{
-	CameraControlsInit(standardSpeed, runSpeed, windowWidth, windowHeight);
 }
 
 void InitShaders()

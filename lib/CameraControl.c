@@ -1,20 +1,5 @@
 	#include "CameraControl.h"
 
-	GLfloat StandardSpeed = 0;
-	GLfloat RunSpeed = 0;
-	GLint WindowWidth = 0;
-	GLint WindowHeight = 0;
-
-	void CameraControlsInit(GLfloat standardSpeed, GLfloat runSpeed, GLint windowWidth, GLint windowHeight)
-	{
-		StandardSpeed = standardSpeed;
-		RunSpeed = runSpeed;
-		WindowWidth = windowWidth;
-		WindowHeight = windowHeight;
-	}
-
-
-
 	vec3 GetCurrentCameraPosition(mat4 camBaseMatrix)
 	{
 		//return SetVector(-(camBaseMatrix.m)[3], -(camBaseMatrix.m)[7], -(camBaseMatrix.m)[11]);
@@ -151,7 +136,7 @@
 		static GLfloat averageSpeed;
 		if (averageSpeed <= 0)
 		{
-			averageSpeed = StandardSpeed;
+			averageSpeed = standardSpeed;
 		}
 		static GLint tlast = 0;
 		GLint passedTime = t - tlast;
@@ -202,13 +187,13 @@
 			{
 				if(!zPressed)
 				{
-					if (averageSpeed == StandardSpeed)
+					if (averageSpeed == standardSpeed)
 					{
-						averageSpeed = RunSpeed;
+						averageSpeed = runSpeed;
 					}
 					else
 					{
-						averageSpeed = StandardSpeed;
+						averageSpeed = standardSpeed;
 					}
 					zPressed = true;
 				}
@@ -223,5 +208,16 @@
 		return camBaseMatrix;
 	}
 
+
+	mat4 AdjustCameraToHeightMap(mat4 camBaseMatrix, GLfloat height)
+	{
+		if( IsGravityOn() )
+		{
+			height = cameraHeight + height;
+			camBaseMatrix = AdjustModelToHeightMap(camBaseMatrix, GetCurrentCameraPosition(camBaseMatrix), height);
+		}
+
+		return camBaseMatrix;
+	}
 
 

@@ -26,7 +26,6 @@
 		{
 			mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
 			return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
-			//return SetVector(0,1,0);
 		}
 		else
 		{
@@ -39,10 +38,10 @@
 		vec3 oldUpVector = GetUpDirectionVec(camPositionMatrix);
 
 		GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
-		if( angle != 0)
+		if( angle > 0.0001)
 		{
 			vec3 axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
-			camPositionMatrix = Mult( ArbRotate(axis, angle), camPositionMatrix);
+			camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
 		}
 
 		return camPositionMatrix;
@@ -78,14 +77,14 @@
 			}
 			
 			vec3 newUp = GetNewUpDirectionVec(camPositionMatrix);
-			//camRotatedMatrix = ChangeUpDirection(camPositionMatrix, newUp);
+			camRotatedMatrix = ChangeUpDirection(camPositionMatrix, newUp);
 
-			vec3 upvec = GetNewUpDirectionVec(camPositionMatrix);
-			vec3 rightvec = GetRightDirectionVec(camRotatedMatrix);
-
-			camRotatedMatrix = Mult( ArbRotate(rightvec, 2*M_PI*y/324), camPositionMatrix);		
+			vec3 upvec = SetVector(0,1,0);//GetNewUpDirectionVec(camPositionMatrix);
+			vec3 rightvec = SetVector(1,0,0);//GetRightDirectionVec(camRotatedMatrix);
 			camRotatedMatrix = Mult( ArbRotate(upvec, (2*M_PI*x/512)), camRotatedMatrix);
 			
+			fprintf(stderr, "rightvec: x %f y %f z %f\n", rightvec.x, rightvec.y, rightvec.z);
+			camRotatedMatrix = Mult( ArbRotate(rightvec, 2*M_PI*y/324), camRotatedMatrix);		
 
 			return camRotatedMatrix;
 	}

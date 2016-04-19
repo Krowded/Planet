@@ -7,6 +7,8 @@
 #include "math.h"
 #include "Init.h"
 
+extern struct planetStruct planet;
+
 typedef struct offset {
 	GLfloat x;
 	GLfloat y;

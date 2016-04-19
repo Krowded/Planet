@@ -20,20 +20,38 @@ mat4 camMatrix, camBaseMatrix, projectionMatrix;
 Model *m, *m2, *terrainModel;
 GLuint terrainProgram, modelProgram;
 GLuint tex1, tex2;
-TextureData terrainTexture;
 
+<<<<<<< HEAD
 struct planetStruct Planet;
 vec3 middleOfPlanet;
 
+
+
+//GLfloat radius;
+
 void InitAll()
-{
-	middleOfPlanet = SetVector(0,0,0);	
+{	
 	InitTerrain();
 	InitPhysics();
 	InitCamera();
 	InitCameraControls();
 	InitShaders();
 	InitTextures();
+
+	middleOfPlanet = SetVector(0,0,0);//SetVector(Planet.terrainTexture[0].width/2, 0, Planet.terrainTexture[0].height/2);
+=======
+vec3 middleOfPlanet;
+
+void initAll()
+{
+	middleOfPlanet = SetVector(0,0,0);	
+	initTerrain();
+	initPhysics();
+	initCamera();
+	intiCameraControls();
+	initShaders();
+	initTextures();
+>>>>>>> master
 }
 
 void InitPhysics()

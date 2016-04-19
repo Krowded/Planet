@@ -5,7 +5,11 @@
 #include "VectorUtils3.h"
 #include "Physics.h"
 #include <stdlib.h>
+<<<<<<< HEAD
+//#include "Init.h"
+=======
 #include "Init.h"
+>>>>>>> master
 
 
 void CameraControlsInit(GLfloat standarSpeed, GLfloat runSpeed, GLint windowWidth, GLint windowHeight);

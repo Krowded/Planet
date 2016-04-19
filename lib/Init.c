@@ -23,7 +23,7 @@ GLuint terrainProgram, modelProgram;
 GLuint tex1, tex2;
 TextureData terrainTexture;
 
-const const GLfloat radius = 128;
+const GLfloat radius = 128;
 
 struct planetStruct Planet;
 vec3 middleOfPlanet;
@@ -39,7 +39,7 @@ void InitAll()
 
 void InitCamera()
 {
-	vec3 cam = {0, 50, 0};
+	vec3 cam = {0, 100, 0};
 	vec3 lookAtPoint = cam;
 	lookAtPoint.z -= 4.0;
 	vec3 upVector = {0.0, 1.0, 0.0};

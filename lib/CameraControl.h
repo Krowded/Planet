@@ -8,17 +8,17 @@
 #include "ControlGlobals.h"
 #include "Init.h"
 
-vec3 GetCurrentCameraPosition(mat4 camBaseMatrix);
-vec3 GetBackDirectionVec(mat4 camMatrix);
-vec3 GetRightDirectionVec(mat4 camMatrix);
-vec3 GetUpDirectionVec(mat4 camMatrix);
-vec3 GetNewUpDirectionVec(mat4 camMatrix);
-mat4 SetUpDirectionVec(mat4 camMatrix, vec3 newUpDirection);
+vec3 GetCurrentCameraPosition(mat4 camPositionMatrix);
+vec3 GetBackDirectionVec(mat4 camRotatedMatrix);
+vec3 GetRightDirectionVec(mat4 camRotatedMatrix);
+vec3 GetUpDirectionVec(mat4 camRotatedMatrix);
+vec3 GetNewUpDirectionVec(mat4 camRotatedMatrix);
+mat4 ChangeUpDirection(mat4 camRotatedMatrix, vec3 newUpDirection);
 
-mat4 CameraControl(GLint t, mat4 camMatrix, mat4 camBaseMatrix);
-mat4 CameraMouseUpdate(GLint x, GLint y, mat4 camMatrix, mat4 camBaseMatrix);
+mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix);
+mat4 CameraMouseUpdate(GLint x, GLint y, mat4 camRotatedMatrix, mat4 camPositionMatrix);
 void CamUpdate(GLint mouseX, GLint mouseY);
 void UpdatePosition(GLint t);
-mat4 AdjustCameraToHeightMap(mat4 camBaseMatrix, GLfloat height);
+mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, GLfloat height);
 
 #endif

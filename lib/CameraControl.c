@@ -1,35 +1,33 @@
 	#include "CameraControl.h"
 
-	vec3 GetCurrentCameraPosition(mat4 camBaseMatrix)
+	vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 	{
-		//return SetVector(-(camBaseMatrix.m)[3], -(camBaseMatrix.m)[7], -(camBaseMatrix.m)[11]);
-
-
-		mat4 inverseMat = InvertMat4(camBaseMatrix);
+		mat4 inverseMat = InvertMat4(camPositionMatrix);
 		vec3 pos = SetVector((inverseMat.m)[3], (inverseMat.m)[7], (inverseMat.m)[11]);
 		return pos;
 
 	}
 
-	vec3 GetBackDirectionVec(mat4 camMatrix)
+	vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
 	{
-		mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
+		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
 		return Normalize(SetVector( (directions.m)[2], (directions.m)[6], (directions.m)[10]));
 	}
 
-	vec3 GetRightDirectionVec(mat4 camMatrix)
+	vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
 	{
-		mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
+		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
+		fprintf(stderr, "%f %f %f \n",(directions.m)[0], (directions.m)[4], (directions.m)[8]);
 		return Normalize(SetVector( (directions.m)[0], (directions.m)[4], (directions.m)[8]));	
 	}
 
-	vec3 GetUpDirectionVec(mat4 camMatrix)
+	vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 	{
 		if( IsGravityOn() )
 		{
-			//mat4 directions = Transpose(camMatrix); //Taking the inverse, kinda pointless
-			//return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
-			return Normalize( VectorSub( GetCurrentCameraPosition(camMatrix), middleOfPlanet));
+			mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
+			return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+			//return SetVector(0,1,0);
 		}
 		else
 		{
@@ -37,24 +35,25 @@
 		}
 	}
 
-	mat4 SetUpDirectionVec(mat4 camMatrix, vec3 newUpVector)
+	mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 	{
-		mat4 tempVec = Transpose(camMatrix);
-		(tempVec.m)[1] = newUpVector.x;
-		(tempVec.m)[5] = newUpVector.y;
-		(tempVec.m)[9] = newUpVector.z;
+		vec3 oldUpVector = GetUpDirectionVec(camPositionMatrix);
 
-		camMatrix = Transpose(tempVec);
+		GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
+		if( angle != 0)
+		{
+			vec3 axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
+			camPositionMatrix = Mult( ArbRotate(axis, angle), camPositionMatrix);
+		}
 
-		return camMatrix;
+		return camPositionMatrix;
 	}
 
-	vec3 GetNewUpDirectionVec(mat4 camMatrix)
+	vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
 	{
 		if(IsGravityOn())
 		{
-			vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camMatrix), middleOfPlanet));	
-			vec3 currentP = GetCurrentCameraPosition(camMatrix);
+			vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camPositionMatrix), middleOfPlanet));	
 			return upvec;
 		}
 		else
@@ -64,7 +63,7 @@
 
 	}
 
-	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camMatrix, mat4 camBaseMatrix)
+	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 	{	
 			static GLfloat x = 0;
 			static GLfloat y = 0;	
@@ -78,60 +77,22 @@
 				if (mouseY < 375 && mouseY > 276)
 				y = (GLfloat)mouseY;
 			}
-
-			vec3 upVec = GetUpDirectionVec(camMatrix);
-			vec3 rightVec = GetRightDirectionVec(camMatrix);
-			vec3 backVec = GetBackDirectionVec(camMatrix);
 			
-			vec3 newUp = GetNewUpDirectionVec(camMatrix);
-			camMatrix = SetUpDirectionVec(camBaseMatrix, newUp);
-			//fprintf(stderr, "newup: x %f y %f z %f\n", newUp.x, newUp.y, newUp.z);
-	/*
-			vec3 curpos = GetCurrentCameraPosition(camBaseMatrix);
-			GLfloat angle = acos(DotProduct(upvec, curpos)/(Norm(upvec) * Norm(curpos)));
-			vec3 axis = Normalize(CrossProduct(upvec, curpos));
-			camMatrix = Mult( ArbRotate(axis, angle), camMatrix);*/
+			vec3 newUp = GetNewUpDirectionVec(camPositionMatrix);
+			//camRotatedMatrix = ChangeUpDirection(camPositionMatrix, newUp);
 
-			camMatrix = Mult(ArbRotate(upVec, (2*M_PI*x/512)), Mult( ArbRotate(rightVec, 2*M_PI*y/324), camMatrix));		
-			return camMatrix;
-	}
+			vec3 upvec = GetNewUpDirectionVec(camPositionMatrix);
+			vec3 rightvec = GetRightDirectionVec(camRotatedMatrix);
 
+			camRotatedMatrix = Mult( ArbRotate(rightvec, 2*M_PI*y/324), camPositionMatrix);		
+			camRotatedMatrix = Mult( ArbRotate(upvec, (2*M_PI*x/512)), camRotatedMatrix);
+			
 
-	mat4 RotateArbAxis(mat4 matrix, vec3 axis, GLfloat angle)
-	{
-		axis = Normalize(axis);
-		mat4 Rot;
-		(Rot.m)[0] = cos(angle) + pow(axis.x, 2) * (1.0 - cos(angle));
-		(Rot.m)[1] = axis.x * axis.y * (1 - cos(angle)) - axis.z * sin(angle);
-		(Rot.m)[2] = axis.x * axis.z * (1 - cos(angle)) + axis.y * sin(angle);
-		(Rot.m)[3] = 0.0;
-
-		(Rot.m)[4] = axis.x * axis.y * (1 - cos(angle)) + axis.z * sin(angle);
-		(Rot.m)[5] = cos(angle) + pow(axis.z, 2) * (1 - cos(angle));
-		(Rot.m)[6] = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
-		(Rot.m)[7] = 0.0;
-
-		(Rot.m)[8] = axis.x * axis.z * (1 - cos(angle)) - axis.y * sin(angle);
-		(Rot.m)[9] = axis.y * axis.z * (1 - cos(angle)) + axis.x * sin(angle);
-		(Rot.m)[10] = axis.x * axis.z * (1 - cos(angle)) + axis.y * sin(angle);
-		(Rot.m)[11] = 1.0;
-
-		mat4 tempMatrix = matrix;
-		(tempMatrix.m)[3] = 0.0;
-		(tempMatrix.m)[7] = 0.0;
-		(tempMatrix.m)[11] = 1.0;
-
-		tempMatrix = Mult(Rot, tempMatrix);
-
-		(tempMatrix.m)[3] = (matrix.m)[3];
-		(tempMatrix.m)[7] = (matrix.m)[7];
-		(tempMatrix.m)[11] = (matrix.m)[11];
-
-		return tempMatrix;
+			return camRotatedMatrix;
 	}
 
 	//Read keyboard input and update camera position
-	mat4 CameraControl(GLint t, mat4 camMatrix, mat4 camBaseMatrix)
+	mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 	{
 		static GLfloat averageSpeed;
 		if (averageSpeed <= 0)
@@ -145,24 +106,34 @@
 		GLfloat speed = (GLfloat)passedTime * averageSpeed;
 		
 
-		vec3 backDirectionVec = GetBackDirectionVec(camMatrix);
-		vec3 rightDirectionVec = GetRightDirectionVec(camMatrix);
+		vec3 backDirectionVec = GetBackDirectionVec(camRotatedMatrix);
+		vec3 rightDirectionVec = GetRightDirectionVec(camRotatedMatrix);
 
-		//Cant move in y direction, y direction removed, speed added
-		vec3 backVec = ScalarMult( Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z)), speed);
-		vec3 rightVec = ScalarMult( Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z)), speed);
+		//Can only move perpendicular to planet -> remove projection onto normal
+		vec3 upVec = GetNewUpDirectionVec(camPositionMatrix);
+
+		vec3 backVec = Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z));
+		vec3 backVecProj = ScalarMult(upVec, DotProduct(backVec, upVec));
+		backVec = VectorSub( backVec, backVecProj);
+		backVec = ScalarMult(backVec, speed);
+
+		vec3 rightVec = Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z));
+		vec3 rightVecProj = ScalarMult(upVec, DotProduct(rightVec, upVec));
+		rightVec = VectorSub( rightVec, rightVecProj);
+		rightVec = ScalarMult(rightVec, speed);
+		
 		if (glutKeyIsDown('w') || glutKeyIsDown('W'))
-			camBaseMatrix = Mult( T( backVec.x, backVec.y, backVec.z), camBaseMatrix);
+			camPositionMatrix = Mult( T( backVec.x, backVec.y, backVec.z), camPositionMatrix);
 		if (glutKeyIsDown('a') || glutKeyIsDown('A')) 
-			camBaseMatrix = Mult( T( rightVec.x, rightVec.y, rightVec.z), camBaseMatrix);
+			camPositionMatrix = Mult( T( rightVec.x, rightVec.y, rightVec.z), camPositionMatrix);
 		if (glutKeyIsDown('s') || glutKeyIsDown('S'))
-			camBaseMatrix = Mult( T( -backVec.x, -backVec.y, -backVec.z), camBaseMatrix);
+			camPositionMatrix = Mult( T( -backVec.x, -backVec.y, -backVec.z), camPositionMatrix);
 		if (glutKeyIsDown('d') || glutKeyIsDown('D'))
-			camBaseMatrix = Mult( T( -rightVec.x, -rightVec.y, -rightVec.z), camBaseMatrix);
+			camPositionMatrix = Mult( T( -rightVec.x, -rightVec.y, -rightVec.z), camPositionMatrix);
 		if (glutKeyIsDown('q') || glutKeyIsDown('Q'))
-			camBaseMatrix = Mult( T( 0, speed, 0), camBaseMatrix);
+			camPositionMatrix = Mult( T( 0, speed, 0), camPositionMatrix);
 		if (glutKeyIsDown('e') || glutKeyIsDown('E'))
-			camBaseMatrix = Mult( T( 0, -speed, 0), camBaseMatrix);
+			camPositionMatrix = Mult( T( 0, -speed, 0), camPositionMatrix);
 
 
 		{ //static scope limiter
@@ -204,20 +175,19 @@
 			}
 		}
 
-		
-		return camBaseMatrix;
+		return camPositionMatrix;
 	}
 
 
-	mat4 AdjustCameraToHeightMap(mat4 camBaseMatrix, GLfloat height)
+	mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, GLfloat height)
 	{
 		if( IsGravityOn() )
 		{
 			height = cameraHeight + height;
-			camBaseMatrix = AdjustModelToHeightMap(camBaseMatrix, GetCurrentCameraPosition(camBaseMatrix), height);
+			camPositionMatrix = AdjustModelToHeightMap(camPositionMatrix, GetCurrentCameraPosition(camPositionMatrix), height);
 		}
 
-		return camBaseMatrix;
+		return camPositionMatrix;
 	}
 
 

@@ -35,6 +35,8 @@ extern GLint globalTime;
 //Terrain model matrices
 extern mat4 TerrainModelToWorld[6];
 
+extern vec3 middleOfPlanet;
+
 void initAll();
 void initPhysics();
 void initCamera();

@@ -21,8 +21,11 @@ GLuint tex1, tex2;
 TextureData terrainTexture;
 mat4 TerrainModelToWorld[6];
 
+vec3 middleOfPlanet;
+
 void initAll()
-{	
+{
+	middleOfPlanet = SetVector(0,0,0);	
 	initTerrain();
 	initPhysics();
 	initCamera();

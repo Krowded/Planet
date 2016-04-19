@@ -22,15 +22,13 @@
 
 	vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 	{
+		static vec3 upVec = {0, 1, 0};
 		if( IsGravityOn() )
 		{
 			mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
-			return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+			upVec = Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
 		}
-		else
-		{
-			return SetVector(0, 1, 0);
-		}
+		return upVec;
 	}
 
 	mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
@@ -49,16 +47,12 @@
 
 	vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
 	{
+		static vec3 upvec = {0, 1, 0};
 		if(IsGravityOn())
 		{
-			vec3 upvec = Normalize(VectorSub(GetCurrentCameraPosition(camPositionMatrix), middleOfPlanet));	
-			return upvec;
+			upvec = Normalize(VectorSub(GetCurrentCameraPosition(camPositionMatrix), middleOfPlanet));	
 		}
-		else
-		{
-			return SetVector(0,1,0);
-		}
-
+		return upvec;
 	}
 
 	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camRotatedMatrix, mat4 camPositionMatrix)
@@ -78,13 +72,8 @@
 			
 			vec3 newUp = GetNewUpDirectionVec(camPositionMatrix);
 			camRotatedMatrix = ChangeUpDirection(camPositionMatrix, newUp);
-
-			vec3 upvec = SetVector(0,1,0);//GetNewUpDirectionVec(camPositionMatrix);
-			vec3 rightvec = SetVector(1,0,0);//GetRightDirectionVec(camRotatedMatrix);
-			camRotatedMatrix = Mult( ArbRotate(upvec, (2*M_PI*x/512)), camRotatedMatrix);
-			
-			fprintf(stderr, "rightvec: x %f y %f z %f\n", rightvec.x, rightvec.y, rightvec.z);
-			camRotatedMatrix = Mult( ArbRotate(rightvec, 2*M_PI*y/324), camRotatedMatrix);		
+			camRotatedMatrix = Mult( Ry(2*M_PI*x/512), camRotatedMatrix);
+			camRotatedMatrix = Mult( Rx(2*M_PI*y/324), camRotatedMatrix);		
 
 			return camRotatedMatrix;
 	}
@@ -111,13 +100,16 @@
 		vec3 upVec = GetNewUpDirectionVec(camPositionMatrix);
 
 		vec3 backVec = Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z));
-		vec3 backVecProj = ScalarMult(upVec, DotProduct(backVec, upVec));
-		backVec = VectorSub( backVec, backVecProj);
-		backVec = ScalarMult(backVec, speed);
-
 		vec3 rightVec = Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z));
-		vec3 rightVecProj = ScalarMult(upVec, DotProduct(rightVec, upVec));
-		rightVec = VectorSub( rightVec, rightVecProj);
+		if ( IsGravityOn() )
+		{
+			vec3 backVecProj = ScalarMult(upVec, DotProduct(backVec, upVec));
+			backVec = Normalize(VectorSub( backVec, backVecProj));
+			
+			vec3 rightVecProj = ScalarMult(upVec, DotProduct(rightVec, upVec));
+			rightVec = Normalize(VectorSub( rightVec, rightVecProj));
+		}
+		backVec = ScalarMult(backVec, speed);		
 		rightVec = ScalarMult(rightVec, speed);
 		
 		if (glutKeyIsDown('w') || glutKeyIsDown('W'))

@@ -22,18 +22,26 @@
 
 	vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 	{
+		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
+		vec3 upVec = Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+		return upVec;
+	}
+
+	vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
+	{
 		static vec3 upVec = {0, 1, 0};
 		if( IsGravityOn() )
 		{
-			mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
-			upVec = Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
+			upVec = GetUpDirectionVec(camRotatedMatrix);
 		}
 		return upVec;
 	}
 
+
+
 	mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 	{
-		vec3 oldUpVector = GetUpDirectionVec(camPositionMatrix);
+		vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
 
 		GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
 		if( angle > 0.0001)
@@ -66,7 +74,7 @@
 				x = (GLfloat)mouseX;
 
 				//Clamp Y
-				if (mouseY < 375 && mouseY > 276)
+				if (mouseY < 512 && mouseY > 0)
 				y = (GLfloat)mouseY;
 			}
 			
@@ -91,26 +99,24 @@
 		tlast = t;	
 		
 		GLfloat speed = (GLfloat)passedTime * averageSpeed;
-		
-
-		vec3 backDirectionVec = GetBackDirectionVec(camRotatedMatrix);
-		vec3 rightDirectionVec = GetRightDirectionVec(camRotatedMatrix);
 
 		//Can only move perpendicular to planet -> remove projection onto normal
-		vec3 upVec = GetNewUpDirectionVec(camPositionMatrix);
+		vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix);
 
-		vec3 backVec = Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z));
-		vec3 rightVec = Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z));
+		vec3 upVec = GetUpDirectionVec(camRotatedMatrix);
+		vec3 backVec = GetBackDirectionVec(camRotatedMatrix);//Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z));
+		vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);//Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z));
 		if ( IsGravityOn() )
 		{
-			vec3 backVecProj = ScalarMult(upVec, DotProduct(backVec, upVec));
+			vec3 backVecProj = ScalarMult(gravUpVec, DotProduct(backVec, gravUpVec));
 			backVec = Normalize(VectorSub( backVec, backVecProj));
 			
-			vec3 rightVecProj = ScalarMult(upVec, DotProduct(rightVec, upVec));
+			vec3 rightVecProj = ScalarMult(gravUpVec, DotProduct(rightVec, gravUpVec));
 			rightVec = Normalize(VectorSub( rightVec, rightVecProj));
 		}
 		backVec = ScalarMult(backVec, speed);		
 		rightVec = ScalarMult(rightVec, speed);
+		upVec = ScalarMult(upVec, speed);
 		
 		if (glutKeyIsDown('w') || glutKeyIsDown('W'))
 			camPositionMatrix = Mult( T( backVec.x, backVec.y, backVec.z), camPositionMatrix);
@@ -121,9 +127,9 @@
 		if (glutKeyIsDown('d') || glutKeyIsDown('D'))
 			camPositionMatrix = Mult( T( -rightVec.x, -rightVec.y, -rightVec.z), camPositionMatrix);
 		if (glutKeyIsDown('q') || glutKeyIsDown('Q'))
-			camPositionMatrix = Mult( T( 0, speed, 0), camPositionMatrix);
+			camPositionMatrix = Mult( T( upVec.x, upVec.y, upVec.z), camPositionMatrix);
 		if (glutKeyIsDown('e') || glutKeyIsDown('E'))
-			camPositionMatrix = Mult( T( 0, -speed, 0), camPositionMatrix);
+			camPositionMatrix = Mult( T( -upVec.x, -upVec.y, -upVec.z), camPositionMatrix);
 
 
 		{ //static scope limiter

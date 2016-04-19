@@ -13,16 +13,12 @@
 		return isGravityOnBool;
 	}
 
-	mat4 AdjustModelToHeightMap(mat4 camBaseMatrix, vec3 currentPosition, GLfloat groundHeight)
+	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, GLfloat groundHeight)
 	{
 		vec3 currentHeightVector = VectorSub(currentPosition, middleOfPlanet);
 		GLfloat currentHeight = Norm(currentHeightVector);
 		GLfloat heightDifference = currentHeight - groundHeight;
 		vec3 upVec = Normalize(currentHeightVector);//GetUpDirectionVec(ModelToWorldMatrix);
-
-		fprintf(stderr, "currentHeight: %f\n", currentHeight);
-		fprintf(stderr, "HeightDifference: %f\n", heightDifference);
-		fprintf(stderr, "UpVec: X %f, Y %f, Z %f\n", upVec.x, upVec.y, upVec.z);
 		
 		if(abs(heightDifference) > 0.0 )
 		{
@@ -37,9 +33,9 @@
 
 
 			mat4 translation = T(upVec.x*heightDifference, upVec.y*heightDifference, upVec.z*heightDifference);
-			camBaseMatrix = Mult(translation, camBaseMatrix);
+			ModelToWorldMatrix = Mult(translation, ModelToWorldMatrix);
 		}
-		return camBaseMatrix;
+		return ModelToWorldMatrix;
 	}
 
 

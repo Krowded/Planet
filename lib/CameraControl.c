@@ -17,7 +17,6 @@
 	vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
 	{
 		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
-		fprintf(stderr, "%f %f %f \n",(directions.m)[0], (directions.m)[4], (directions.m)[8]);
 		return Normalize(SetVector( (directions.m)[0], (directions.m)[4], (directions.m)[8]));	
 	}
 

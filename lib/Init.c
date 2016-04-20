@@ -9,6 +9,8 @@ const GLfloat nearDrawDistance = 0.2;
 const vec4 backgroundColor = {1,1,1,0};
 const GLfloat fov = 90;
 
+const vec3 startingUp = {0, 1, 0};
+
 const GLfloat maxFallSpeed = 10;
 const GLfloat cameraHeight = 5;
 const GLfloat standardSpeed = 0.02;
@@ -44,10 +46,6 @@ void InitCamera()
 	lookAtPoint.z -= 4.0;
 	vec3 upVector = {0.0, 1.0, 0.0};
 
-	/*projectionMatrix = frustum(-(windowWidth/windowHeight)*fov, (windowWidth/windowHeight)*fov, 
-		                       -(windowHeight/windowWidth)*fov, (windowHeight/windowWidth)*fov, 
-		                       									nearDrawDistance, drawDistance);*/
-
 	projectionMatrix = perspective(fov, windowWidth/windowHeight, nearDrawDistance, drawDistance);
 
 	camBaseMatrix = lookAt(cam.x, cam.y, cam.z,
@@ -67,7 +65,6 @@ void InitShaders()
 
 void InitTextures()
 {
-
 	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
@@ -92,7 +89,7 @@ void InitTerrain()
 
 	//Generate terrain model matrix
 	GLfloat overlap = 0;
-	GLfloat distanceToMiddleX = (Planet.terrainTexture[0].width*0.5)-0.5;
+	GLfloat distanceToMiddleX = (Planet.terrainTexture[0].width*0.5);
 	GLfloat distanceToMiddleZ = (Planet.terrainTexture[0].height*0.5);
 	GLfloat distanceToMiddleY = distanceToMiddleX - overlap;
 
@@ -104,8 +101,8 @@ void InitTerrain()
 	}
 	//Last two sides
 
-	distanceToMiddleZ = distanceToMiddleZ - 0.5;
-	distanceToMiddleY = distanceToMiddleY - 0.5;
+	//distanceToMiddleZ = distanceToMiddleZ - 0.5;
+	//distanceToMiddleY = distanceToMiddleY - 0.5;
 	for (i = 0; i < 2; ++i)
 	{
 		Planet.TerrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);

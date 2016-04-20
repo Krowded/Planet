@@ -2,29 +2,29 @@
 
 	vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 	{
-		mat4 inverseMat = InvertMat4(camPositionMatrix);
-		vec3 pos = SetVector((inverseMat.m)[3], (inverseMat.m)[7], (inverseMat.m)[11]);
-		return pos;
-
+		mat4 inverseMat = InvertMat4(camPositionMatrix); 
+		return SetVector((inverseMat.m)[3], (inverseMat.m)[7], (inverseMat.m)[11]);
 	}
 
 	vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
 	{
-		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
+		//mat4 directions = InvertMat4(camRotatedMatrix); //Only needed if there is scaling?
+		mat4 directions = Transpose(camRotatedMatrix);
 		return Normalize(SetVector( (directions.m)[2], (directions.m)[6], (directions.m)[10]));
 	}
 
 	vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
 	{
-		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
+		//mat4 directions = InvertMat4(camRotatedMatrix);
+		mat4 directions = Transpose(camRotatedMatrix);
 		return Normalize(SetVector( (directions.m)[0], (directions.m)[4], (directions.m)[8]));	
 	}
 
 	vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 	{
-		mat4 directions = InvertMat4(camRotatedMatrix); //Taking the inverse, kinda pointless
-		vec3 upVec = Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
-		return upVec;
+		//mat4 directions = InvertMat4(camRotatedMatrix);
+		mat4 directions = Transpose(camRotatedMatrix);
+		return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
 	}
 
 	vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
@@ -37,22 +37,6 @@
 		return upVec;
 	}
 
-
-
-	mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
-	{
-		vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
-
-		GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
-		if( angle > 0.0001)
-		{
-			vec3 axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
-			camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
-		}
-
-		return camPositionMatrix;
-	}
-
 	vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
 	{
 		static vec3 upvec = {0, 1, 0};
@@ -63,6 +47,28 @@
 		return upvec;
 	}
 
+	mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
+	{
+		vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
+		static vec3 axis = {0, 1, 0};
+		GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
+		if( angle > 0.0001 && angle < M_PI - 0.0001)
+		{
+			axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
+		}
+		camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
+		fprintf(stderr, "Axis x %f y %f z %f\n", axis.x, axis.y, axis.z);
+		//fprintf(stderr, "%f\n", DotProduct(axis));
+		//fprintf(stderr, "Angle %f\n", angle);
+		//fprintf(stderr, "Old x %f y %f z %f\n", oldUpVector.x, oldUpVector.y, oldUpVector.z);
+//		fprintf(stderr, "new x %f y %f z %f\n", newUpVector.x, newUpVector.y, newUpVector.z);
+
+		return camPositionMatrix;
+	}
+
+
+
+	//TODO: Separate update from mouse update
 	mat4 CameraMouseUpdate(GLint mouseX, GLint mouseY, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 	{	
 			static GLfloat x = 0;
@@ -72,16 +78,13 @@
 			if (mouseY != 0)
 			{
 				x = (GLfloat)mouseX;
-
-				//Clamp Y
-				if (mouseY < 512 && mouseY > 0)
 				y = (GLfloat)mouseY;
 			}
 			
 			vec3 newUp = GetNewUpDirectionVec(camPositionMatrix);
 			camRotatedMatrix = ChangeUpDirection(camPositionMatrix, newUp);
-			camRotatedMatrix = Mult( Ry(2*M_PI*x/512), camRotatedMatrix);
-			camRotatedMatrix = Mult( Rx(2*M_PI*y/324), camRotatedMatrix);		
+			camRotatedMatrix = Mult( Ry(2*M_PI*x/(windowWidth*0.5)), camRotatedMatrix);
+			camRotatedMatrix = Mult( Rx(2*M_PI*y/(windowHeight*0.5)), camRotatedMatrix);		
 
 			return camRotatedMatrix;
 	}
@@ -100,14 +103,18 @@
 		
 		GLfloat speed = (GLfloat)passedTime * averageSpeed;
 
-		//Can only move perpendicular to planet -> remove projection onto normal
-		vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix);
-
 		vec3 upVec = GetUpDirectionVec(camRotatedMatrix);
-		vec3 backVec = GetBackDirectionVec(camRotatedMatrix);//Normalize(SetVector(backDirectionVec.x, backDirectionVec.y, backDirectionVec.z));
-		vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);//Normalize(SetVector(rightDirectionVec.x, rightDirectionVec.y, rightDirectionVec.z));
+		vec3 backVec = GetBackDirectionVec(camRotatedMatrix);
+		vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);
+
+		vec3 pos = GetCurrentCameraPosition(camPositionMatrix);
+		fprintf(stderr, "Position: x %f y %f z %f\n", pos.x, pos.y, pos.z);
+
+		//Can only move perpendicular to planet -> remove projection onto normal
 		if ( IsGravityOn() )
 		{
+			vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix);
+
 			vec3 backVecProj = ScalarMult(gravUpVec, DotProduct(backVec, gravUpVec));
 			backVec = Normalize(VectorSub( backVec, backVecProj));
 			

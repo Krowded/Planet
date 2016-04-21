@@ -7,6 +7,8 @@
 #include "math.h"
 #include "Init.h"
 
+
+
 #define LOCAL static
 
 extern struct planetStruct planet;
@@ -27,8 +29,11 @@ LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
 LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex);
 LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
 
+void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* ter);
 
-Model* GenerateTerrain(TextureData*);
+LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned char* data);
+
+Model* GenerateTerrainFromTexture(TextureData *tex);
 
 Model* GenerateCubeTerrain(TextureData *mainTexture, 
 						   TextureData *leftConnectingTexture, 

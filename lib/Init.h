@@ -15,7 +15,9 @@
 //Because declaration order matters....
 struct planetStruct {
 	TextureData terrainTexture[6];
-	mat4 TerrainModelToWorld[6];	
+	mat4 TerrainModelToWorld[6];
+	GLint radius;
+	vec3 midPoint;
 };
 
 

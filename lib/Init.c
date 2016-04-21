@@ -38,6 +38,8 @@ void InitAll()
 {
 	InitWindow(windowWidth, windowHeight);
 	middleOfPlanet = SetVector(0,0,0);
+	Planet.midPoint = SetVector(0,0,0);
+	Planet.radius = radius;
 	InitTerrain();
 	InitCamera();
 	InitShaders();
@@ -113,13 +115,15 @@ LOCAL void InitTerrain()
 		Planet.TerrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
 		Planet.TerrainModelToWorld[4+i] = Mult( Rx(M_PI*(0.5 + (GLfloat)i)), Planet.TerrainModelToWorld[4+i] );
 	}
-	
 
+	TextureData* tex = malloc(sizeof(TextureData));
+	GenerateProceduralTerrainTexture(256, tex);
 	//Generate terrain
-	terrainModel = GenerateCubeTerrainSimple(&Planet);
+	//terrainModel = GenerateCubeTerrainSimple(&Planet);
+	//terrainModel = GenerateTerrainFromTexture(tex);
 	//terrainModel = GenerateCubeTerrain(&Planet);
 	GLfloat radius = distanceToMiddleY;
-	terrainModel = MapCubeToFlatSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
+	//terrainModel = MapCubeToFlatSphere(terrainMode, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
 }
 
 

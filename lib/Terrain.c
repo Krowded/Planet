@@ -1,4 +1,5 @@
 #include "Terrain.h"
+#include "kiss_fft/kiss_fftndr.h"
 
 struct offset TerrainOffset;
 
@@ -101,7 +102,103 @@ LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray
 
 }
 
-Model* GenerateTerrain(TextureData *tex)
+
+
+void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainTexture)
+{
+	GLint size = sideLength*sideLength;
+	
+
+	kiss_fft_scalar image[size];
+	kiss_fft_cpx transform[size/2+1];
+	GLint dims[2] = {sideLength, sideLength};
+	GLint ndims = 2;
+
+	GLint i;
+	for (i = 0; i < size; i++)
+	{
+		image[i] = rand();
+	}
+
+	kiss_fftndr_cfg cfg = kiss_fftndr_alloc(dims, ndims, false, NULL, NULL);
+
+	kiss_fftndr(cfg, image, transform);
+	
+
+
+	// apply 1/(f^p) filter
+	double f;
+	int j, index;
+	int power = 1;
+	for (j = 0; j < sideLength/2; j++) {
+	    for (i = 0; i < sideLength/2; i++) {
+	        index = i + j * sideLength;
+	        f = sqrt((i-sideLength/2)/(float)sideLength * (i-sideLength/2)/(float)sideLength + (j-sideLength/2)/(float)sideLength * (j-sideLength/2)/(float)sideLength);
+	        f = f < 1.0/sideLength ? 1.0/sideLength : f;
+	        transform[index].r = (float)transform[index].r*(1.0f/(float)pow(f, power));
+	    }
+	}
+
+
+	free(cfg);
+	kiss_fftndr_cfg ifft = kiss_fftndr_alloc(dims, ndims, true, NULL, NULL);
+
+	//ifft
+	kiss_fftndri(cfg, transform, image);
+
+	unsigned char final[size];
+	for(i = 0; i < size; i++)
+	{
+		final[i] = (unsigned char)image[i];
+		fprintf(stderr, "%f\n", image[i]);
+	}
+
+	SaveDataToTGA("testTGA.tga", sideLength, sideLength, 8, final);
+
+	free(cfg);
+	newTerrainTexture->width = sideLength;
+	newTerrainTexture->height = sideLength;
+	newTerrainTexture->imageData = final;
+}
+
+LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned char* data)
+{
+	FILE* file = fopen(filename, "w");
+	unsigned char cGarbage = 0;
+	unsigned char pixelDepth = 8;
+	char TGAuncompressedheader[12]={ 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	// write the header
+	fwrite(&TGAuncompressedheader, 12, 1, file);
+	fwrite(&width, sizeof(short int), 1, file);
+	fwrite(&height, sizeof(short int), 1, file);
+	fwrite(&pixelDepth, sizeof(unsigned char), 1, file);
+	fwrite(&cGarbage, sizeof(unsigned char), 1, file);
+
+	int w = 1;
+	while (w < width) w = w << 1;
+
+	int i;
+	for (i = 0; i < height; i++)
+	{
+		int rowIndex = i * w;
+		fwrite(&data[rowIndex], sizeof(unsigned char), width, file);
+	}
+	fclose(file);
+	
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+Model* GenerateTerrainFromTexture(TextureData *tex)
 {
 	GLint vertexCount = tex->width * tex->height;
 	
@@ -186,7 +283,7 @@ Model* GenerateCubeTerrain(TextureData *mainTexture,
                    		   mat4 modelMatrices[6])
 {
 
-	Model* model = GenerateTerrain(mainTexture);
+	Model* model = GenerateTerrainFromTexture(mainTexture);
 
 	//Overlap 10 atm
 	GLint vertexCount = mainTexture->width * mainTexture->height;
@@ -256,7 +353,7 @@ Model* GenerateCubeTerrain(TextureData *mainTexture,
 Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
 {
 	Model* model;
-	model = GenerateTerrain(&planet->terrainTexture[0]);
+	model = GenerateTerrainFromTexture(&planet->terrainTexture[0]);
 
 	GLint x, z, edge;
 	GLint roundingDistanceFromEdge = 10;

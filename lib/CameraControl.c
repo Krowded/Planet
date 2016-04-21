@@ -124,7 +124,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 	vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);
 
 	vec3 pos = GetCurrentCameraPosition(camPositionMatrix);
-	fprintf(stderr, "Position: x %f y %f z %f\n", pos.x, pos.y, pos.z);
+	//fprintf(stderr, "Position: x %f y %f z %f\n", pos.x, pos.y, pos.z);
 
 	//Can only move perpendicular to planet -> remove projection onto normal
 	if ( IsGravityOn() )

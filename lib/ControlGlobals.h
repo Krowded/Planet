@@ -1,12 +1,12 @@
 #ifndef CONTROL_GLOBALS_H
 #define CONTROL_GLOBALS_H
 
-extern const GLfloat windowWidth;
-extern const GLfloat windowHeight;
+extern GLfloat windowWidth;
+extern GLfloat windowHeight;
 
-extern const GLfloat standardSpeed;
-extern const GLfloat runSpeed;
+extern GLfloat standardSpeed;
+extern GLfloat runSpeed;
 
-extern const vec3 startingUp;
+extern vec3 startingUp;
 
 #endif

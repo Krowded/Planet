@@ -39,5 +39,5 @@ void InitShaders();
 void InitTextures();
 void InitModels();
 void InitTerrain();
-
+void InitWindow(GLint width, GLint height);
 #endif

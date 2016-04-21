@@ -1,20 +1,20 @@
 #include "Init.h"
 
 //Define globals
-
-const GLfloat windowWidth = 1024.0;
-const GLfloat windowHeight = 576.0;
-const GLint drawDistance = 10000.0;
-const GLfloat nearDrawDistance = 0.2;
 const vec4 backgroundColor = {1,1,1,0};
-const GLfloat fov = 90;
 
-const vec3 startingUp = {0, 1, 0};
+GLfloat windowWidth = 1024.0;
+GLfloat windowHeight = 576.0;
+GLint drawDistance = 10000.0;
+GLfloat nearDrawDistance = 0.2;
+GLfloat fov = 90;
 
-const GLfloat maxFallSpeed = 10;
-const GLfloat cameraHeight = 5;
-const GLfloat standardSpeed = 0.02;
-const GLfloat runSpeed = 1.0;
+vec3 startingUp = {0, 1, 0};
+
+GLfloat maxFallSpeed = 5;
+GLfloat cameraHeight = 5;
+GLfloat standardSpeed = 0.02;
+GLfloat runSpeed = 1.0;
 
 const GLfloat terrainScale = 30.0;
 
@@ -32,7 +32,8 @@ vec3 middleOfPlanet;
 
 void InitAll()
 {
-	middleOfPlanet = SetVector(0,0,0);	
+	InitWindow(windowWidth, windowHeight);
+	middleOfPlanet = SetVector(0,0,0);
 	InitTerrain();
 	InitCamera();
 	InitShaders();
@@ -115,4 +116,12 @@ void InitTerrain()
 	//terrainModel = GenerateCubeTerrain(&Planet);
 	GLfloat radius = distanceToMiddleY;
 	terrainModel = MapCubeToFlatSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
+}
+
+
+void InitWindow(GLint width, GLint height)
+{
+	windowWidth = width;
+	windowHeight = height;
+	glViewport(0,0,windowWidth, windowHeight);
 }

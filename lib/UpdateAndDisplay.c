@@ -59,9 +59,9 @@ void display(void)
 
 
 //Update position and rotation of camera
-void CamUpdate(GLint mouseX, GLint mouseY)
+void MouseUpdate(GLint mouseX, GLint mouseY)
 {
-	camMatrix = CameraMouseUpdate(mouseX, mouseY, camMatrix, camBaseMatrix);
+	CameraMouseUpdate(mouseX, mouseY);
 }
 
 void UpdatePosition(GLint t)
@@ -71,9 +71,8 @@ void UpdatePosition(GLint t)
 	vec3 currentPosition = GetCurrentCameraPosition(camBaseMatrix);
 	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
 											radius);//GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
-	CamUpdate(0,0);
+	camMatrix = UpdateCamera(camBaseMatrix);//CamUpdate(camBaseMatrix);
 }
-
 
 
 

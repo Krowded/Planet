@@ -29,12 +29,13 @@ int main(int argc, char **argv)
 	//glutHideCursor();
 	glutWarpPointer(windowWidth*0.5, 0);
 	glutDisplayFunc(display);
+	glutReshapeFunc(InitWindow);
 	Init();
 
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
 	timer(globalTime);
 
-	glutPassiveMotionFunc(CamUpdate);
+	glutPassiveMotionFunc(MouseUpdate);
 
 	glutMainLoop();
 	exit(0);

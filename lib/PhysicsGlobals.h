@@ -3,6 +3,6 @@
 
 #include "Init.h"
 
-extern const GLfloat maxFallSpeed;
+extern GLfloat maxFallSpeed;
 
 #endif

@@ -1,5 +1,8 @@
 #include "CameraControl.h"
 
+
+
+
 mat4 mouseRotationMatrix = {
 				1, 0, 0, 0,
 				0, 1, 0, 0,
@@ -14,28 +17,28 @@ vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 	return SetVector((inverseMat.m)[3], (inverseMat.m)[7], (inverseMat.m)[11]);
 }
 
-vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
+LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix); //Only needed if there is scaling?
 	mat4 directions = Transpose(camRotatedMatrix);
 	return Normalize(SetVector( (directions.m)[2], (directions.m)[6], (directions.m)[10]));
 }
 
-vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
+LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix);
 	mat4 directions = Transpose(camRotatedMatrix);
 	return Normalize(SetVector( (directions.m)[0], (directions.m)[4], (directions.m)[8]));	
 }
 
-vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
+LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix);
 	mat4 directions = Transpose(camRotatedMatrix);
 	return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
 }
 
-vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
+LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
 {
 	static vec3 upVec = {0, 1, 0};
 	if( IsGravityOn() )
@@ -45,7 +48,7 @@ vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
 	return upVec;
 }
 
-vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
+LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
 {
 	static vec3 upvec = {0, 1, 0};
 	if(IsGravityOn())
@@ -56,7 +59,7 @@ vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
 }
 
 
-mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
+LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 {
 	static vec3 axis = {0, 1, 0};
 	vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
@@ -67,12 +70,16 @@ mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
 	}
 
-	//Stop from instant spinning
+/*	//Stop from instant spinning
+	fprintf(stderr, "angle %f\n", angle);
+	fprintf(stderr, "maxRotationSpeed %f\n", maxRotationSpeed);
 	if ( abs(angle) > maxRotationSpeed)
 		if(angle > 0)
-			angle = maxRotationSpeed;
+			angle = maxRotationSpeed * (GLfloat)passedTime;
 		else
-			angle = -maxRotationSpeed;
+			angle = -maxRotationSpeed * (GLfloat)passedTime;
+*/
+
 
 	camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
 
@@ -113,7 +120,7 @@ void UpdateCamera(GLint t)
 
 
 //Read keyboard input and update camera position
-mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
+LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 {
 	static GLfloat averageSpeed;
 	if (averageSpeed <= 0)
@@ -121,7 +128,7 @@ mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 		averageSpeed = standardSpeed;
 	}
 	static GLint tlast = 0;
-	GLint passedTime = t - tlast;
+	passedTime = t - tlast;
 	tlast = t;	
 	
 	GLfloat speed = (GLfloat)passedTime * averageSpeed;
@@ -205,7 +212,7 @@ mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 }
 
 
-mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, GLfloat height)
+LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, GLfloat height)
 {
 	if( IsGravityOn() )
 	{

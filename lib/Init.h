@@ -10,6 +10,7 @@
 #include "VectorUtils3.h"
 #include "Terrain.h"
 
+#define LOCAL static
 
 //Because declaration order matters....
 struct planetStruct {
@@ -21,8 +22,6 @@ struct planetStruct {
 
 
 //Declare globals
-
-
 extern const GLfloat terrainScale;
 
 extern TextureData terrainTexture; // Terrain, stored as a texture
@@ -32,12 +31,12 @@ extern struct planetStruct Planet;
 extern vec3 middleOfPlanet;
 
 void InitAll();
-void InitPhysics();
-void InitCamera();
-void InitCameraControls();
-void InitShaders();
-void InitTextures();
+LOCAL void InitPhysics();
+LOCAL void InitCamera();
+LOCAL void InitCameraControls();
+LOCAL void InitShaders();
+LOCAL void InitTextures();
 void InitModels();
-void InitTerrain();
+LOCAL void InitTerrain();
 void InitWindow(GLint width, GLint height);
 #endif

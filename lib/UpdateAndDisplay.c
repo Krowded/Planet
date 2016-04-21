@@ -64,7 +64,7 @@ void MouseUpdate(GLint mouseX, GLint mouseY)
 	CameraMouseUpdate(mouseX, mouseY);
 }
 
-void Update(GLint t)
+LOCAL void Update(GLint t)
 {
 	//Read input and update
 	UpdateCamera(t);

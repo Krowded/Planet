@@ -7,11 +7,13 @@
 #include "VectorUtils3.h"
 #include "CameraControl.h"
 
+#define LOCAL static
+
 void display(void);
 
 //Update position and rotation of camera
 void MouseUpdate(GLint mouseX, GLint mouseY);
-void Update(GLint t);
+LOCAL void Update(GLint t);
 
 void timer(GLint integer);
 

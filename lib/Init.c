@@ -12,7 +12,7 @@ GLfloat fov = 90;
 vec3 startingUp = {0, 1, 0};
 
 GLfloat maxFallSpeed = 5;
-GLfloat maxRotationSpeed = 5;
+GLfloat maxRotationSpeed = 0.05;
 GLfloat cameraHeight = 5;
 GLfloat standardSpeed = 0.02;
 GLfloat runSpeed = 1.0;
@@ -41,7 +41,7 @@ void InitAll()
 	InitTextures();
 }	
 
-void InitCamera()
+LOCAL void InitCamera()
 {
 	vec3 cam = {0, 100, 0};
 	vec3 lookAtPoint = cam;
@@ -56,7 +56,7 @@ void InitCamera()
 	camMatrix = camBaseMatrix;
 }
 
-void InitShaders()
+LOCAL void InitShaders()
 {
 	// Load and compile shader
 	terrainProgram = loadShaders("shaders/terrain.vert", "shaders/terrain.frag");
@@ -65,7 +65,7 @@ void InitShaders()
 	printError("Init shader");
 }
 
-void InitTextures()
+LOCAL void InitTextures()
 {
 	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
@@ -82,7 +82,7 @@ void InitModels()
 }
 
 
-void InitTerrain()
+LOCAL void InitTerrain()
 {
 	// Load terrain data
 	GLint i;

@@ -7,6 +7,8 @@
 #include "math.h"
 #include "Init.h"
 
+#define LOCAL static
+
 extern struct planetStruct planet;
 
 typedef struct offset {
@@ -20,11 +22,10 @@ extern struct offset TerrainOffset;
 
 void SetTerrainOffset(GLfloat x, GLfloat y, GLfloat z);
 
-//These four should maybe be local
-GLfloat* GenerateTerrainVertexArray(TextureData *tex);
-GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
-GLuint* GenerateTerrainIndexArray(TextureData *tex);
-GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
+LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
+LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
 
 
 Model* GenerateTerrain(TextureData*);

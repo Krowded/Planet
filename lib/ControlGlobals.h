@@ -8,6 +8,8 @@ extern GLfloat standardSpeed;
 extern GLfloat runSpeed;
 extern GLfloat maxRotationSpeed;
 
+extern GLfloat mouseSensitivity;
+
 extern vec3 startingUp;
 
 #endif

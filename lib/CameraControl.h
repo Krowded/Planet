@@ -1,6 +1,7 @@
 #ifndef CAMERA_CONTROL_H
 #define CAMERA_CONTROL_H
 
+#include "MicroGlut.h"
 #include "VectorUtils3.h"
 #include "Physics.h"
 #include "ControlGlobals.h"

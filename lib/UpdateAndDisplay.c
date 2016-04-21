@@ -67,13 +67,16 @@ void MouseUpdate(GLint mouseX, GLint mouseY)
 LOCAL void Update(GLint t)
 {
 	//Read input and update
+	GLint x,y;
+	getCursorPosition(&x, &y);
+	MouseUpdate(x,y);
 	UpdateCamera(t);
 }
 
 
 
 void timer(GLint integer)
-{
+{ 	
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
 	Update(globalTime);
 

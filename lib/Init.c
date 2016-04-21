@@ -17,6 +17,9 @@ GLfloat cameraHeight = 5;
 GLfloat standardSpeed = 0.02;
 GLfloat runSpeed = 1.0;
 
+GLfloat mouseSensitivity = 0.002;
+
+
 const GLfloat terrainScale = 30.0;
 
 GLint globalTime = 0;

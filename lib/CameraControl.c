@@ -1,15 +1,10 @@
 #include "CameraControl.h"
 
-
-
-
-mat4 mouseRotationMatrix = {
+LOCAL mat4 mouseRotationMatrix = {
 				1, 0, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 1, 0,
 				0, 0, 0, 1	};
-
-GLint passedTime = 0;
 
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 {
@@ -70,16 +65,7 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
 	}
 
-/*	//Stop from instant spinning
-	fprintf(stderr, "angle %f\n", angle);
-	fprintf(stderr, "maxRotationSpeed %f\n", maxRotationSpeed);
-	if ( abs(angle) > maxRotationSpeed)
-		if(angle > 0)
-			angle = maxRotationSpeed * (GLfloat)passedTime;
-		else
-			angle = -maxRotationSpeed * (GLfloat)passedTime;
-*/
-
+	//TODO: Stop from instant spinning
 
 	camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
 
@@ -88,21 +74,16 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 
 
 void CameraMouseUpdate(GLint mouseX, GLint mouseY)
-{	
-		static GLfloat x = 0;
-		static GLfloat y = 0;	
+{		
+	static GLfloat x = 0;
+	static GLfloat y = 0;
+	
+	x += mouseX - windowWidth*0.5;
+	y += mouseY - windowHeight*0.5;
 
-		//Update mousepointer value
-		/*if (mouseY != 0)
-		{
-			x = (GLfloat)mouseX;
-			y = (GLfloat)mouseY;
-		}*/
+	mouseRotationMatrix = Mult( Rx(2.0*M_PI*y*mouseSensitivity), Ry(2.0*M_PI*x*mouseSensitivity));		
 
-		fprintf(stderr, "x y\n", x, y );
-
-		
-		mouseRotationMatrix = Mult( Rx(2*M_PI*y/(windowHeight*0.5)), Ry(2*M_PI*x/(windowWidth*0.5)));		
+	glutWarpPointer(windowWidth*0.5, windowHeight*0.5);
 }
 
 void UpdateCamera(GLint t)
@@ -126,12 +107,14 @@ void UpdateCamera(GLint t)
 LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 {
 	static GLfloat averageSpeed;
+	static GLint tlast = 0;
+
 	if (averageSpeed <= 0)
 	{
 		averageSpeed = standardSpeed;
 	}
-	static GLint tlast = 0;
-	passedTime = t - tlast;
+	
+	GLint passedTime = t - tlast;
 	tlast = t;	
 	
 	GLfloat speed = (GLfloat)passedTime * averageSpeed;

@@ -65,6 +65,7 @@ int mode = GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH;
 int gContextVersionMajor = 0;
 int gContextVersionMinor = 0;
 
+
 Display *dpy;
 Window win;
 GLXContext ctx;
@@ -761,3 +762,14 @@ void glutExit()
 	gRunning = 0;
 }
 
+
+
+
+void getCursorPosition(int* x, int* y)
+{
+	Window dummywindow;
+	int rootx;
+	int rooty;
+	unsigned int mask;
+	XQueryPointer(dpy, win, &dummywindow, &dummywindow, &rootx, &rooty, x, y, &mask);
+}

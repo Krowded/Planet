@@ -12,6 +12,7 @@ GLfloat fov = 90;
 vec3 startingUp = {0, 1, 0};
 
 GLfloat maxFallSpeed = 5;
+GLfloat maxRotationSpeed = 5;
 GLfloat cameraHeight = 5;
 GLfloat standardSpeed = 0.02;
 GLfloat runSpeed = 1.0;

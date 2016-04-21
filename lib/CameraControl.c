@@ -6,6 +6,8 @@ mat4 mouseRotationMatrix = {
 				0, 0, 1, 0,
 				0, 0, 0, 1	};
 
+GLint passedTime = 0;
+
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 {
 	mat4 inverseMat = InvertMat4(camPositionMatrix); 
@@ -53,9 +55,10 @@ vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
 	return upvec;
 }
 
-static vec3 axis = {0, 1, 0};
+
 mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 {
+	static vec3 axis = {0, 1, 0};
 	vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
 	
 	GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
@@ -63,12 +66,15 @@ mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
 	{
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
 	}
+
+	//Stop from instant spinning
+	if ( abs(angle) > maxRotationSpeed)
+		if(angle > 0)
+			angle = maxRotationSpeed;
+		else
+			angle = -maxRotationSpeed;
+
 	camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
-	fprintf(stderr, "Axis x %f y %f z %f\n", axis.x, axis.y, axis.z);
-	//fprintf(stderr, "%f\n", DotProduct(axis));
-	//fprintf(stderr, "Angle %f\n", angle);
-	//fprintf(stderr, "Old x %f y %f z %f\n", oldUpVector.x, oldUpVector.y, oldUpVector.z);
-	//fprintf(stderr, "new x %f y %f z %f\n", newUpVector.x, newUpVector.y, newUpVector.z);
 
 	return camPositionMatrix;
 }
@@ -89,12 +95,20 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 		mouseRotationMatrix = Mult( Rx(2*M_PI*y/(windowHeight*0.5)), Ry(2*M_PI*x/(windowWidth*0.5)));		
 }
 
-mat4 UpdateCamera(mat4 camPositionMatrix)
+void UpdateCamera(GLint t)
 {
-	vec3 newUp = GetNewUpDirectionVec(camPositionMatrix);
-	mat4 camRotatedMatrix = ChangeUpDirection(camPositionMatrix, newUp);
+	//Read input and update position
+	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix);
+	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
+											radius);//GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
+	
+	//Update orientation
+	vec3 newUp = GetNewUpDirectionVec(camBaseMatrix);
+	mat4 camRotatedMatrix = ChangeUpDirection(camBaseMatrix, newUp);
 	camRotatedMatrix = Mult(mouseRotationMatrix, camRotatedMatrix);
-	return camRotatedMatrix;
+
+
+	camMatrix = camRotatedMatrix;
 }
 
 

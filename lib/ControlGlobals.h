@@ -6,6 +6,7 @@ extern GLfloat windowHeight;
 
 extern GLfloat standardSpeed;
 extern GLfloat runSpeed;
+extern GLfloat maxRotationSpeed;
 
 extern vec3 startingUp;
 

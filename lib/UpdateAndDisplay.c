@@ -64,14 +64,10 @@ void MouseUpdate(GLint mouseX, GLint mouseY)
 	CameraMouseUpdate(mouseX, mouseY);
 }
 
-void UpdatePosition(GLint t)
+void Update(GLint t)
 {
 	//Read input and update
-	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix);
-	vec3 currentPosition = GetCurrentCameraPosition(camBaseMatrix);
-	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
-											radius);//GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
-	camMatrix = UpdateCamera(camBaseMatrix);//CamUpdate(camBaseMatrix);
+	UpdateCamera(t);
 }
 
 
@@ -79,7 +75,7 @@ void UpdatePosition(GLint t)
 void timer(GLint integer)
 {
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
-	UpdatePosition(globalTime);
+	Update(globalTime);
 
 	glutPostRedisplay();
 

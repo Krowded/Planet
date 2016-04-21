@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize (windowWidth, windowHeight);
 	glutCreateWindow ("Project");
 	//glutHideCursor();
-	glutWarpPointer(windowWidth*0.5, 0);
+	glutWarpPointer(windowWidth*0.5, windowHeight*0.5);
 	glutDisplayFunc(display);
 	glutReshapeFunc(InitWindow);
 	Init();

@@ -120,7 +120,7 @@ LOCAL void InitTerrain()
 	GenerateProceduralTerrainTexture(256, tex);
 	//Generate terrain
 	//terrainModel = GenerateCubeTerrainSimple(&Planet);
-	//terrainModel = GenerateTerrainFromTexture(tex);
+	terrainModel = GenerateTerrainFromTexture(tex);
 	//terrainModel = GenerateCubeTerrain(&Planet);
 	GLfloat radius = distanceToMiddleY;
 	//terrainModel = MapCubeToFlatSphere(terrainMode, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);

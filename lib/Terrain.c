@@ -133,32 +133,39 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 	for (j = 0; j < sideLength/2; j++) {
 	    for (i = 0; i < sideLength/2; i++) {
 	        index = i + j * sideLength;
-	        f = sqrt((i-sideLength/2)/(float)sideLength * (i-sideLength/2)/(float)sideLength + (j-sideLength/2)/(float)sideLength * (j-sideLength/2)/(float)sideLength);
+	        f = sqrt(pow((i-sideLength/2)/(float)sideLength,2) + pow((j-sideLength/2)/(float)sideLength,2));
 	        f = f < 1.0/sideLength ? 1.0/sideLength : f;
 	        transform[index].r = (float)transform[index].r*(1.0f/(float)pow(f, power));
 	    }
 	}
 
-
 	free(cfg);
-	kiss_fftndr_cfg ifft = kiss_fftndr_alloc(dims, ndims, true, NULL, NULL);
+	kiss_fftndr_cfg ifft = kiss_fftndr_alloc(dims, ndims, true, NULL, NULL);	
 
 	//ifft
-	kiss_fftndri(cfg, transform, image);
+	kiss_fftndri(ifft, transform, image);
+
+	//Get max
+	GLfloat max;
+	for (i = 0; i < size; i++)
+	{
+		max = image[i] > max ? image[i] : max;
+	}
+
 
 	unsigned char final[size];
 	for(i = 0; i < size; i++)
 	{
-		final[i] = (unsigned char)image[i];
-		fprintf(stderr, "%f\n", image[i]);
+		final[i] = (unsigned char)((image[i] / max)*255);
 	}
 
 	SaveDataToTGA("testTGA.tga", sideLength, sideLength, 8, final);
 
-	free(cfg);
+	free(ifft);
 	newTerrainTexture->width = sideLength;
 	newTerrainTexture->height = sideLength;
 	newTerrainTexture->imageData = final;
+	newTerrainTexture->bpp = 8;
 }
 
 LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned char* data)

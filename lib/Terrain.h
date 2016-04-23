@@ -13,17 +13,6 @@
 
 extern struct planetStruct planet;
 
-typedef struct offset {
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
-} offset;
-
-extern struct offset TerrainOffset;
-
-
-void SetTerrainOffset(GLfloat x, GLfloat y, GLfloat z);
-
 LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex);
 LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
 LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex);

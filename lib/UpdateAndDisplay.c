@@ -18,15 +18,10 @@ void display(void)
 	GLint i;
 	for (i = 0; i < 6; ++i)
 	{
-		total = Mult(camMatrix, Planet.TerrainModelToWorld[i]);
+		total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 		DrawModel(terrainModel, terrainProgram, "inPosition", "inNormal", "inTexCoord");
 	}
-
-	//Match gravity to planet (should it be here?)			
-	vec3 offvec = GetCurrentPosition(Planet.TerrainModelToWorld[0]); //Has to be the model matrix for the one you're walking on
-	SetTerrainOffset(offvec.x, offvec.y, offvec.z);
-
 
 	//Draw models
 	glUseProgram(modelProgram);
@@ -70,7 +65,7 @@ LOCAL void Update(GLint t)
 	GLint x,y;
 	getCursorPosition(&x, &y);
 	MouseUpdate(x,y);
-	UpdateCamera(t);
+	UpdateCamera(t, Planet);
 }
 
 

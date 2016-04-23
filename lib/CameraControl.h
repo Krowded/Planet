@@ -15,13 +15,13 @@ LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix);
-LOCAL vec3 GetNewUpDirectionVec(mat4 camRotatedMatrix);
+LOCAL vec3 GetNewUpDirectionVec(mat4 camRotatedMatrix, struct planetStruct planet);
 LOCAL mat4 ChangeUpDirection(mat4 camRotatedMatrix, vec3 newUpDirection);
 
 
-void UpdateCamera(GLint t);
+void UpdateCamera(GLint t, struct planetStruct planet);
 void CameraMouseUpdate(GLint x, GLint y);
-LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix);
-LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, GLfloat height);
+LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct planetStruct planet);
+LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct planetStruct planet);
 
 #endif

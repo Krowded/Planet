@@ -7,6 +7,8 @@ extern GLfloat maxFallSpeed;
 
 extern GLfloat maxHeight;
 
-extern const GLfloat maxAngleOfTerrain = 0.78539816339; 
+extern struct planetStruct planet; //This should not be here!
+
+extern GLfloat maxAngleOfTerrain;
 
 #endif

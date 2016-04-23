@@ -16,25 +16,25 @@
 	GLfloat GetGroundHeight(vec3 currentPosition, struct planetStruct planet)
 	{
 		vec3 vectorFromCenter = VectorSub(currentPosition, planet.center);
-		GLfloat height = norm(vectorFromCenter);
+		GLfloat height = Norm(vectorFromCenter);
 		if (height > radius + maxHeight) //If above possible terrain, skip calculation
 		{
 			return planet.radius;
 		}
 		else
 		{
-			GLfloat angleFromPole = acos(DotProduct(Normalize(vectorFromCenter), planet.upVec);
+			GLfloat angleFromPole = acos(DotProduct(Normalize(vectorFromCenter), planet.upVec));
 			if(abs(angleFromPole) > 3*maxAngleOfTerrain)
 			{
-
+				return 0;
 			}
 			else if(abs(angleFromPole) > maxAngleOfTerrain)
 			{
-				GLfloat agleFromFront = acos(DotProduct(Normalize(vectorFromCenter), planet.frontVec));
+				GLfloat angleFromFront = acos(DotProduct(Normalize(vectorFromCenter), planet.frontVec));
 			}
 			else
 			{
-
+				return 0;
 			}
 		}
 
@@ -42,10 +42,10 @@
 
 	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct planetStruct planet)
 	{
-		vec3 eightVector = VectorSub(currentPosition, planet.center);
-		vec3 upVec = Normalize(currentHeightVector);//GetUpDirectionVec(ModelToWorldMatrix);
-		GLfloat currentHeight = Norm(currentHeightVector);
-		GLfloat groundHeight = GetGroundHeight(currentPosition, planet);
+		vec3 heightVector = VectorSub(currentPosition, planet.center);
+		vec3 upVec = Normalize(heightVector);
+		GLfloat currentHeight = Norm(heightVector);
+		GLfloat groundHeight = planet.radius;//GetGroundHeight(currentPosition, planet);
 
 		GLfloat heightDifference = currentHeight - groundHeight;
 		

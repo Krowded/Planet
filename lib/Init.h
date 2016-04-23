@@ -15,10 +15,11 @@
 //Because declaration order matters....
 struct planetStruct {
 	TextureData terrainTexture[6]; //Order: Up, left, bottom, right, back, front
-	mat4 TerrainModelToWorld[6];
+	mat4 terrainModelToWorld[6];
 	vec3 center;
 	vec3 upVec;  //Must be normalized
 	vec3 frontVec;
+	GLfloat radius;
 };
 
 

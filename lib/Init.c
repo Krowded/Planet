@@ -30,22 +30,24 @@ GLuint tex1, tex2;
 TextureData terrainTexture;
 
 const GLfloat radius = 128;
+GLfloat maxAngleOfTerrain = 0.78539816339;
+
 
 struct planetStruct Planet;
-vec3 middleOfPlanet;
 
 void InitAll()
 {
 	InitWindow(windowWidth, windowHeight);
-	middleOfPlanet = SetVector(0,0,0);
 	Planet.center = SetVector(0,0,0);
 	Planet.radius = radius;
-	Planet.upvec = SetVector(0, 1, 0);
+	Planet.upVec = SetVector(0, 1, 0);
 	Planet.frontVec = SetVector(0, 0, 1);
+
 	InitTerrain();
 	InitCamera();
 	InitShaders();
 	InitTextures();
+
 }	
 
 LOCAL void InitCamera()
@@ -98,35 +100,37 @@ LOCAL void InitTerrain()
 
 	//Generate terrain model matrix
 	GLfloat overlap = 0;
-	GLfloat distanceToMiddleX = (Planet.terrainTexture[0].width*0.5);
-	GLfloat distanceToMiddleZ = (Planet.terrainTexture[0].height*0.5);
+	GLfloat distanceToMiddleX = ((GLfloat)Planet.terrainTexture[0].width*0.5);
+	GLfloat distanceToMiddleZ = ((GLfloat)Planet.terrainTexture[0].height*0.5);
 	GLfloat distanceToMiddleY = distanceToMiddleX - overlap;
 
 
 	for (i = 0; i < 4; ++i)
 	{
-		Planet.TerrainModelToWorld[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		Planet.TerrainModelToWorld[i] = Mult( Rz(M_PI*0.5*(GLfloat)i), Planet.TerrainModelToWorld[i] );
+		Planet.terrainModelToWorld[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
+		Planet.terrainModelToWorld[i] = Mult( Rz(M_PI*0.5f*(GLfloat)i), Planet.terrainModelToWorld[i] );
 	}
 	//Last two sides
 
-	//distanceToMiddleZ = distanceToMiddleZ - 0.5;
-	//distanceToMiddleY = distanceToMiddleY - 0.5;
 	for (i = 0; i < 2; ++i)
 	{
-		Planet.TerrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		Planet.TerrainModelToWorld[4+i] = Mult( Rx(M_PI*(0.5 + (GLfloat)i)), Planet.TerrainModelToWorld[4+i] );
+		Planet.terrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
+		//Planet.terrainModelToWorld[4+i] = Mult( Rx(M_PI*0.5f*(GLfloat)(i+1)), Planet.terrainModelToWorld[3+i] );
 	}
 
-	TextureData* tex = malloc(sizeof(TextureData));
-	GenerateProceduralTerrainTexture(256, tex);
-	Planet.terrainTexture[0] = *tex;
+		Planet.terrainModelToWorld[4] = Mult( Rx(M_PI*0.5f*(GLfloat)(1)), Planet.terrainModelToWorld[4] );
+		Planet.terrainModelToWorld[5] = Mult( Rx(M_PI*0.5f*(GLfloat)(3)), Planet.terrainModelToWorld[5] );
+
+
 	//Generate terrain
+	//TextureData* tex = malloc(sizeof(TextureData));
+	//GenerateProceduralTerrainTexture(256, tex);
+	//Planet.terrainTexture[0] = *tex;
+	
 	terrainModel = GenerateCubeTerrainSimple(&Planet);
 	//terrainModel = GenerateTerrainFromTexture(tex);
 	//terrainModel = GenerateCubeTerrain(&Planet);
-	GLfloat radius = distanceToMiddleY;
-	//terrainModel = MapCubeToFlatSphere(terrainModel, radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
+	terrainModel = MapCubeToFlatSphere(terrainModel, Planet.radius, Planet.terrainTexture[0].width, Planet.terrainTexture[0].height);
 }
 
 

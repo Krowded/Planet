@@ -773,3 +773,11 @@ void getCursorPosition(int* x, int* y)
 	unsigned int mask;
 	XQueryPointer(dpy, win, &dummywindow, &dummywindow, &rootx, &rooty, x, y, &mask);
 }
+
+int IsTopWindow()
+{
+	Window focuswindow;
+	int dummy;
+	XGetInputFocus(dpy, &focuswindow, &dummy);
+	return (win == focuswindow);
+}

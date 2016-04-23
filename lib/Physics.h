@@ -21,7 +21,7 @@ void SetFallSpeed(GLfloat maxFallSpeed);
 void SetCameraHeight(GLfloat cameraHeight);
 bool IsGravityOn();
 
-mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, struct planetStruct planet);
+mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct planetStruct planet);
 
 vec3 GetCurrentPosition(mat4 ModelToWorldMatrix);
 

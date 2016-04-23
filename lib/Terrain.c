@@ -1,17 +1,7 @@
 #include "Terrain.h"
 #include "kiss_fft/kiss_fftndr.h"
 
-struct offset TerrainOffset;
-
-
-
-void SetTerrainOffset(GLfloat x, GLfloat y, GLfloat z)
-{
-	TerrainOffset.x = x;
-	TerrainOffset.y = y;
-	TerrainOffset.z = z;
-	
-}
+vec3 TerrainOffset = {0, 0, 0};
 
 LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 {

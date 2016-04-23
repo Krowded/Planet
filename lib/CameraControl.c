@@ -43,12 +43,12 @@ LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
 	return upVec;
 }
 
-LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix)
+LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct planetStruct planet)
 {
 	static vec3 upvec = {0, 1, 0};
 	if(IsGravityOn())
 	{
-		upvec = Normalize(VectorSub(GetCurrentCameraPosition(camPositionMatrix), middleOfPlanet));	
+		upvec = Normalize(VectorSub(GetCurrentCameraPosition(camPositionMatrix), planet.center));	
 	}
 	return upvec;
 }
@@ -78,23 +78,26 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 	static GLfloat x = 0;
 	static GLfloat y = 0;
 	
-	x += mouseX - windowWidth*0.5;
-	y += mouseY - windowHeight*0.5;
+	if ( IsTopWindow() )	
+	{
+		x += mouseX - windowWidth*0.5;
+		y += mouseY - windowHeight*0.5;
 
-	mouseRotationMatrix = Mult( Rx(2.0*M_PI*y*mouseSensitivity), Ry(2.0*M_PI*x*mouseSensitivity));		
+		mouseRotationMatrix = Mult( Rx(2.0*M_PI*y*mouseSensitivity), Ry(2.0*M_PI*x*mouseSensitivity));		
 
-	glutWarpPointer(windowWidth*0.5, windowHeight*0.5);
+		glutWarpPointer(windowWidth*0.5, windowHeight*0.5);
+	}
 }
 
-void UpdateCamera(GLint t)
+void UpdateCamera(GLint t, struct planetStruct planet)
 {
 	//Read input and update position
-	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix);
+	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix, planet);
 	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
-											radius);//GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
+											planet);//GetTerrainHeight(currentPosition, terrainModel, planet.terrainTexture[0]));
 	
 	//Update orientation
-	vec3 newUp = GetNewUpDirectionVec(camBaseMatrix);
+	vec3 newUp = GetNewUpDirectionVec(camBaseMatrix, planet);
 	mat4 camRotatedMatrix = ChangeUpDirection(camBaseMatrix, newUp);
 	camRotatedMatrix = Mult(mouseRotationMatrix, camRotatedMatrix);
 
@@ -104,7 +107,7 @@ void UpdateCamera(GLint t)
 
 
 //Read keyboard input and update camera position
-LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
+LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct planetStruct planet)
 {
 	static GLfloat averageSpeed;
 	static GLint tlast = 0;
@@ -129,7 +132,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 	//Can only move perpendicular to planet -> remove projection onto normal
 	if ( IsGravityOn() )
 	{
-		vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix);
+		vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix, planet);
 
 		vec3 backVecProj = ScalarMult(gravUpVec, DotProduct(backVec, gravUpVec));
 		backVec = Normalize(VectorSub( backVec, backVecProj));
@@ -198,12 +201,14 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix)
 }
 
 
-LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, GLfloat height)
+LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct planetStruct planet)
 {
 	if( IsGravityOn() )
 	{
-		height = cameraHeight + height;
-		camPositionMatrix = AdjustModelToHeightMap(camPositionMatrix, GetCurrentCameraPosition(camPositionMatrix), height);
+		vec3 currentPosition = GetCurrentCameraPosition(camPositionMatrix);
+		vec3 upvec = Normalize(VectorSub(currentPosition, planet.center));
+		currentPosition = VectorSub(currentPosition, ScalarMult(upvec, cameraHeight)); //Pretend the player is further down, to push him up to cameraHeight
+		camPositionMatrix = AdjustModelToHeightMap(camPositionMatrix, currentPosition, planet);
 	}
 
 	return camPositionMatrix;

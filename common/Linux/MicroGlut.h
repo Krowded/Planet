@@ -72,6 +72,7 @@ void glutExit();
 
 
 void getCursorPosition(int* x, int* y);
+int IsTopWindow();
 
 
 

@@ -5,4 +5,8 @@
 
 extern GLfloat maxFallSpeed;
 
+extern GLfloat maxHeight;
+
+extern const GLfloat maxAngleOfTerrain = 0.78539816339; 
+
 #endif

@@ -13,12 +13,42 @@
 		return isGravityOnBool;
 	}
 
-	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, GLfloat groundHeight)
+	GLfloat GetGroundHeight(vec3 currentPosition, struct planetStruct planet)
 	{
-		vec3 currentHeightVector = VectorSub(currentPosition, middleOfPlanet);
-		GLfloat currentHeight = Norm(currentHeightVector);
-		GLfloat heightDifference = currentHeight - groundHeight;
+		vec3 vectorFromCenter = VectorSub(currentPosition, planet.center);
+		GLfloat height = norm(vectorFromCenter);
+		if (height > radius + maxHeight) //If above possible terrain, skip calculation
+		{
+			return planet.radius;
+		}
+		else
+		{
+			GLfloat angleFromPole = acos(DotProduct(Normalize(vectorFromCenter), planet.upVec);
+			if(abs(angleFromPole) > 3*maxAngleOfTerrain)
+			{
+
+			}
+			else if(abs(angleFromPole) > maxAngleOfTerrain)
+			{
+				GLfloat agleFromFront = acos(DotProduct(Normalize(vectorFromCenter), planet.frontVec));
+			}
+			else
+			{
+
+			}
+		}
+
+	}
+
+	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct planetStruct planet)
+	{
+		vec3 eightVector = VectorSub(currentPosition, planet.center);
 		vec3 upVec = Normalize(currentHeightVector);//GetUpDirectionVec(ModelToWorldMatrix);
+		GLfloat currentHeight = Norm(currentHeightVector);
+		GLfloat groundHeight = GetGroundHeight(currentPosition, planet);
+
+		GLfloat heightDifference = currentHeight - groundHeight;
+		
 		
 		if(abs(heightDifference) > 0.0 )
 		{

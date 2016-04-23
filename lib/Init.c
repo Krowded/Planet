@@ -19,7 +19,7 @@ GLfloat runSpeed = 1.0;
 
 GLfloat mouseSensitivity = 0.002;
 
-
+GLfloat maxHeight = 100;;
 const GLfloat terrainScale = 30.0;
 
 GLint globalTime = 0;
@@ -38,8 +38,10 @@ void InitAll()
 {
 	InitWindow(windowWidth, windowHeight);
 	middleOfPlanet = SetVector(0,0,0);
-	Planet.midPoint = SetVector(0,0,0);
+	Planet.center = SetVector(0,0,0);
 	Planet.radius = radius;
+	Planet.upvec = SetVector(0, 1, 0);
+	Planet.frontVec = SetVector(0, 0, 1);
 	InitTerrain();
 	InitCamera();
 	InitShaders();

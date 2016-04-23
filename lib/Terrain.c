@@ -109,59 +109,89 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 	GLint size = sideLength*sideLength;
 	
 
-	kiss_fft_scalar image[size];
-	kiss_fft_cpx transform[size/2+1];
+	kiss_fft_scalar* image = malloc(sizeof(kiss_fft_scalar)*size);
+	kiss_fft_cpx* transform = malloc(sizeof(kiss_fft_cpx)*(size/2+1));
 	GLint dims[2] = {sideLength, sideLength};
 	GLint ndims = 2;
 
 	GLint i;
 	for (i = 0; i < size; i++)
 	{
-		image[i] = rand();
+		float r = (float)rand();
+		image[i] = r * (1.0f/RAND_MAX);
 	}
-
 	kiss_fftndr_cfg cfg = kiss_fftndr_alloc(dims, ndims, false, NULL, NULL);
 
 	kiss_fftndr(cfg, image, transform);
-	
 
 
-	// apply 1/(f^p) filter
-	double f;
-	int j, index;
-	int power = 1;
-	for (j = 0; j < sideLength/2; j++) {
-	    for (i = 0; i < sideLength/2; i++) {
-	        index = i + j * sideLength;
-	        f = sqrt(pow((i-sideLength/2)/(float)sideLength,2) + pow((j-sideLength/2)/(float)sideLength,2));
-	        f = f < 1.0/sideLength ? 1.0/sideLength : f;
-	        transform[index].r = (float)transform[index].r*(1.0f/(float)pow(f, power));
-	    }
+/*
+	GLint j;
+	GLfloat f;
+	GLfloat power = 2.0;
+	for(i = 0; i < sideLength/2; ++i)
+		for(j = 0; j < sideLength; ++j)
+		{
+			GLint index = j + i * sideLength;
+			f = sqrt( pow((i - sideLength/2)/(float)sideLength, 2) + pow((float)j - (float)sideLength/2.0f/(float)sideLength,2) );		
+			//fprintf(stderr, "%f\n", pow(((float)j - (float)sideLength/2.0f)/(float)sideLength,2));
+			f = f < 1.0f/sideLength ? 1.0f/sideLength : f;
+			transform[index].i = transform[index].i * (1.0f / pow(f, power));
+			transform[index].r = transform[index].r * (1.0f / pow(f, power));
+			GLfloat magnitude = sqrt( pow(transform[index].i, 2) + pow(transform[index].r, 2) );
+		}
+
+
+			fprintf(stderr, "%f\n", pow(((float)sideLength - (float)sideLength/2.0f)/(float)sideLength,2));
+
+*/
+
+	//Use the transform as out for testing
+	for(i = 0; i < size/2; ++i)
+	{
+		image[i] = sqrt( transform[i].r*transform[i].r + transform[i].i*transform[i].i );
+		image[size/2+i] = image[i];
+		//fprintf(stderr, "%f\n", image[i]);
 	}
 
 	free(cfg);
-	kiss_fftndr_cfg ifft = kiss_fftndr_alloc(dims, ndims, true, NULL, NULL);	
+	cfg = kiss_fftndr_alloc(dims, ndims, true, NULL, NULL);
 
 	//ifft
-	kiss_fftndri(ifft, transform, image);
-
-	//Get max
-	GLfloat max;
-	for (i = 0; i < size; i++)
-	{
-		max = image[i] > max ? image[i] : max;
-	}
+	//kiss_fftndri(cfg, transform, image);       //Uncomment this when the transform looks right!
 
 
-	unsigned char final[size];
+	GLfloat max = 0;
+	GLfloat min = 0;
+	for(i = 0; i < size; i++)
+		if( image[i] < min )
+			min = image[i];
+
+	fprintf(stderr, "Min: %f\n", min);
+
+
 	for(i = 0; i < size; i++)
 	{
-		final[i] = (unsigned char)((image[i] / max)*255);
+		image[i] = image[i] - min;
+		if( image[i] > max )
+			max = image[i];
 	}
 
-	SaveDataToTGA("testTGA.tga", sideLength, sideLength, 8, final);
+	fprintf(stderr, "Max: %f\n", max);
 
-	free(ifft);
+	unsigned char* final = malloc(sizeof(unsigned char)*size);
+	for(i = 0; i < size; i++)
+	{
+		final[i] = (unsigned char)round(image[i]);
+		//fprintf(stderr, "%d\n", final[i]);
+	}
+
+	SaveAsTGA("testTGA.tga", sideLength, sideLength, final);
+
+	free(cfg);
+	free(image);
+	free(transform);
+	free(final);
 	newTerrainTexture->width = sideLength;
 	newTerrainTexture->height = sideLength;
 	newTerrainTexture->imageData = final;
@@ -172,7 +202,8 @@ LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned 
 {
 	FILE* file = fopen(filename, "w");
 	unsigned char cGarbage = 0;
-	unsigned char pixelDepth = 8;
+	unsigned char aone = 1;
+	unsigned char pixelDepth = 8 + 16;
 	char TGAuncompressedheader[12]={ 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	// write the header
 	fwrite(&TGAuncompressedheader, 12, 1, file);
@@ -184,11 +215,21 @@ LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned 
 	int w = 1;
 	while (w < width) w = w << 1;
 
+	unsigned char buffer[width*height*3];
+
 	int i;
-	for (i = 0; i < height; i++)
+	for(i = 0; i < width*height; i++)
 	{
-		int rowIndex = i * w;
-		fwrite(&data[rowIndex], sizeof(unsigned char), width, file);
+		buffer[3*i] = data[i];
+		buffer[3*i+1] = data[i];
+		buffer[3*i+2] = data[i];
+	}
+
+	
+	for (i = 0 ; i < height; i++)
+	{
+		int rowIndex = i * w * 3;
+		fwrite(&buffer[rowIndex], sizeof(unsigned char), width*3, file);
 	}
 	fclose(file);
 	

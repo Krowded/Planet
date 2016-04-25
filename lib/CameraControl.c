@@ -81,7 +81,12 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 	if ( IsTopWindow() )	
 	{
 		x += mouseX - windowWidth*0.5;
-		y += mouseY - windowHeight*0.5;
+		
+		GLint check = (abs(y + mouseY - windowHeight*0.5)*4.0*mouseSensitivity < 1);
+		if (check) 
+		{
+			y += mouseY - windowHeight*0.5;
+		}
 
 		mouseRotationMatrix = Mult( Rx(2.0*M_PI*y*mouseSensitivity), Ry(2.0*M_PI*x*mouseSensitivity));		
 
@@ -156,6 +161,8 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		camPositionMatrix = Mult( T( upVec.x, upVec.y, upVec.z), camPositionMatrix);
 	if (glutKeyIsDown('e') || glutKeyIsDown('E'))
 		camPositionMatrix = Mult( T( -upVec.x, -upVec.y, -upVec.z), camPositionMatrix);
+	if (glutKeyIsDown(GLUT_KEY_ESC))
+		cleanUpAndExit();
 
 
 	{ //static scope limiter

@@ -17,7 +17,7 @@
 	{
 		vec3 vectorFromCenter = VectorSub(currentPosition, planet.center);
 		GLfloat height = Norm(vectorFromCenter);
-		if (height > radius + maxHeight) //If above possible terrain, skip calculation
+		if (height > planet.radius + maxHeight) //If above possible terrain, skip calculation
 		{
 			return planet.radius;
 		}

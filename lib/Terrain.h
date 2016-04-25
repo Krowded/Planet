@@ -6,10 +6,10 @@
 #include "LoadTGA.h"
 #include "math.h"
 #include "Init.h"
-
-
+#include "TerrainGlobals.h"
 
 #define LOCAL static
+
 
 extern struct planetStruct planet;
 
@@ -24,16 +24,13 @@ LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned 
 
 Model* GenerateTerrainFromTexture(TextureData *tex);
 
-Model* GenerateCubeTerrain(TextureData *mainTexture, 
-						   TextureData *leftConnectingTexture, 
-						   TextureData *rightConnectingTexture, 
-	                       TextureData *upConnectingTexture, 
-	                       TextureData *downConnectingTexture,
-	                       mat4 modelMatrices[6]);
+LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
 
-Model* GenerateCubeTerrainSimple(struct planetStruct *planet);
+void GenerateCubeTerrain(struct planetStruct* planet);
 
-Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
+void GenerateCubeTerrainSimple(struct planetStruct *planet);
+
+void MapCubeToSphere(struct planetStruct* planet);
 Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
 
 

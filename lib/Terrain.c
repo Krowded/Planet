@@ -7,12 +7,13 @@ LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 {
 	GLint x, z;
 	GLint vertexCount = tex->width * tex->height;
-	GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+	GLfloat *vertexArray = chkmalloc(sizeof(GLfloat) * 3 * vertexCount);
 	for (x = 0; x < tex->width; x++)
 		for (z = 0; z < tex->height; z++)
 		{
 			// Vertex array. y scales height
 			vertexArray[(x + z * tex->width)*3 + 0] = x / 1.0;
+			#warning actual code commented
 			vertexArray[(x + z * tex->width)*3 + 1] = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
 			vertexArray[(x + z * tex->width)*3 + 2] = z / 1.0;
 		}
@@ -24,7 +25,7 @@ LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex)
 {
 	GLint x, z;
 	GLint vertexCount = tex->width * tex->height;
-	GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
+	GLfloat *texCoordArray = chkmalloc(sizeof(GLfloat) * 2 * vertexCount);
 	for (x = 0; x < tex->width; x++)
 		for (z = 0; z < tex->height; z++)
 		{
@@ -40,7 +41,7 @@ LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex)
 {
 	GLint x, z;	
 	GLint triangleCount = (tex->width-1) * (tex->height-1) * 2;
-	GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount*3);
+	GLuint *indexArray = chkmalloc(sizeof(GLuint) * triangleCount*3);
 
 	for (x = 0; x < tex->width-1; x++)
 		for (z = 0; z < tex->height-1; z++)
@@ -62,7 +63,7 @@ LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray
 {
 	GLint x, z;
 	GLint vertexCount = tex->width * tex->height;
-	GLfloat *normalArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+	GLfloat *normalArray = chkmalloc(sizeof(GLfloat) * 3 * vertexCount);
 	for (x = 0; x < tex->width-1; x++)
 		for (z = 0; z < tex->height-1; z++)
 		{
@@ -99,8 +100,8 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 	GLint size = sideLength*sideLength;
 	
 
-	kiss_fft_scalar* image = malloc(sizeof(kiss_fft_scalar)*size);
-	kiss_fft_cpx* transform = malloc(sizeof(kiss_fft_cpx)*(size/2+1));
+	kiss_fft_scalar* image = chkmalloc(sizeof(kiss_fft_scalar)*size);
+	kiss_fft_cpx* transform = chkmalloc(sizeof(kiss_fft_cpx)*(size/2+1));
 	GLint dims[2] = {sideLength, sideLength};
 	GLint ndims = 2;
 
@@ -169,7 +170,7 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 
 	fprintf(stderr, "Max: %f\n", max);
 
-	unsigned char* final = malloc(sizeof(unsigned char)*size);
+	unsigned char* final = chkmalloc(sizeof(unsigned char)*size);
 	for(i = 0; i < size; i++)
 	{
 		final[i] = (unsigned char)round(image[i]);
@@ -274,8 +275,8 @@ vec3* GetTransformedPositions(TextureData *tex, mat4 transformationMatrix)
 {
 	GLint x, z;
 	GLint vertexCount = tex->width * tex->height;
-	vec4* startingPositions = malloc(sizeof(vec4) * vertexCount);
-	vec3* transformedPositions = malloc(sizeof(vec3) * vertexCount);
+	vec4* startingPositions = chkmalloc(sizeof(vec4) * vertexCount);
+	vec3* transformedPositions = chkmalloc(sizeof(vec3) * vertexCount);
 	for (x = 0; x < tex->width; x++)
 		for (z = 0; z < tex->height; z++)
 		{
@@ -291,9 +292,9 @@ vec3* GetTransformedPositions(TextureData *tex, mat4 transformationMatrix)
 	return transformedPositions;
 }
 
-vec3 GetBezierPoint( vec3* points, int numPoints, float u ) 
+LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u ) 
 {
-    vec3* tempPoints = malloc(sizeof(vec3) * numPoints);
+    vec3* tempPoints = chkmalloc(sizeof(vec3) * numPoints);
     memcpy(tempPoints, points, sizeof(vec3) * numPoints);
     GLint i = numPoints - 1;
     GLint k;
@@ -312,145 +313,99 @@ vec3 GetBezierPoint( vec3* points, int numPoints, float u )
     return interpolatedPoint;
 }
 
-//BROOOOKEN
-Model* GenerateCubeTerrain(TextureData *mainTexture, 
-						   TextureData *leftConnectingTexture, 
-						   TextureData *rightConnectingTexture, 
-                   		   TextureData *upConnectingTexture, 
-                   		   TextureData *downConnectingTexture,
-                   		   mat4 modelMatrices[6])
+
+void GenerateCubeTerrainSimple(struct planetStruct *planet)
 {
-
-	Model* model = GenerateTerrainFromTexture(mainTexture);
-
-	//Overlap 10 atm
-	GLint vertexCount = mainTexture->width * mainTexture->height;
-
-	vec3* mainTransformedPosition = malloc(sizeof(vec3) * vertexCount);
-	vec3* transformedPosition = malloc(sizeof(vec3) * vertexCount);
-	mainTransformedPosition = GetTransformedPositions(mainTexture, modelMatrices[0]);
-	
-
-	//Left side Bezier curve
-	transformedPosition = GetTransformedPositions(leftConnectingTexture, modelMatrices[1]);
-	GLfloat u;
-	GLint numberOfInterpolationPointsInMain = 5;
-	GLint totalNumOfInterpolationPoints = numberOfInterpolationPointsInMain * 2 ;
-
-	vec3 bezier;
-	vec3 controlPoints[10];
-	GLint x,z;
-	
-	for (z = 0; z < mainTexture->height; ++z)
-	{
-		controlPoints[0] = mainTransformedPosition[4 + (z*mainTexture->width)];
-		controlPoints[1] = mainTransformedPosition[3 + (z*mainTexture->width)];
-		controlPoints[2] = mainTransformedPosition[2 + (z*mainTexture->width)];
-		controlPoints[3] = mainTransformedPosition[1 + (z*mainTexture->width)];
-		controlPoints[4] = mainTransformedPosition[0 + (z*mainTexture->width)];
-
-		controlPoints[5] = transformedPosition[((z+1)*leftConnectingTexture->width) - 5];
-		controlPoints[6] = transformedPosition[((z+1)*leftConnectingTexture->width) - 4];
-		controlPoints[7] = transformedPosition[((z+1)*leftConnectingTexture->width) - 3];
-		controlPoints[8] = transformedPosition[((z+1)*leftConnectingTexture->width) - 2];
-		controlPoints[9] = transformedPosition[((z+1)*leftConnectingTexture->width) - 1];
-
-
-		
-		for (x = 0; x < numberOfInterpolationPointsInMain; ++x)
+	GLint i;
+	for(i = 0; i < 6; i++)
 		{
-			GLfloat u = (GLfloat)x/(GLfloat)numberOfInterpolationPointsInMain;
-			bezier = GetBezierPoint( controlPoints, totalNumOfInterpolationPoints, u);
-			model->vertexArray[x + z * mainTexture->width + 0] = bezier.x;
-			model->vertexArray[x + z * mainTexture->width + 1] = bezier.y;
-			model->vertexArray[x + z * mainTexture->width + 2] = bezier.z;
-		}	
+		planet->terrainModels[i] = GenerateTerrainFromTexture(planet->terrainTexture[i]);
+
+		GLint x, z, edge;
+		
+
+		GLfloat currentHeight;
+
+		//Set height to go towards zero at the edge
+
+		//x near 0
+		for (x = 0; x < roundingDistanceFromEdge; ++x)
+			for (z = 0; z < planet->terrainTexture[i]->height; ++z)
+			{
+				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
+				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)x/(GLfloat)roundingDistanceFromEdge);
+			}
+		//x far edge
+		edge = planet->terrainTexture[i]->width;
+		for (x = (edge - roundingDistanceFromEdge); x < edge; ++x)
+			for (z = 0; z < planet->terrainTexture[i]->height; ++z)
+			{
+				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
+				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)(edge - x - 1)/(GLfloat)roundingDistanceFromEdge);
+			}
+
+		//z near 0
+		for (x = 0; x < planet->terrainTexture[i]->width; ++x)
+			for (z = 0; z < roundingDistanceFromEdge; ++z)
+			{
+				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
+				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)z/(GLfloat)roundingDistanceFromEdge);
+			}
+		//z far edge	
+		edge = planet->terrainTexture[i]->height;
+		for (x = 0; x < planet->terrainTexture[i]->width; ++x)
+			for (z = (edge-roundingDistanceFromEdge); z < edge; ++z)
+			{
+				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
+				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
+			}
+
 	}
 
-
-	//Bezier curves in z
-
-	//Apply x[i]*z[j]
-
-	free(mainTransformedPosition);
-	free(transformedPosition);
-
-	GLint triangleCount = (mainTexture->width-1) * (mainTexture->height-1) * 2;
-
-	return LoadDataToModel(
-				model->vertexArray,
-				model->normalArray,
-				model->texCoordArray,
-				NULL,
-				model->indexArray,
-				vertexCount,
-				triangleCount*3);
 }
 
+//Turn side of a unit cube to side of a unit sphere
+void MapCubeToSphere(struct planetStruct* planet)
+{	
+	GLint x, z, i;
+	
+	vec3 point;
+	for(i = 0; i < 6; i++)
+	{
+		GLint arrayWidth = planet->terrainTexture[i]->width;
+		GLint arrayHeight = planet->terrainTexture[i]->height;
+		for (x = 0; x < arrayWidth; x++)
+			for (z = 0; z < arrayHeight; z++)
+			{
+				vec4 tempPoint = {planet->terrainModels[i]->vertexArray[(x + z *arrayWidth)*3 + 0],
+						 	  	  planet->terrainModels[i]->vertexArray[(x + z *arrayWidth)*3 + 1],
+								  planet->terrainModels[i]->vertexArray[(x + z *arrayWidth)*3 + 2],
+							      1};
+				
+				tempPoint = MultVec4(planet->terrainModelToWorld[i], tempPoint);
+				
+				point.x = tempPoint.x/tempPoint.w;
+				point.y = tempPoint.y/tempPoint.w;
+				point.z = tempPoint.z/tempPoint.w;
 
-Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
-{
-	Model* model;
-	model = GenerateTerrainFromTexture(&planet->terrainTexture[0]);
+				point = vec4tovec3(tempPoint);
 
-	GLint x, z, edge;
-	GLint roundingDistanceFromEdge = 10;
+				point = VectorAdd(planet->center, ScalarMult(Normalize(point), planet->radius));
 
-	GLfloat currentHeight;
+				planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 0] = point.x;
+				planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 1] = point.y;
+				planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 2] = point.z;
+			}
 
-	//Set height to go towards zero at the edge
-
-	//x near 0
-	for (x = 0; x < roundingDistanceFromEdge; ++x)
-		for (z = 0; z < planet->terrainTexture[0].height; ++z)
-		{
-			currentHeight = model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1];
-			model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1] = currentHeight * ((GLfloat)x/(GLfloat)roundingDistanceFromEdge);
-		}
-	//x far edge
-	edge = planet->terrainTexture[0].width;
-	for (x = (edge - roundingDistanceFromEdge); x < edge; ++x)
-		for (z = 0; z < planet->terrainTexture[0].height; ++z)
-		{
-			currentHeight = model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1];
-			model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1] = currentHeight * ((GLfloat)(edge - x - 1)/(GLfloat)roundingDistanceFromEdge);
-		}
-
-	//z near 0
-	for (x = 0; x < planet->terrainTexture[0].width; ++x)
-		for (z = 0; z < roundingDistanceFromEdge; ++z)
-		{
-			currentHeight = model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1];
-			model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1] = currentHeight * ((GLfloat)z/(GLfloat)roundingDistanceFromEdge);
-		}
-	//z far edge	
-	edge = planet->terrainTexture[0].height;
-	for (x = 0; x < planet->terrainTexture[0].width; ++x)
-		for (z = (edge-roundingDistanceFromEdge); z < edge; ++z)
-		{
-			currentHeight = model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1];
-			model->vertexArray[(x + z * planet->terrainTexture[0].width)*3 + 1] = currentHeight * ((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
-		}
-
-	model->indexArray = GenerateTerrainIndexArray(&planet->terrainTexture[0]);
-	model->normalArray = GenerateTerrainNormalArray(&planet->terrainTexture[0], model->vertexArray);
+		planet->terrainModels[i]->normalArray = GenerateTerrainNormalArray(planet->terrainTexture[i], planet->terrainModels[i]->vertexArray);
+	}
+} 
 
 
-	GLint vertexCount = planet->terrainTexture[0].width * planet->terrainTexture[0].height;
-	GLint triangleCount = (planet->terrainTexture[0].width-1) * (planet->terrainTexture[0].height-1) * 2;
 
-	return LoadDataToModel(
-				model->vertexArray,
-				model->normalArray,
-				model->texCoordArray,
-				NULL,
-				model->indexArray,
-				vertexCount,
-				triangleCount*3);
-}
-
-//Turn side of a unit cube to a unit sphere
-Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight)
+/*
+//Turn side of a unit cube to side of a unit sphere
+Model* MapCubeToSphere(Model* cubeModel, struct planetStruct planet, GLint arrayWidth, GLint arrayHeight)
 {	
 	//Since corner is at 0:
 	GLfloat distanceFromOriginX = cubeModel->vertexArray[(arrayWidth/2 + arrayHeight/2 * arrayWidth)*3 + 0];
@@ -460,12 +415,12 @@ Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint
 	GLint x, z;
 	GLint vertexCount = arrayWidth * arrayHeight;
 	GLint triangleCount = (arrayWidth-1) * (arrayHeight-1) * 2;
-	GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+	GLfloat *vertexArray = chkmalloc(sizeof(GLfloat) * 3 * vertexCount);
 	for (x = 0; x < arrayWidth; x++)
 		for (z = 0; z < arrayHeight; z++)
 		{
 			vec3 tempvecFlat = SetVector(cubeModel->vertexArray[(x + z * arrayWidth)*3 + 0] - distanceFromOriginX, 
-										 radius, 
+										 planet.radius, 
 										 cubeModel->vertexArray[(x + z * arrayWidth)*3 + 2] - distanceFromOriginZ);
 			vec3 tempvecNorm = Normalize(tempvecFlat);
 			vec3 tempvecSphere = SetVector(tempvecNorm.x * radius, 
@@ -485,7 +440,7 @@ Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint
 				cubeModel->indexArray,
 				vertexCount,
 				triangleCount*3);
-}
+} */
 
 	//Turn side of a unit cube to a unit sphere
 Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight)
@@ -498,7 +453,7 @@ Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, G
 	GLint x, z;
 	GLint vertexCount = arrayWidth * arrayHeight;
 	GLint triangleCount = (arrayWidth-1) * (arrayHeight-1) * 2;
-	GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+	GLfloat *vertexArray = chkmalloc(sizeof(GLfloat) * 3 * vertexCount);
 	for (x = 0; x < arrayWidth; x++)
 		for (z = 0; z < arrayHeight; z++)
 		{

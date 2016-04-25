@@ -4,6 +4,7 @@
 #include "DisplayGlobals.h"
 #include "ControlGlobals.h"
 #include "PhysicsGlobals.h"
+#include "TerrainGlobals.h"
 
 #include "loadobj.h"
 #include "LoadTGA.h"
@@ -12,27 +13,20 @@
 
 #define LOCAL static
 
+void* chkmalloc(size_t sz);
+
 //Because declaration order matters....
 struct planetStruct {
-	TextureData terrainTexture[6]; //Order: Up, left, bottom, right, back, front
-	mat4 terrainModelToWorld[6];
+	TextureData* terrainTexture[6]; //Order: Up, left, bottom, right, front, back
+	mat4 terrainModelToWorld[6];	//Same order as terrainTexture
+	Model* terrainModels[6];
 	vec3 center;
 	vec3 upVec;  //Must be normalized
-	vec3 frontVec;
+	vec3 frontVec; //Must be normalized
 	GLfloat radius;
 };
 
-
-
-
-//Declare globals
-extern const GLfloat terrainScale;
-
-extern TextureData terrainTexture; // Terrain, stored as a texture
-
 extern struct planetStruct Planet;
-
-extern vec3 middleOfPlanet;
 
 void InitAll();
 LOCAL void InitPhysics();
@@ -40,7 +34,9 @@ LOCAL void InitCamera();
 LOCAL void InitCameraControls();
 LOCAL void InitShaders();
 LOCAL void InitTextures();
-void InitModels();
 LOCAL void InitTerrain();
+void InitModels();
 void InitWindow(GLint width, GLint height);
+void cleanUpAndExit();
+
 #endif

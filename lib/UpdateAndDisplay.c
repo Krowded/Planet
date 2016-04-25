@@ -16,13 +16,16 @@ void display(void)
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	GLint i;
+
 	for (i = 0; i < 6; ++i)
 	{
-		total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
+		//total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
+		total = camMatrix;
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
-		DrawModel(terrainModel, terrainProgram, "inPosition", "inNormal", "inTexCoord");
+		DrawModel(Planet.terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
 	}
 
+/*
 	//Draw models
 	glUseProgram(modelProgram);
 
@@ -41,6 +44,7 @@ void display(void)
 	total = Mult(camMatrix, ModelToWorld);
 	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(m2, modelProgram, "inPosition", "inNormal", "inTexCoord");
+	*/
 
 
 

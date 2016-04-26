@@ -23,6 +23,26 @@ void display(void)
 		DrawModel(terrainModel, terrainProgram, "inPosition", "inNormal", "inTexCoord");
 	}
 
+	//Draw sky
+	glUseProgram(skyProgram);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	translation = T(0, 0, 0);
+	rotation = Rx(0);
+	model = Mult(translation, rotation);
+	mv = Mult(camera, model);
+	(mv.m)[3] = 0;
+	(mv.m)[7] = 0;
+	(mv.m)[11] = 0;
+	mvp = Mult(projection, mv);
+	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "mvp"), 1, GL_TRUE, mvp.m);
+	glBindTexture(GL_TEXTURE_2D, skytex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	DrawModel(skyboxm, skyProgram, "inPosition", NULL, "inTexCoord");
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);	
+	
+
 	//Draw models
 	glUseProgram(modelProgram);
 

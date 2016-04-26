@@ -24,9 +24,9 @@ const GLfloat terrainScale = 30.0;
 
 GLint globalTime = 0;
 mat4 camMatrix, camBaseMatrix, projectionMatrix;	
-Model *m, *m2, *terrainModel;
-GLuint terrainProgram, modelProgram;
-GLuint tex1, tex2;
+Model *m, *m2, *skyboxm,*terrainModel;
+GLuint terrainProgram, modelProgram, skyProgram;
+GLuint tex1, tex2, skytex;
 TextureData terrainTexture;
 
 const GLfloat radius = 128;
@@ -70,6 +70,7 @@ LOCAL void InitShaders()
 	// Load and compile shader
 	terrainProgram = loadShaders("shaders/terrain.vert", "shaders/terrain.frag");
 	modelProgram = loadShaders("shaders/models.vert", "shaders/models.frag");
+	skyProgram = loadShaders("shaders/sky.vert", "shaders/sky.frag");
 	glUseProgram(terrainProgram);
 	printError("Init shader");
 }
@@ -80,6 +81,10 @@ LOCAL void InitTextures()
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
 
+
+
+	LoadTGATextureSimple("SkyBox512.tga", &skytex)
+
 	printError("Init terrain");	
 }
 
@@ -88,7 +93,7 @@ void InitModels()
 	// Load models
 	m = LoadModelPlus("models/groundsphere.obj");
 	m2 = LoadModelPlus("models/octagon.obj");
-	skybox = LoadModelPlus("models/skybox.obj");
+	skyboxm = LoadModelPlus("models/skybox.obj");
 }
 
 

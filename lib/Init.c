@@ -88,6 +88,7 @@ void InitModels()
 	// Load models
 	m = LoadModelPlus("models/groundsphere.obj");
 	m2 = LoadModelPlus("models/octagon.obj");
+	skybox = LoadModelPlus("models/skybox.obj");
 }
 
 

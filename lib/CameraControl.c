@@ -164,6 +164,44 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	if (glutKeyIsDown(GLUT_KEY_ESC))
 		cleanUpAndExit();
 
+	//Switch planet
+	if(glutKeyIsDown('0'))
+	{
+		SetCurrentPlanet(0);
+	}
+	else if(glutKeyIsDown('1'))
+	{
+		SetCurrentPlanet(1);
+	}
+	else if (glutKeyIsDown('2'))
+	{
+		SetCurrentPlanet(2);
+	}
+	else if (glutKeyIsDown('3'))
+	{
+		SetCurrentPlanet(3);
+	}	
+	else if (glutKeyIsDown('4'))
+	{
+		SetCurrentPlanet(4);
+	}	
+	else if (glutKeyIsDown('5'))
+	{
+		SetCurrentPlanet(5);
+	}	
+	else if (glutKeyIsDown('6'))
+	{
+		SetCurrentPlanet(6);
+	}	
+	else if (glutKeyIsDown('7'))
+	{
+		SetCurrentPlanet(7);
+	}	
+	else if (glutKeyIsDown('8'))
+	{
+		SetCurrentPlanet(8);
+	}	
+
 
 	{ //static scope limiter
 		static bool spacePressed = false;

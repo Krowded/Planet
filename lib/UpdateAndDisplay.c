@@ -15,17 +15,17 @@ void display(void)
 
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
-	GLint i;
+	GLint i,j;
 	
 
-//fprintf(stderr, "%f \n", Planet.terrainModels[0]->vertexArray[100 + 0]);
-	for (i = 0; i < 6; ++i)
-	{
-		total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
-		//total = camMatrix;
-		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
-		DrawModel(Planet.terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
-	}
+	for(j = 0; j < numberOfPlanets; j++)
+		for(i = 0; i < 6; ++i)
+		{
+			total = Mult(camMatrix, planetsList[j].terrainModelToWorld[i]);
+			//total = camMatrix;
+			glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
+			DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
+		}
 
 /*
 	//Draw models
@@ -71,7 +71,7 @@ LOCAL void Update(GLint t)
 	GLint x,y;
 	getCursorPosition(&x, &y);
 	MouseUpdate(x,y);
-	UpdateCamera(t, Planet);
+	UpdateCamera(t, planetsList[currentPlanet]);
 }
 
 

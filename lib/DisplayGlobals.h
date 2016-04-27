@@ -32,4 +32,8 @@ extern const GLfloat radius;
 
 extern struct planetStruct Planet;
 
+extern struct planetStruct* planetsList;
+extern GLint numberOfPlanets;
+extern GLint currentPlanet;
+
 #endif

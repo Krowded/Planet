@@ -25,10 +25,10 @@ LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned 
 Model* GenerateTerrainFromTexture(TextureData *tex);
 
 LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
-
+LOCAL GLfloat RoundingFunction(GLfloat t);
 void GenerateCubeTerrain(struct planetStruct* planet);
 
-Model* GenerateCubeTerrainSimple(struct planetStruct* planet);
+Model* GenerateCubeTerrainSimple(struct planetStruct planet);
 
 Model* MapCubeToSphere(struct planetStruct planet, GLint i);
 Model* MapCubeToFlatSphere(struct  planetStruct planet, GLint i);

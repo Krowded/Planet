@@ -245,8 +245,6 @@ Model* GenerateTerrainFromTexture(TextureData *tex)
 	GLfloat* normalArray;
 	GLfloat* texCoordArray;
 	GLuint* indexArray;
-	
-	printf("bpp %d\n", tex->bpp);
 
 	vertexArray = GenerateTerrainVertexArray(tex);
 	texCoordArray = GenerateTerrainTextureCoordinateArray(tex);
@@ -311,26 +309,34 @@ LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u )
 }
 
 
+LOCAL GLfloat RoundingFunction(GLfloat t)
+{
+	return pow(t,2);
+}
 
-Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
+
+Model* GenerateCubeTerrainSimple(struct planetStruct planet)
 {
 	Model* model;
-	model = GenerateTerrainFromTexture(planet->terrainTexture[0]);
+	model = GenerateTerrainFromTexture(planet.terrainTexture[0]);
 
 	GLint x, z, edge;	
 
 	GLfloat currentHeight;
-	GLint arrayWidth = planet->terrainTexture[0]->width;
-	GLint arrayHeight = planet->terrainTexture[0]->height;
+	GLint arrayWidth = planet.terrainTexture[0]->width;
+	GLint arrayHeight = planet.terrainTexture[0]->height;
 
 	//Set height to go towards zero at the edge
+	GLfloat b = 1;
+	GLfloat c = -1;
+
 
 	//x near 0
 	for (x = 0; x < roundingDistanceFromEdge; ++x)
 		for (z = 0; z < arrayHeight; ++z)
 		{
 			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
-			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)x/(GLfloat)roundingDistanceFromEdge);
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * RoundingFunction((GLfloat)x/(GLfloat)roundingDistanceFromEdge);
 		}
 	//x far edge
 	edge = arrayWidth;
@@ -338,7 +344,7 @@ Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
 		for (z = 0; z < arrayHeight; ++z)
 		{
 			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
-			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)(edge - x - 1)/(GLfloat)roundingDistanceFromEdge);
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * RoundingFunction((GLfloat)(edge - x - 1)/(GLfloat)roundingDistanceFromEdge);
 		}
 
 	//z near 0
@@ -346,7 +352,7 @@ Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
 		for (z = 0; z < roundingDistanceFromEdge; ++z)
 		{
 			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
-			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)z/(GLfloat)roundingDistanceFromEdge);
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * RoundingFunction((GLfloat)z/(GLfloat)roundingDistanceFromEdge);
 		}
 	//z far edge	
 	edge = arrayHeight;
@@ -354,11 +360,11 @@ Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
 		for (z = (edge-roundingDistanceFromEdge); z < edge; ++z)
 		{
 			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
-			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * RoundingFunction((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
 		}
 
-	model->indexArray = GenerateTerrainIndexArray(planet->terrainTexture[0]);
-	model->normalArray = GenerateTerrainNormalArray(planet->terrainTexture[0], model->vertexArray);
+	model->indexArray = GenerateTerrainIndexArray(planet.terrainTexture[0]);
+	model->normalArray = GenerateTerrainNormalArray(planet.terrainTexture[0], model->vertexArray);
 
 
 	GLint vertexCount = arrayWidth * arrayHeight;

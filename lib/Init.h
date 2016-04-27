@@ -37,6 +37,7 @@ LOCAL void InitTextures();
 LOCAL void InitTerrain();
 void InitModels();
 void InitWindow(GLint width, GLint height);
+void SetCurrentPlanet(GLuint newCurrent);
 void cleanUpAndExit();
 
 #endif

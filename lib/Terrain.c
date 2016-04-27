@@ -13,7 +13,6 @@ LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 		{
 			// Vertex array. y scales height
 			vertexArray[(x + z * tex->width)*3 + 0] = x / 1.0;
-			#warning actual code commented
 			vertexArray[(x + z * tex->width)*3 + 1] = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
 			vertexArray[(x + z * tex->width)*3 + 2] = z / 1.0;
 		}
@@ -314,64 +313,78 @@ LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u )
 }
 
 
-void GenerateCubeTerrainSimple(struct planetStruct *planet)
+
+Model* GenerateCubeTerrainSimple(struct planetStruct *planet)
 {
-	GLint i;
-	for(i = 0; i < 6; i++)
+	Model* model;
+	model = GenerateTerrainFromTexture(planet->terrainTexture[0]);
+
+	GLint x, z, edge;
+	GLint roundingDistanceFromEdge = 10;
+
+	GLfloat currentHeight;
+	GLint arrayWidth = planet->terrainTexture[0]->width;
+	GLint arrayHeight = planet->terrainTexture[0]->height;
+
+	//Set height to go towards zero at the edge
+
+	//x near 0
+	for (x = 0; x < roundingDistanceFromEdge; ++x)
+		for (z = 0; z < arrayHeight; ++z)
 		{
-		planet->terrainModels[i] = GenerateTerrainFromTexture(planet->terrainTexture[i]);
+			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)x/(GLfloat)roundingDistanceFromEdge);
+		}
+	//x far edge
+	edge = arrayWidth;
+	for (x = (edge - roundingDistanceFromEdge); x < edge; ++x)
+		for (z = 0; z < arrayHeight; ++z)
+		{
+			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)(edge - x - 1)/(GLfloat)roundingDistanceFromEdge);
+		}
 
-		GLint x, z, edge;
-		
+	//z near 0
+	for (x = 0; x < arrayWidth; ++x)
+		for (z = 0; z < roundingDistanceFromEdge; ++z)
+		{
+			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)z/(GLfloat)roundingDistanceFromEdge);
+		}
+	//z far edge	
+	edge = arrayHeight;
+	for (x = 0; x < arrayWidth; ++x)
+		for (z = (edge-roundingDistanceFromEdge); z < edge; ++z)
+		{
+			currentHeight = model->vertexArray[(x + z * arrayWidth)*3 + 1];
+			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * ((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
+		}
 
-		GLfloat currentHeight;
+	model->indexArray = GenerateTerrainIndexArray(planet->terrainTexture[0]);
+	model->normalArray = GenerateTerrainNormalArray(planet->terrainTexture[0], model->vertexArray);
 
-		//Set height to go towards zero at the edge
 
-		//x near 0
-		for (x = 0; x < roundingDistanceFromEdge; ++x)
-			for (z = 0; z < planet->terrainTexture[i]->height; ++z)
-			{
-				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
-				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)x/(GLfloat)roundingDistanceFromEdge);
-			}
-		//x far edge
-		edge = planet->terrainTexture[i]->width;
-		for (x = (edge - roundingDistanceFromEdge); x < edge; ++x)
-			for (z = 0; z < planet->terrainTexture[i]->height; ++z)
-			{
-				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
-				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)(edge - x - 1)/(GLfloat)roundingDistanceFromEdge);
-			}
+	GLint vertexCount = arrayWidth * arrayHeight;
+	GLint triangleCount = (arrayWidth-1) * (arrayHeight-1) * 2;
 
-		//z near 0
-		for (x = 0; x < planet->terrainTexture[i]->width; ++x)
-			for (z = 0; z < roundingDistanceFromEdge; ++z)
-			{
-				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
-				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)z/(GLfloat)roundingDistanceFromEdge);
-			}
-		//z far edge	
-		edge = planet->terrainTexture[i]->height;
-		for (x = 0; x < planet->terrainTexture[i]->width; ++x)
-			for (z = (edge-roundingDistanceFromEdge); z < edge; ++z)
-			{
-				currentHeight = planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1];
-				planet->terrainModels[i]->vertexArray[(x + z * planet->terrainTexture[i]->width)*3 + 1] = currentHeight * ((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
-			}
-
-	}
-
+	return LoadDataToModel(
+				model->vertexArray,
+				model->normalArray,
+				model->texCoordArray,
+				NULL,
+				model->indexArray,
+				vertexCount,
+				triangleCount*3);
 }
 
-//Turn side of a unit cube to side of a unit sphere
-void MapCubeToSphere(struct planetStruct* planet)
+
+//Turn side of a unit cube to side of a unit sphere B.R.O.K.E.N.
+Model* MapCubeToSphere(struct planetStruct* planet, GLint i)
 {	
-	GLint x, z, i;
+	GLint x, z;
 	
 	vec3 point;
-	for(i = 0; i < 6; i++)
-	{
+
 		GLint arrayWidth = planet->terrainTexture[i]->width;
 		GLint arrayHeight = planet->terrainTexture[i]->height;
 		for (x = 0; x < arrayWidth; x++)
@@ -391,14 +404,16 @@ void MapCubeToSphere(struct planetStruct* planet)
 				point = vec4tovec3(tempPoint);
 
 				point = VectorAdd(planet->center, ScalarMult(Normalize(point), planet->radius));
-
+				fprintf(stderr, "%f\n", planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 0]);
 				planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 0] = point.x;
 				planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 1] = point.y;
 				planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 2] = point.z;
+				fprintf(stderr, "%f\n", planet->terrainModels[i]->vertexArray[(x + z * arrayWidth)*3 + 0]);
 			}
 
 		planet->terrainModels[i]->normalArray = GenerateTerrainNormalArray(planet->terrainTexture[i], planet->terrainModels[i]->vertexArray);
-	}
+
+		return planet->terrainModels[i];
 } 
 
 
@@ -443,6 +458,41 @@ Model* MapCubeToSphere(Model* cubeModel, struct planetStruct planet, GLint array
 } */
 
 	//Turn side of a unit cube to a unit sphere
+
+Model* MapCubeToFlatSphere(struct planetStruct planet, GLint i) //i = index of side
+{
+	GLint x;
+	for(x = 0; x < planet.terrainTexture[i]->width*planet.terrainTexture[i]->width*3; x += 3)
+	{
+		vec4 point = {planet.terrainModels[i]->vertexArray[x + 0],
+					  planet.terrainModels[i]->vertexArray[x + 1],
+					  planet.terrainModels[i]->vertexArray[x + 2],
+					  1};
+
+		point = MultVec4(planet.terrainModelToWorld[i], point);
+
+		vec3 newPoint = Normalize(SetVector(point.x,point.y,point.z));
+		newPoint = ScalarMult(newPoint, Planet.radius);
+
+		
+		planet.terrainModels[i]->vertexArray[x + 0] = newPoint.x;
+		planet.terrainModels[i]->vertexArray[x + 1] = newPoint.y;
+		planet.terrainModels[i]->vertexArray[x + 2] = newPoint.z;
+	}
+		
+	planet.terrainModels[i] =	LoadDataToModel(
+							planet.terrainModels[i]->vertexArray,
+							planet.terrainModels[i]->normalArray,
+							planet.terrainModels[i]->texCoordArray,
+							NULL,
+							planet.terrainModels[i]->indexArray,
+							planet.terrainModels[i]->numVertices,
+							planet.terrainModels[i]->numIndices);
+	return planet.terrainModels[i];
+}
+
+
+/*
 Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight)
 {	
 	//Since corner is at 0:
@@ -476,7 +526,7 @@ Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, G
 				vertexCount,
 				triangleCount*3);
 }
-
+*/
 
 GLfloat GetTerrainHeight(vec3 currentPosition, Model *tm, TextureData tex)
 {

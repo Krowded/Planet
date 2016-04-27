@@ -28,10 +28,10 @@ LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
 
 void GenerateCubeTerrain(struct planetStruct* planet);
 
-void GenerateCubeTerrainSimple(struct planetStruct *planet);
+Model* GenerateCubeTerrainSimple(struct planetStruct* planet);
 
-void MapCubeToSphere(struct planetStruct* planet);
-Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
+Model* MapCubeToSphere(struct planetStruct* planet, GLint i);
+Model* MapCubeToFlatSphere(struct  planetStruct planet, GLint i);
 
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);

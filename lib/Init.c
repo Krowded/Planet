@@ -117,10 +117,9 @@ LOCAL void InitTerrain()
 		LoadTGATextureData("textures/fft-terrain.tga", Planet.terrainTexture[i]);
 
 	//Generate terrain model matrix
-	GLfloat distanceToMiddleX = ((GLfloat)Planet.terrainTexture[0]->width*0.5f)+1.5;
+	GLfloat distanceToMiddleX = ((GLfloat)Planet.terrainTexture[0]->width*0.5f);
 	GLfloat distanceToMiddleZ = ((GLfloat)Planet.terrainTexture[0]->height*0.5f);
-	GLfloat distanceToMiddleY = 127.5;//Planet.radius;
-
+	GLfloat distanceToMiddleY = Planet.radius;//127.5;
 
 	for (i = 0; i < 4; ++i)
 	{
@@ -136,7 +135,7 @@ LOCAL void InitTerrain()
 		Planet.terrainModelToWorld[4+i] = Mult( Rx(M_PI*(0.5f+(GLfloat)i)), Planet.terrainModelToWorld[4+i] );
 	}
 
-	//IF CUBE:
+	//Weird offset: (Probably size dependent)
 	Planet.terrainModelToWorld[1] = Mult(T(0, 1, 0), Planet.terrainModelToWorld[1]);
 	Planet.terrainModelToWorld[2] = Mult(T(-1, 1, 0), Planet.terrainModelToWorld[2]);
 	Planet.terrainModelToWorld[3] = Mult(T(-1, 0, 0), Planet.terrainModelToWorld[3]);
@@ -149,26 +148,17 @@ LOCAL void InitTerrain()
 	//TextureData* tex = chkmalloc(sizeof(TextureData));
 	//GenerateProceduralTerrainTexture(256, tex);
 	//Planet.terrainTexture[0] = *tex;
-	GenerateCubeTerrainSimple(&Planet);
+	
 	for(i = 0; i < 6; i++)
 	{
-		//Planet.terrainModels[i] = MapCubeToFlatSphere(Planet.terrainModels[i], Planet.radius+3, Planet.terrainTexture[0]->width, Planet.terrainTexture[0]->height);
+		Planet.terrainModels[i] = GenerateCubeTerrainSimple(&Planet);
+		
+		Model* oldmodel = Planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
+		Planet.terrainModels[i] = MapCubeToFlatSphere(Planet, i);
+		free(oldmodel);
 	}
-	//terrainModel = GenerateTerrainFromTexture(tex);
-	//terrainModel = GenerateCubeTerrain(&Planet);
 
-	MapCubeToSphere(&Planet);
-
-	/*struct planetStruct newPlanet;
-	newPlanet.center = Planet.center;
-	newPlanet.upVec = Planet.upVec;
-	newPlanet.frontVec = Planet.frontVec;
-	newPlanet.radius = Planet.radius;
-	TextureData terrainTexture[6]; //Order: Up, left, bottom, right, front, back
-	mat4 terrainModelToWorld[6];	//Same order as terrainTexture
-	Model* terrainModels[6];
-	GLfloat radius;*/
-
+	
 
 }
 

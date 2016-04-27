@@ -16,7 +16,9 @@ void display(void)
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	GLint i;
+	
 
+//fprintf(stderr, "%f \n", Planet.terrainModels[0]->vertexArray[100 + 0]);
 	for (i = 0; i < 6; ++i)
 	{
 		//total = Mult(camMatrix, Planet.terrainModelToWorld[i]);

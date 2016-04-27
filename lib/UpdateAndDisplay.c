@@ -16,18 +16,18 @@ void display(void)
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	GLint i;
+	
+
+//fprintf(stderr, "%f \n", Planet.terrainModels[0]->vertexArray[100 + 0]);
 	for (i = 0; i < 6; ++i)
 	{
-		total = Mult(camMatrix, Planet.TerrainModelToWorld[i]);
+		//total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
+		total = camMatrix;
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
-		DrawModel(terrainModel, terrainProgram, "inPosition", "inNormal", "inTexCoord");
+		DrawModel(Planet.terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
 	}
 
-	//Match gravity to planet (should it be here?)			
-	vec3 offvec = GetCurrentPosition(Planet.TerrainModelToWorld[0]); //Has to be the model matrix for the one you're walking on
-	SetTerrainOffset(offvec.x, offvec.y, offvec.z);
-
-
+/*
 	//Draw models
 	glUseProgram(modelProgram);
 
@@ -46,6 +46,7 @@ void display(void)
 	total = Mult(camMatrix, ModelToWorld);
 	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(m2, modelProgram, "inPosition", "inNormal", "inTexCoord");
+	*/
 
 
 
@@ -59,28 +60,26 @@ void display(void)
 
 
 //Update position and rotation of camera
-void CamUpdate(GLint mouseX, GLint mouseY)
+void MouseUpdate(GLint mouseX, GLint mouseY)
 {
-	camMatrix = CameraMouseUpdate(mouseX, mouseY, camMatrix, camBaseMatrix);
+	CameraMouseUpdate(mouseX, mouseY);
 }
 
-void UpdatePosition(GLint t)
+LOCAL void Update(GLint t)
 {
 	//Read input and update
-	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix);
-	vec3 currentPosition = GetCurrentCameraPosition(camBaseMatrix);
-	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
-											radius);//GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
-	CamUpdate(0,0);
+	GLint x,y;
+	getCursorPosition(&x, &y);
+	MouseUpdate(x,y);
+	UpdateCamera(t, Planet);
 }
-
 
 
 
 void timer(GLint integer)
-{
+{ 	
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
-	UpdatePosition(globalTime);
+	Update(globalTime);
 
 	glutPostRedisplay();
 

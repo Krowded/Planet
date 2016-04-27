@@ -6,21 +6,22 @@
 #include "Init.h"
 #include "PhysicsGlobals.h"
 	
-	//Bool if TGA not included
-	#ifndef __TGA_LOADER__
+//Bool if TGA not included
+#ifndef __TGA_LOADER__
 
-		typedef GLint bool;
-		#define false 0
-		#define true !false
+	typedef GLint bool;
+	#define false 0
+	#define true !false
 
-	#endif 
+#endif 
+
 void PhysicsInit(GLfloat maxFallSpeed, GLfloat cameraHeight);
 void SetGravity(bool isGravityOn);
 void SetFallSpeed(GLfloat maxFallSpeed);
 void SetCameraHeight(GLfloat cameraHeight);
 bool IsGravityOn();
 
-mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, GLfloat height);
+mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct planetStruct planet);
 
 vec3 GetCurrentPosition(mat4 ModelToWorldMatrix);
 

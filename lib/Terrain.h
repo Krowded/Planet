@@ -6,40 +6,32 @@
 #include "LoadTGA.h"
 #include "math.h"
 #include "Init.h"
+#include "TerrainGlobals.h"
+
+#define LOCAL static
+
 
 extern struct planetStruct planet;
 
-typedef struct offset {
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
-} offset;
+LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
+LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
 
-extern struct offset TerrainOffset;
+void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* ter);
 
+LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned char* data);
 
-void SetTerrainOffset(GLfloat x, GLfloat y, GLfloat z);
+Model* GenerateTerrainFromTexture(TextureData *tex);
 
-//These four should maybe be local
-GLfloat* GenerateTerrainVertexArray(TextureData *tex);
-GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
-GLuint* GenerateTerrainIndexArray(TextureData *tex);
-GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
+LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
 
+void GenerateCubeTerrain(struct planetStruct* planet);
 
-Model* GenerateTerrain(TextureData*);
+Model* GenerateCubeTerrainSimple(struct planetStruct* planet);
 
-Model* GenerateCubeTerrain(TextureData *mainTexture, 
-						   TextureData *leftConnectingTexture, 
-						   TextureData *rightConnectingTexture, 
-	                       TextureData *upConnectingTexture, 
-	                       TextureData *downConnectingTexture,
-	                       mat4 modelMatrices[6]);
-
-Model* GenerateCubeTerrainSimple(struct planetStruct *planet);
-
-Model* MapCubeToSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
-Model* MapCubeToFlatSphere(Model* cubeModel, GLfloat radius, GLint arrayWidth, GLint arrayHeight);
+Model* MapCubeToSphere(struct planetStruct planet, GLint i);
+Model* MapCubeToFlatSphere(struct  planetStruct planet, GLint i);
 
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);

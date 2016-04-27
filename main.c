@@ -25,17 +25,16 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitContextVersion(3, 2);
 	glutInitWindowSize (windowWidth, windowHeight);
-	glutCreateWindow ("Project");
-	//glutHideCursor();
-	glutWarpPointer(windowWidth*0.5, 0);
+	glutCreateWindow ("Planet");
+	glutHideCursor();
+	glutWarpPointer(windowWidth*0.5, windowHeight*0.5);
 	glutDisplayFunc(display);
+	glutReshapeFunc(InitWindow);
 	Init();
 
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
 	timer(globalTime);
-
-	glutPassiveMotionFunc(CamUpdate);
-
+	
 	glutMainLoop();
 	exit(0);
 }

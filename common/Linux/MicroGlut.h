@@ -67,6 +67,15 @@ void glutExitFullScreen();
 void glutToggleFullScreen();
 void glutExit();
 
+
+
+
+
+void getCursorPosition(int* x, int* y);
+int IsTopWindow();
+
+
+
 /* Mouse buttons. */
 #define GLUT_LEFT_BUTTON		0
 // No support for middle yet

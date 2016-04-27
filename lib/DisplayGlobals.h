@@ -6,12 +6,14 @@
 #include "loadobj.h"
 #include "Init.h"
 
-extern const GLfloat windowWidth;
-extern const GLfloat windowHeight;
-extern const GLint drawDistance;
-extern const GLfloat nearDrawDistance;
+
 extern const vec4 backgroundColor;
-extern const GLfloat fov;
+
+extern GLfloat windowWidth;
+extern GLfloat windowHeight;
+extern GLint drawDistance;
+extern GLfloat nearDrawDistance;
+extern GLfloat fov;
 
 
 extern Model *m, *m2, *terrainModel;
@@ -22,7 +24,7 @@ extern GLuint tex1, tex2;
 
 extern mat4 camMatrix, camBaseMatrix, projectionMatrix;
 
-extern const GLfloat cameraHeight;
+extern GLfloat cameraHeight;
 
 extern GLint globalTime;
 

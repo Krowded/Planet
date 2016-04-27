@@ -318,7 +318,7 @@ int SaveDataToTGA(char			*filename,
 
 	fclose(file);
 // release the memory
-	free(imageData);
+	//free(imageData);
 
 	return(TGA_OK);
 }

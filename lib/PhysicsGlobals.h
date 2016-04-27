@@ -3,6 +3,12 @@
 
 #include "Init.h"
 
-extern const GLfloat maxFallSpeed;
+extern GLfloat maxFallSpeed;
+
+extern GLfloat maxHeight;
+
+extern struct planetStruct planet; //This should not be here!
+
+extern GLfloat maxAngleOfTerrain;
 
 #endif

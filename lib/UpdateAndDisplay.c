@@ -21,8 +21,8 @@ void display(void)
 //fprintf(stderr, "%f \n", Planet.terrainModels[0]->vertexArray[100 + 0]);
 	for (i = 0; i < 6; ++i)
 	{
-		//total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
-		total = camMatrix;
+		total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
+		//total = camMatrix;
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 		DrawModel(Planet.terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
 	}

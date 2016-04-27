@@ -33,8 +33,8 @@ GLfloat mouseSensitivity = 0.002;
 
 GLfloat maxHeight = 100;;
 
-GLfloat terrainScale = 10.0;
-GLint roundingDistanceFromEdge = 1;
+GLfloat terrainScale = 20.0;
+GLint roundingDistanceFromEdge = 20;
 GLfloat simpleInterpolationHeight = 10;
 
 GLint globalTime = 0;
@@ -51,7 +51,7 @@ struct planetStruct Planet;
 void InitAll()
 {
 	InitWindow(windowWidth, windowHeight);
-	Planet.center = SetVector(0,0,0);
+	Planet.center = SetVector(500,0,0);
 	Planet.radius = 256.0f*0.5f;
 	Planet.upVec = SetVector(0, 1, 0);
 	Planet.frontVec = SetVector(0, 0, 1);
@@ -128,7 +128,6 @@ LOCAL void InitTerrain()
 		Planet.terrainModelToWorld[i] = Mult( Rz(M_PI*0.5f*(GLfloat)i), Planet.terrainModelToWorld[i] );
 	}
 
-
 	//Last two sides
 	for (i = 0; i < 2; ++i)
 	{
@@ -157,6 +156,9 @@ LOCAL void InitTerrain()
 		Model* oldmodel = Planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
 		Planet.terrainModels[i] = MapCubeToSphere(Planet, i);
 		free(oldmodel);
+
+
+		Planet.terrainModelToWorld[i] = T(Planet.center.x, Planet.center.y, Planet.center.z);
 	}
 
 	

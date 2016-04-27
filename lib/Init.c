@@ -33,8 +33,9 @@ GLfloat mouseSensitivity = 0.002;
 
 GLfloat maxHeight = 100;;
 
-GLfloat terrainScale = 30.0;
-GLint roundingDistanceFromEdge = 10;
+GLfloat terrainScale = 10.0;
+GLint roundingDistanceFromEdge = 1;
+GLfloat simpleInterpolationHeight = 10;
 
 GLint globalTime = 0;
 mat4 camMatrix, camBaseMatrix, projectionMatrix;	
@@ -152,9 +153,9 @@ LOCAL void InitTerrain()
 	for(i = 0; i < 6; i++)
 	{
 		Planet.terrainModels[i] = GenerateCubeTerrainSimple(&Planet);
-		
+
 		Model* oldmodel = Planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
-		Planet.terrainModels[i] = MapCubeToFlatSphere(Planet, i);
+		Planet.terrainModels[i] = MapCubeToSphere(Planet, i);
 		free(oldmodel);
 	}
 

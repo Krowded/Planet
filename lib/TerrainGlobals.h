@@ -3,5 +3,7 @@
 
 extern GLint roundingDistanceFromEdge;
 extern GLfloat terrainScale;
+extern GLfloat simpleInterpolationHeight;
+
 
 #endif

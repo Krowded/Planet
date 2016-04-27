@@ -30,7 +30,7 @@ void GenerateCubeTerrain(struct planetStruct* planet);
 
 Model* GenerateCubeTerrainSimple(struct planetStruct* planet);
 
-Model* MapCubeToSphere(struct planetStruct* planet, GLint i);
+Model* MapCubeToSphere(struct planetStruct planet, GLint i);
 Model* MapCubeToFlatSphere(struct  planetStruct planet, GLint i);
 
 

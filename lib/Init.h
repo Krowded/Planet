@@ -42,4 +42,8 @@ void cleanUpAndExit();
 
 void CreatePlanet(vec3, GLfloat, vec3, vec3);
 
+void RemoveLastPlanet();
+LOCAL void freeTexture(TextureData* texture);
+LOCAL void freePlanet(struct planetStruct planet);
+
 #endif

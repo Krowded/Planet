@@ -15,9 +15,9 @@ void display(void)
 
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
-	GLint i,j;
-	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 
+	GLint i,j;
 	for(j = 0; j < numberOfPlanets; j++)
 		for(i = 0; i < 6; ++i)
 		{

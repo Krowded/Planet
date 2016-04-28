@@ -21,7 +21,7 @@ GLfloat nearDrawDistance = 0.2;
 GLfloat fov = 90;
 
 vec3 startingUp = {0, 1, 0};
-vec3 startingPosition = {0, 100, 0};
+vec3 startingPosition = {0, 0, 0};
 
 GLfloat maxFallSpeed = 5;
 GLfloat maxRotationSpeed = 0.05;
@@ -47,8 +47,9 @@ GLuint tex1, tex2;
 GLfloat maxAngleOfTerrain = 0.78539816339;
 
 struct planetStruct* planetsList;
-GLint numberOfPlanets;
+GLint numberOfPlanets = 0;
 GLint currentPlanet = 0;
+
 
 
 void InitAll()
@@ -104,13 +105,14 @@ void InitModels()
 
 LOCAL void InitTerrain()
 {
-	numberOfPlanets = 0;
+	//Initialize
 	planetsList = malloc(sizeof(struct planetStruct)*numberOfPlanets);
 
+	//Create a starting number of planets, i.e. 1;
 	GLint j;
-	for(j = 0; j < 2; j++)
+	for(j = 0; j < 1; j++)
 	{
-		vec3 center = SetVector(cos(j*2*M_PI/5)*500, 0, sin(j*2*M_PI/5)*500);
+		vec3 center = SetVector(0, 0, -500);
 		GLfloat radius = 256.0f*0.5f;
 		vec3 upVec = SetVector(0, 1, 0);
 		vec3 frontVec = SetVector(0, 0, 1);
@@ -184,6 +186,13 @@ void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec)
 		Planet.terrainModelToWorld[i] = T(Planet.center.x, Planet.center.y, Planet.center.z);
 	}
 
+	//Don't need the texture in memory anymore
+	for(i = 0; i < 6; i++)
+	{
+		freeTexture(Planet.terrainTexture[i]);
+	}
+
+
 	planetsList[numberOfPlanets-1] = Planet;
 }
 
@@ -203,15 +212,38 @@ void SetCurrentPlanet(GLuint newCurrent)
 }
 
 
+void RemoveLastPlanet()
+{
+	if(numberOfPlanets > 0)
+	{
+
+		freePlanet(planetsList[numberOfPlanets-1]);
+		numberOfPlanets--;
+		if(numberOfPlanets != 0) //Segfault if realloced to 0
+			planetsList = realloc(planetsList, sizeof(struct planetStruct)*numberOfPlanets);
+	}
+}
+
+LOCAL void freeTexture(TextureData* texture)
+{
+	free(texture->imageData);
+	free(texture);
+}
+
+LOCAL void freePlanet(struct planetStruct planet)
+{
+	GLint i;
+	for(i = 0; i < 6; i++)
+	{
+		free(planet.terrainModels[i]);
+	}
+}
 
 void cleanUpAndExit()
 {
-	GLint i, j;
-	for(j = 0; j < numberOfPlanets; j++)
-	for(i = 0; i < 6; i++)
-	{
-		free(planetsList[j].terrainTexture[i]); //Should probably free all the member arrays too...
-		free(planetsList[j].terrainModels[i]);
-	}
+	GLint i;
+	for(i = 0; i < numberOfPlanets; i++)
+		freePlanet(planetsList[i]);
+
 	exit(0);
 }

@@ -164,7 +164,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	if (glutKeyIsDown(GLUT_KEY_ESC))
 		cleanUpAndExit();
 
-	//Switch planet
+	//Switch current planet
 	if(glutKeyIsDown('0'))
 	{
 		SetCurrentPlanet(0);
@@ -202,21 +202,53 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		SetCurrentPlanet(8);
 	}	
 
+	{ //static scope limiter
+		static bool planetKeyPressed = false;
+		if(glutKeyIsDown('r') || glutKeyIsDown('R'))
+		{
+			if(!planetKeyPressed)
+			{
+			/* Create in a formation
+				vec3 center;
+				if(numberOfPlanets < 6)
+					center = SetVector(cos((numberOfPlanets+1)*2*M_PI/5)*500, 0, sin((numberOfPlanets+1)*2*M_PI/5)*500);
+				else if(numberOfPlanets < 11) 
+					center = SetVector(cos((numberOfPlanets-4)*2*M_PI/5)*500, sin((numberOfPlanets-4)*2*M_PI/5)*500, 0);
+				else
+					center = SetVector(0, cos((numberOfPlanets-9)*2*M_PI/5)*500, sin((numberOfPlanets-9)*2*M_PI/5)*500); 
+				*/
 
-	if(glutKeyIsDown('r') || glutKeyIsDown('R'))
-	{
-		vec3 center;
-		if(numberOfPlanets < 6)
-			center = SetVector(cos((numberOfPlanets+1)*2*M_PI/5)*500, 0, sin((numberOfPlanets+1)*2*M_PI/5)*500);
-		else if(numberOfPlanets < 11) 
-			center = SetVector(cos((numberOfPlanets-4)*2*M_PI/5)*500, sin((numberOfPlanets-4)*2*M_PI/5)*500, 0);
+				//Create planet where you're looking
+				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
+
+				//CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec); //Buggy if number of planets == 0
+				CreatePlanet(center, (256/2)/(numberOfPlanets+1), SetVector(0,1,0), SetVector(0,0,1));
+				fprintf(stderr, "Let there be light!\n");
+				planetKeyPressed = true;
+			}
+		}
 		else
-			center = SetVector(0, cos((numberOfPlanets-9)*2*M_PI/5)*500, sin((numberOfPlanets-9)*2*M_PI/5)*500); 
-
-		
-		CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec);
-		fprintf(stderr, "Let there be light!\n");
+		{
+			planetKeyPressed = false;
+		}
 	}
+
+	{ //static scope limiter
+		static bool removePlanetKeyPressed = false;
+		if(glutKeyIsDown('t') || glutKeyIsDown('T'))
+		{
+			if(!removePlanetKeyPressed)
+			{
+				RemoveLastPlanet();
+				removePlanetKeyPressed = true;
+			}
+		}
+		else
+		{
+			removePlanetKeyPressed = false;
+		}
+	}
+
 
 
 	{ //static scope limiter

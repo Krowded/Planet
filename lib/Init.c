@@ -24,7 +24,7 @@ vec3 startingUp = {0, 1, 0};
 vec3 startingPosition = {0, 0, 0};
 
 GLfloat maxFallSpeed = 5;
-GLfloat maxRotationSpeed = 0.05;
+GLfloat maxRotationSpeed = 0.1;
 GLfloat cameraHeight = 5;
 GLfloat standardSpeed = 0.02;
 GLfloat runSpeed = 1.0;

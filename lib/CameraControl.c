@@ -53,22 +53,37 @@ LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct PlanetStruct plan
 	return upvec;
 }
 
-
-LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, vec3 newUpVector)
+//Changes the updirection of the camera
+LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpVector)
 {
 	static vec3 axis = {0, 1, 0};
+	static GLfloat oldAngle = 0;
 	vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
 	
-	GLfloat angle = acos( DotProduct(oldUpVector, newUpVector));
-	if( angle > 0.0001 && angle < M_PI - 0.0001)
+	GLfloat newAngle = acos( DotProduct(oldUpVector, newUpVector));
+		
+	if( newAngle > 0.0001 && newAngle < M_PI - 0.0001)
 	{
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
+
+		vec3 currentUpVector = GetUpDirectionVec(camRotatedMatrix);
+		GLfloat relativeAngle =  acos( DotProduct(currentUpVector, newUpVector) );
+
+		//Stop from instant spinning
+		if (abs(newAngle -  oldAngle) > maxRotationSpeed)
+			if( newAngle - oldAngle > 0 )
+			{
+				newAngle = oldAngle + maxRotationSpeed;
+			}
+			else
+			{
+				newAngle = oldAngle - maxRotationSpeed;
+			}
+		
+		camPositionMatrix = Mult( ArbRotate(axis, -newAngle), camPositionMatrix);
+
+		oldAngle = newAngle;
 	}
-
-	//TODO: Stop from instant spinning
-
-	camPositionMatrix = Mult( ArbRotate(axis, -angle), camPositionMatrix);
-
 	return camPositionMatrix;
 }
 
@@ -103,7 +118,7 @@ void UpdateCamera(GLint t, struct PlanetStruct planet)
 	
 	//Update orientation
 	vec3 newUp = GetNewUpDirectionVec(camBaseMatrix, planet);
-	mat4 camRotatedMatrix = ChangeUpDirection(camBaseMatrix, newUp);
+	mat4 camRotatedMatrix = ChangeUpDirection(camBaseMatrix, camMatrix, newUp);
 	camRotatedMatrix = Mult(mouseRotationMatrix, camRotatedMatrix);
 
 
@@ -308,3 +323,7 @@ LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct PlanetStruct p
 }
 
 
+/* If we want gravity from several planets:
+
+Loop through planetsList, apply directional movement depending on distance. 
+Then compare distances and check for collision with the nearest one only*/

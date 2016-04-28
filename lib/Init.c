@@ -46,7 +46,7 @@ GLuint tex1, tex2;
 
 GLfloat maxAngleOfTerrain = 0.78539816339;
 
-struct planetStruct* planetsList;
+struct PlanetStruct* planetsList;
 GLint numberOfPlanets = 0;
 GLint currentPlanet = 0;
 
@@ -106,16 +106,16 @@ void InitModels()
 LOCAL void InitTerrain()
 {
 	//Initialize
-	planetsList = malloc(sizeof(struct planetStruct)*numberOfPlanets);
+	planetsList = malloc(sizeof(struct PlanetStruct)*numberOfPlanets);
 
 	//Create a starting number of planets, i.e. 1;
+	vec3 center = SetVector(0, 0, -500);
+	GLfloat radius = 256.0f*0.5f;
+	vec3 upVec = SetVector(0, 1, 0);
+	vec3 frontVec = SetVector(0, 0, 1);
 	GLint j;
 	for(j = 0; j < 1; j++)
 	{
-		vec3 center = SetVector(0, 0, -500);
-		GLfloat radius = 256.0f*0.5f;
-		vec3 upVec = SetVector(0, 1, 0);
-		vec3 frontVec = SetVector(0, 0, 1);
 		CreatePlanet(center, radius, upVec, frontVec);
 	}
 	
@@ -124,9 +124,9 @@ LOCAL void InitTerrain()
 void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec)
 {
 	numberOfPlanets++;
-	planetsList = realloc(planetsList, sizeof(struct planetStruct)*numberOfPlanets);
+	planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
 
-	struct planetStruct Planet;// = *(struct planetStruct*)chkmalloc(sizeof(struct planetStruct));
+	struct PlanetStruct Planet;// = *(struct PlanetStruct*)chkmalloc(sizeof(struct PlanetStruct));
 	Planet.center = center;
 	Planet.radius = radius;
 	Planet.upVec = upVec;
@@ -220,7 +220,7 @@ void RemoveLastPlanet()
 		freePlanet(planetsList[numberOfPlanets-1]);
 		numberOfPlanets--;
 		if(numberOfPlanets != 0) //Segfault if realloced to 0
-			planetsList = realloc(planetsList, sizeof(struct planetStruct)*numberOfPlanets);
+			planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
 	}
 }
 
@@ -230,7 +230,7 @@ LOCAL void freeTexture(TextureData* texture)
 	free(texture);
 }
 
-LOCAL void freePlanet(struct planetStruct planet)
+LOCAL void freePlanet(struct PlanetStruct planet)
 {
 	GLint i;
 	for(i = 0; i < 6; i++)

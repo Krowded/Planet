@@ -13,7 +13,7 @@
 		return isGravityOnBool;
 	}
 
-	GLfloat GetGroundHeight(vec3 currentPosition, struct planetStruct planet)
+	GLfloat GetGroundHeight(vec3 currentPosition, struct PlanetStruct planet)
 	{
 		vec3 vectorFromCenter = VectorSub(currentPosition, planet.center);
 		GLfloat height = Norm(vectorFromCenter);
@@ -40,7 +40,7 @@
 
 	}
 
-	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct planetStruct planet)
+	mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct PlanetStruct planet)
 	{
 		vec3 heightVector = VectorSub(currentPosition, planet.center);
 		vec3 upVec = Normalize(heightVector);

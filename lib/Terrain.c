@@ -315,7 +315,7 @@ LOCAL GLfloat RoundingFunction(GLfloat t)
 }
 
 
-Model* GenerateCubeTerrainSimple(struct planetStruct planet)
+Model* GenerateCubeTerrainSimple(struct PlanetStruct planet)
 {
 	Model* model;
 	model = GenerateTerrainFromTexture(planet.terrainTexture[0]);
@@ -382,7 +382,7 @@ Model* GenerateCubeTerrainSimple(struct planetStruct planet)
 
 
 //Turn side of a unit cube to a unit sphere
-Model* MapCubeToFlatSphere(struct planetStruct planet, GLint i) //i = index of side
+Model* MapCubeToFlatSphere(struct PlanetStruct planet, GLint i) //i = index of side
 {
 	GLint x;
 	for(x = 0; x < planet.terrainTexture[i]->width*planet.terrainTexture[i]->width*3; x += 3)
@@ -413,7 +413,7 @@ Model* MapCubeToFlatSphere(struct planetStruct planet, GLint i) //i = index of s
 				planet.terrainModels[i]->numIndices);
 }
 
-Model* MapCubeToSphere(struct planetStruct planet, GLint i) //i = index of side
+Model* MapCubeToSphere(struct PlanetStruct planet, GLint i) //i = index of side
 {
 	GLint x;
 	for(x = 0; x < planet.terrainTexture[i]->width*planet.terrainTexture[i]->width*3; x += 3)

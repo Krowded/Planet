@@ -11,7 +11,7 @@
 #define LOCAL static
 
 
-extern struct planetStruct planet;
+extern struct PlanetStruct planet;
 
 LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex);
 LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
@@ -26,12 +26,12 @@ Model* GenerateTerrainFromTexture(TextureData *tex);
 
 LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
 LOCAL GLfloat RoundingFunction(GLfloat t);
-void GenerateCubeTerrain(struct planetStruct* planet);
+void GenerateCubeTerrain(struct PlanetStruct* planet);
 
-Model* GenerateCubeTerrainSimple(struct planetStruct planet);
+Model* GenerateCubeTerrainSimple(struct PlanetStruct planet);
 
-Model* MapCubeToSphere(struct planetStruct planet, GLint i);
-Model* MapCubeToFlatSphere(struct  planetStruct planet, GLint i);
+Model* MapCubeToSphere(struct PlanetStruct planet, GLint i);
+Model* MapCubeToFlatSphere(struct  PlanetStruct planet, GLint i);
 
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);

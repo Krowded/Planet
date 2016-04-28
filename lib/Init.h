@@ -16,7 +16,7 @@
 void* chkmalloc(size_t sz);
 
 //Because declaration order matters....
-struct planetStruct {
+struct PlanetStruct {
 	TextureData* terrainTexture[6]; //Order: Up, left, bottom, right, front, back
 	mat4 terrainModelToWorld[6];	//Same order as terrainTexture
 	Model* terrainModels[6];
@@ -44,6 +44,6 @@ void CreatePlanet(vec3, GLfloat, vec3, vec3);
 
 void RemoveLastPlanet();
 LOCAL void freeTexture(TextureData* texture);
-LOCAL void freePlanet(struct planetStruct planet);
+LOCAL void freePlanet(struct PlanetStruct planet);
 
 #endif

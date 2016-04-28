@@ -43,7 +43,7 @@ LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
 	return upVec;
 }
 
-LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct planetStruct planet)
+LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	static vec3 upvec = {0, 1, 0};
 	if(IsGravityOn())
@@ -94,7 +94,7 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 	}
 }
 
-void UpdateCamera(GLint t, struct planetStruct planet)
+void UpdateCamera(GLint t, struct PlanetStruct planet)
 {
 	//Read input and update position
 	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix, planet);
@@ -111,8 +111,8 @@ void UpdateCamera(GLint t, struct planetStruct planet)
 }
 
 
-//Read keyboard input and update camera position
-LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct planetStruct planet)
+//Read keyboard input
+LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	static GLfloat averageSpeed;
 	static GLint tlast = 0;
@@ -204,7 +204,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 
 	{ //static scope limiter
 		static bool planetKeyPressed = false;
-		if(glutKeyIsDown('r') || glutKeyIsDown('R'))
+		if(glutKeyIsDown('r') || glutKeyIsDown('R')  || glutMouseIsDown(GLUT_KEY_RIGHT))
 		{
 			if(!planetKeyPressed)
 			{
@@ -235,7 +235,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 
 	{ //static scope limiter
 		static bool removePlanetKeyPressed = false;
-		if(glutKeyIsDown('t') || glutKeyIsDown('T'))
+		if(glutKeyIsDown('t') || glutKeyIsDown('T') || glutMouseIsDown(GLUT_KEY_RIGHT))
 		{
 			if(!removePlanetKeyPressed)
 			{
@@ -294,7 +294,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 }
 
 
-LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct planetStruct planet)
+LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	if( IsGravityOn() )
 	{

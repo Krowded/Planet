@@ -40,4 +40,6 @@ void InitWindow(GLint width, GLint height);
 void SetCurrentPlanet(GLuint newCurrent);
 void cleanUpAndExit();
 
+void CreatePlanet(vec3, GLfloat, vec3, vec3);
+
 #endif

@@ -203,6 +203,22 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	}	
 
 
+	if(glutKeyIsDown('r') || glutKeyIsDown('R'))
+	{
+		vec3 center;
+		if(numberOfPlanets < 6)
+			center = SetVector(cos((numberOfPlanets+1)*2*M_PI/5)*500, 0, sin((numberOfPlanets+1)*2*M_PI/5)*500);
+		else if(numberOfPlanets < 11) 
+			center = SetVector(cos((numberOfPlanets-4)*2*M_PI/5)*500, sin((numberOfPlanets-4)*2*M_PI/5)*500, 0);
+		else
+			center = SetVector(0, cos((numberOfPlanets-9)*2*M_PI/5)*500, sin((numberOfPlanets-9)*2*M_PI/5)*500); 
+
+		
+		CreatePlanet(center, planetsList[0].radius, planetsList[0].upVec, planetsList[0].frontVec);
+		fprintf(stderr, "Let there be light!\n");
+	}
+
+
 	{ //static scope limiter
 		static bool spacePressed = false;
 		if (glutKeyIsDown(' '))

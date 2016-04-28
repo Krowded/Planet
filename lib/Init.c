@@ -49,7 +49,7 @@ GLfloat maxAngleOfTerrain = 0.78539816339;
 struct planetStruct Planet;
 
 struct planetStruct* planetsList;
-GLint numberOfPlanets = 5;
+GLint numberOfPlanets;
 GLint currentPlanet = 0;
 
 
@@ -106,19 +106,33 @@ void InitModels()
 
 LOCAL void InitTerrain()
 {
+	numberOfPlanets = 0;
 	planetsList = malloc(sizeof(struct planetStruct)*numberOfPlanets);
 
-
 	GLint j;
-	for(j = 0; j<numberOfPlanets; j++){
+	for(j = 0; j < 2; j++)
+	{
+		vec3 center = SetVector(cos(j*2*M_PI/5)*500, 0, sin(j*2*M_PI/5)*500);
+		GLfloat radius = 256.0f*0.5f;
+		vec3 upVec = SetVector(0, 1, 0);
+		vec3 frontVec = SetVector(0, 0, 1);
+		CreatePlanet(center, radius, upVec, frontVec);
+	}
+	
+}
+
+void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec)
+{
+	numberOfPlanets++;
+	planetsList = realloc(planetsList, sizeof(struct planetStruct)*numberOfPlanets);
 
 	Planet = *(struct planetStruct*)chkmalloc(sizeof(struct planetStruct));
+	Planet.center = center;
+	Planet.radius = radius;
+	Planet.upVec = upVec;
+	Planet.frontVec = frontVec;
 
 
-	Planet.center = SetVector(j*500,0,0);
-	Planet.radius = 256.0f*0.5f;
-	Planet.upVec = SetVector(0, 1, 0);
-	Planet.frontVec = SetVector(0, 0, 1);
 	GLint i;	
 	for(i = 0; i < 6; i++)
 	{
@@ -172,84 +186,9 @@ LOCAL void InitTerrain()
 		Planet.terrainModelToWorld[i] = T(Planet.center.x, Planet.center.y, Planet.center.z);
 	}
 
-	planetsList[j] = Planet;
-	}
+	planetsList[numberOfPlanets-1] = Planet;
 }
 
-/*
-LOCAL void InitTerrain()
-{
-	//Allocate
-	planetsList = malloc(sizeof(struct planetStruct)*numberOfPlanets);
-
-
-	//Fill list
-	GLint j,i;
-	for(j = 0; j < numberOfPlanets; j++)
-	{	
-		struct planetStruct newPlanet;
-		newPlanet.center = SetVector(0 + j*300,0,0);
-
-
-		newPlanet.radius = 256.0f*0.5f;
-		newPlanet.upVec = SetVector(0, 1, 0);
-		newPlanet.frontVec = SetVector(0, 0, 1);
-		for(i = 0; i < 6; i++)
-		{
-			newPlanet.terrainTexture[i] = chkmalloc(sizeof(TextureData));
-		}
-
-		// Load terrain data
-		for (i = 0; i < 6; i++)
-			LoadTGATextureData("textures/fft-terrain.tga", newPlanet.terrainTexture[i]);
-
-		//Generate terrain model matrix
-		GLfloat distanceToMiddleX = ((GLfloat)newPlanet.terrainTexture[0]->width*0.5f);
-		GLfloat distanceToMiddleZ = ((GLfloat)newPlanet.terrainTexture[0]->height*0.5f);
-		GLfloat distanceToMiddleY = newPlanet.radius;
-
-		for (i = 0; i < 4; ++i)
-		{
-			newPlanet.terrainModelToWorld[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-			newPlanet.terrainModelToWorld[i] = Mult( Rz(M_PI*0.5f*(GLfloat)i), newPlanet.terrainModelToWorld[i] );
-		}
-
-		//Last two sides
-		for (i = 0; i < 2; ++i)
-		{
-			newPlanet.terrainModelToWorld[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-			newPlanet.terrainModelToWorld[4+i] = Mult( Rx(M_PI*(0.5f+(GLfloat)i)), newPlanet.terrainModelToWorld[4+i] );
-		}
-
-		//Weird offset: (Probably size dependent)
-		newPlanet.terrainModelToWorld[1] = Mult(T(0, 1, 0), newPlanet.terrainModelToWorld[1]);
-		newPlanet.terrainModelToWorld[2] = Mult(T(-1, 1, 0), newPlanet.terrainModelToWorld[2]);
-		newPlanet.terrainModelToWorld[3] = Mult(T(-1, 0, 0), newPlanet.terrainModelToWorld[3]);
-		newPlanet.terrainModelToWorld[4] = Mult(T(0, 0, -1), newPlanet.terrainModelToWorld[4]);
-		newPlanet.terrainModelToWorld[5] = Mult(T(0, 1, 0), newPlanet.terrainModelToWorld[5]);
-
-
-
-		//Generate terrain
-		//TextureData* tex = chkmalloc(sizeof(TextureData));
-		//GenerateProceduralTerrainTexture(256, tex);
-		//Planet.terrainTexture[0] = *tex;
-		
-		for(i = 0; i < 6; i++)
-		{
-			newPlanet.terrainModels[i] = GenerateCubeTerrainSimple(newPlanet);
-
-			Model* oldmodel = newPlanet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
-			Planet.terrainModels[i] = MapCubeToSphere(newPlanet, i);
-			free(oldmodel);
-
-			newPlanet.terrainModelToWorld[i] = T(newPlanet.center.x, newPlanet.center.y, newPlanet.center.z);
-		}
-		fprintf(stderr, "help\n");
-		planetsList[j] = newPlanet;
-	}
-}
-*/
 
 void InitWindow(GLint width, GLint height)
 {

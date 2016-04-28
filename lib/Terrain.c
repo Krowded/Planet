@@ -395,7 +395,7 @@ Model* MapCubeToFlatSphere(struct planetStruct planet, GLint i) //i = index of s
 		point = MultVec4(planet.terrainModelToWorld[i], point);
 
 		vec3 newPoint = Normalize(SetVector(point.x,point.y,point.z));
-		newPoint = ScalarMult(newPoint, Planet.radius);
+		newPoint = ScalarMult(newPoint, planet.radius);
 
 		
 		planet.terrainModels[i]->vertexArray[x + 0] = newPoint.x;
@@ -432,7 +432,7 @@ Model* MapCubeToSphere(struct planetStruct planet, GLint i) //i = index of side
 		flatTransformedPoint = MultVec4(planet.terrainModelToWorld[i], flatTransformedPoint);
 
 		vec3 newPoint = Normalize(vec4tovec3(flatTransformedPoint));
-		newPoint = ScalarMult(newPoint, Planet.radius);
+		newPoint = ScalarMult(newPoint, planet.radius);
 
 		vec3 difference = VectorSub(newPoint, vec4tovec3(flatTransformedPoint));
 		

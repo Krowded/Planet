@@ -46,8 +46,6 @@ GLuint tex1, tex2;
 
 GLfloat maxAngleOfTerrain = 0.78539816339;
 
-struct planetStruct Planet;
-
 struct planetStruct* planetsList;
 GLint numberOfPlanets;
 GLint currentPlanet = 0;
@@ -126,7 +124,7 @@ void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec)
 	numberOfPlanets++;
 	planetsList = realloc(planetsList, sizeof(struct planetStruct)*numberOfPlanets);
 
-	Planet = *(struct planetStruct*)chkmalloc(sizeof(struct planetStruct));
+	struct planetStruct Planet;// = *(struct planetStruct*)chkmalloc(sizeof(struct planetStruct));
 	Planet.center = center;
 	Planet.radius = radius;
 	Planet.upVec = upVec;
@@ -208,11 +206,12 @@ void SetCurrentPlanet(GLuint newCurrent)
 
 void cleanUpAndExit()
 {
-	int i;
+	GLint i, j;
+	for(j = 0; j < numberOfPlanets; j++)
 	for(i = 0; i < 6; i++)
 	{
-		free(Planet.terrainTexture[i]); //Should probably free all the member arrays too...
-		free(Planet.terrainModels[i]);
+		free(planetsList[j].terrainTexture[i]); //Should probably free all the member arrays too...
+		free(planetsList[j].terrainModels[i]);
 	}
 	exit(0);
 }

@@ -214,7 +214,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 			center = SetVector(0, cos((numberOfPlanets-9)*2*M_PI/5)*500, sin((numberOfPlanets-9)*2*M_PI/5)*500); 
 
 		
-		CreatePlanet(center, planetsList[0].radius, planetsList[0].upVec, planetsList[0].frontVec);
+		CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec);
 		fprintf(stderr, "Let there be light!\n");
 	}
 

@@ -3,10 +3,6 @@
 
 #include "MicroGlut.h"
 #include "VectorUtils3.h"
-#include "Physics.h"
-#include "ControlGlobals.h"
-#include "DisplayGlobals.h"
-#include "Init.h"
 #include "PlanetManager.h"
 
 #define LOCAL static

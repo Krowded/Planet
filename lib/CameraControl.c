@@ -1,4 +1,8 @@
 #include "CameraControl.h"
+#include "Physics.h"
+#include "ControlGlobals.h"
+#include "DisplayGlobals.h"
+#include "PlanetManager.h"
 
 LOCAL mat4 mouseRotationMatrix = {
 				1, 0, 0, 0,

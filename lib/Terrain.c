@@ -1,5 +1,8 @@
 #include "Terrain.h"
 #include "kiss_fft/kiss_fftndr.h"
+#include "math.h"
+#include "Init.h"
+#include "TerrainGlobals.h"
 
 vec3 TerrainOffset = {0, 0, 0};
 
@@ -315,16 +318,16 @@ LOCAL GLfloat RoundingFunction(GLfloat t)
 }
 
 
-Model* GenerateCubeTerrainSimple(struct PlanetStruct planet)
+Model* GenerateCubeTerrainSimple(struct PlanetStruct planet, TextureData* terrainTexture)
 {
 	Model* model;
-	model = GenerateTerrainFromTexture(planet.terrainTexture[0]);
+	model = GenerateTerrainFromTexture(terrainTexture);
 
 	GLint x, z, edge;	
 
 	GLfloat currentHeight;
-	GLint arrayWidth = planet.terrainTexture[0]->width;
-	GLint arrayHeight = planet.terrainTexture[0]->height;
+	GLint arrayWidth = terrainTexture->width;
+	GLint arrayHeight = terrainTexture->height;
 
 	//Set height to go towards zero at the edge
 	GLfloat b = 1;
@@ -363,8 +366,8 @@ Model* GenerateCubeTerrainSimple(struct PlanetStruct planet)
 			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * RoundingFunction((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
 		}
 
-	model->indexArray = GenerateTerrainIndexArray(planet.terrainTexture[0]);
-	model->normalArray = GenerateTerrainNormalArray(planet.terrainTexture[0], model->vertexArray);
+	model->indexArray = GenerateTerrainIndexArray(terrainTexture);
+	model->normalArray = GenerateTerrainNormalArray(terrainTexture, model->vertexArray);
 
 
 	GLint vertexCount = arrayWidth * arrayHeight;
@@ -382,17 +385,17 @@ Model* GenerateCubeTerrainSimple(struct PlanetStruct planet)
 
 
 //Turn side of a unit cube to a unit sphere
-Model* MapCubeToFlatSphere(struct PlanetStruct planet, GLint i) //i = index of side
+Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLint i) //i = index of side
 {
 	GLint x;
-	for(x = 0; x < planet.terrainTexture[i]->width*planet.terrainTexture[i]->width*3; x += 3)
+	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
 	{
 		vec4 point = {planet.terrainModels[i]->vertexArray[x + 0],
 					  planet.terrainModels[i]->vertexArray[x + 1],
 					  planet.terrainModels[i]->vertexArray[x + 2],
 					  1};
 
-		point = MultVec4(planet.terrainModelToWorld[i], point);
+		point = MultVec4(terrainTransformationMatrices[i], point);
 
 		vec3 newPoint = Normalize(SetVector(point.x,point.y,point.z));
 		newPoint = ScalarMult(newPoint, planet.radius);
@@ -413,10 +416,10 @@ Model* MapCubeToFlatSphere(struct PlanetStruct planet, GLint i) //i = index of s
 				planet.terrainModels[i]->numIndices);
 }
 
-Model* MapCubeToSphere(struct PlanetStruct planet, GLint i) //i = index of side
+Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLint i) //i = index of side
 {
 	GLint x;
-	for(x = 0; x < planet.terrainTexture[i]->width*planet.terrainTexture[i]->width*3; x += 3)
+	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
 	{
 		vec4 transformedPoint = {planet.terrainModels[i]->vertexArray[x + 0],
 					  			 planet.terrainModels[i]->vertexArray[x + 1],
@@ -428,8 +431,8 @@ Model* MapCubeToSphere(struct PlanetStruct planet, GLint i) //i = index of side
 					  				 planet.terrainModels[i]->vertexArray[x + 2],
 					  	 			 1};
 
-		transformedPoint = MultVec4(planet.terrainModelToWorld[i], transformedPoint);
-		flatTransformedPoint = MultVec4(planet.terrainModelToWorld[i], flatTransformedPoint);
+		transformedPoint = MultVec4(terrainTransformationMatrices[i], transformedPoint);
+		flatTransformedPoint = MultVec4(terrainTransformationMatrices[i], flatTransformedPoint);
 
 		vec3 newPoint = Normalize(vec4tovec3(flatTransformedPoint));
 		newPoint = ScalarMult(newPoint, planet.radius);

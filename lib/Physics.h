@@ -2,9 +2,7 @@
 #define PHYSICS_H
 
 #include "VectorUtils3.h"
-#include "math.h"
-#include "Init.h"
-#include "PhysicsGlobals.h"
+#include "PlanetManager.h"
 	
 //Bool if TGA not included
 #ifndef __TGA_LOADER__

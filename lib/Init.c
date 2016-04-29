@@ -1,4 +1,14 @@
+
+#include "DisplayGlobals.h"
+#include "ControlGlobals.h"
+#include "PhysicsGlobals.h"
+#include "TerrainGlobals.h"
+
 #include "Init.h"
+#include "Terrain.h"
+#include "loadobj.h"
+#include "LoadTGA.h"
+
 
 void* chkmalloc(size_t sz) 
 {
@@ -23,7 +33,7 @@ GLfloat fov = 90;
 vec3 startingUp = {0, 1, 0};
 vec3 startingPosition = {0, 0, 200};
 
-GLfloat maxFallSpeed = 5;
+GLfloat maxFallSpeed = 50;
 GLfloat maxRotationSpeed = 0.001;
 GLfloat cameraHeight = 5;
 GLfloat standardSpeed = 0.02;
@@ -32,7 +42,7 @@ GLint NewGravity = GL_FALSE;
 
 GLfloat mouseSensitivity = 0.002;
 
-GLfloat maxHeight = 100;;
+GLfloat maxHeight = 100;
 
 GLfloat terrainScale = 20.0;
 GLint roundingDistanceFromEdge = 30;

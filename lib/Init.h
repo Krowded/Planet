@@ -1,15 +1,8 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include "DisplayGlobals.h"
-#include "ControlGlobals.h"
-#include "PhysicsGlobals.h"
-#include "TerrainGlobals.h"
-
-#include "loadobj.h"
-#include "LoadTGA.h"
 #include "VectorUtils3.h"
-#include "Terrain.h"
+#include "MicroGlut.h"
 #include "PlanetManager.h"
 
 #define LOCAL static

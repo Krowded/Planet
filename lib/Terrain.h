@@ -2,11 +2,8 @@
 #define TERRAIN_H
 
 #include "VectorUtils3.h"
-#include "loadobj.h"
 #include "LoadTGA.h"
-#include "math.h"
-#include "Init.h"
-#include "TerrainGlobals.h"
+#include "loadobj.h"
 
 #define LOCAL static
 
@@ -28,10 +25,10 @@ LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
 LOCAL GLfloat RoundingFunction(GLfloat t);
 void GenerateCubeTerrain(struct PlanetStruct* planet);
 
-Model* GenerateCubeTerrainSimple(struct PlanetStruct planet);
+Model* GenerateCubeTerrainSimple(struct PlanetStruct planet, TextureData* terrainTextures);
 
-Model* MapCubeToSphere(struct PlanetStruct planet, GLint i);
-Model* MapCubeToFlatSphere(struct  PlanetStruct planet, GLint i);
+Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLint i);
+Model* MapCubeToFlatSphere(struct  PlanetStruct planet, mat4* terrainTransformationMatrices, GLint i);
 
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);

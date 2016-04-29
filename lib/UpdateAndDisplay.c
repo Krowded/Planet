@@ -1,7 +1,9 @@
 #include "UpdateAndDisplay.h"
-
-
-
+#include "VectorUtils3.h"
+#include "CameraControl.h"
+#include "DisplayGlobals.h"
+#include "Init.h"
+#include "MicroGlut.h"
 
 void display(void)
 {
@@ -23,13 +25,15 @@ void display(void)
 	UpdatePlanetMovement(globalTime);
 	GLint i,j;
 	for(j = 0; j < numberOfPlanets; j++)
+	{
+		planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].center)));
+		total = Mult(camMatrix, planetsList[j].ModelToWorldMatrix);
+		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 		for(i = 0; i < 6; ++i)
 		{
-			total = Mult(camMatrix, planetsList[j].terrainModelToWorld[i]);
-			//total = camMatrix;
-			glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
 			DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
 		}
+	}
 
 /*
 	//Draw models

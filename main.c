@@ -2,6 +2,7 @@
 #include "Init.h"
 #include "UpdateAndDisplay.h"
 
+#include "DisplayGlobals.h"
 
 void Init(void)
 {

@@ -8,6 +8,8 @@
 #define LOCAL static
 
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix);
+mat4 SetCameraPosition(mat4 camPositionMatrix, vec3 position);
+
 LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix);

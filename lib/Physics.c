@@ -17,6 +17,87 @@ bool IsGravityOn()
 	return isGravityOnBool;
 }
 
+enum planetSide GetSide(struct PlanetStruct planet, vec3 vectorFromCenter)
+{
+
+	GLint forward;
+	GLint sideways;
+
+	GLfloat angleFromPole = acos(DotProduct(Normalize(vectorFromCenter), planet.upVec));
+	GLfloat angleFromFront = acos(DotProduct(Normalize(vectorFromCenter), planet.frontVec));
+
+	if(fabs(angleFromPole) > 3*M_PI/4)
+	{
+		forward = 3;
+	}
+	else if(angleFromPole > M_PI/4)
+	{
+		forward = 2;
+	}
+	else if(angleFromPole < -M_PI/4)
+	{
+		forward = 1;
+	}
+	else
+	{
+		forward = 0;
+	}
+
+	if(fabs(angleFromFront) > 3*M_PI/4)
+	{
+		sideways = 30;
+	}
+	else if( angleFromFront > M_PI/4 )
+	{
+		sideways = 20;
+	}
+	else if( angleFromFront < -M_PI/4)
+	{
+		sideways = 10;
+	}
+	else
+	{
+		sideways = 0;
+	}
+
+
+	fprintf(stderr, "%d\n", sideways+forward);
+
+	switch (sideways+forward)
+	{
+		case  0:
+		case 10:
+		case 20:
+		case 30:
+			return PLANET_UP;
+
+		case 12:
+		case 21:
+			return PLANET_RIGHT;
+
+		case 22:
+		case 11:
+			return PLANET_LEFT;
+
+		case  2:
+		case 31:
+			return PLANET_FRONT;
+
+		case  1:
+		case 32:
+			return PLANET_BACK;
+
+		case  3:
+		case 13:
+		case 23:
+		case 33:
+			return PLANET_DOWN;
+		default:
+			fprintf(stderr, "Angle on planet unaccounted for");
+			exit(-1);
+	}
+}
+
 GLfloat GetGroundHeight(vec3 currentPosition, struct PlanetStruct planet)
 {
 	vec3 vectorFromCenter = VectorSub(currentPosition, planet.center);
@@ -27,19 +108,9 @@ GLfloat GetGroundHeight(vec3 currentPosition, struct PlanetStruct planet)
 	}
 	else
 	{
-		GLfloat angleFromPole = acos(DotProduct(Normalize(vectorFromCenter), planet.upVec));
-		if(abs(angleFromPole) > 3*maxAngleOfTerrain)
-		{
-			return 0;
-		}
-		else if(abs(angleFromPole) > maxAngleOfTerrain)
-		{
-			GLfloat angleFromFront = acos(DotProduct(Normalize(vectorFromCenter), planet.frontVec));
-		}
-		else
-		{
-			return 0;
-		}
+		GetSide(planet, vectorFromCenter);
+
+		return planet.radius;
 	}
 
 }
@@ -54,9 +125,9 @@ mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struc
 	GLfloat heightDifference = currentHeight - groundHeight;
 	
 	
-	if(abs(heightDifference) > 0.0 )
+	if(fabs(heightDifference) > 0 )
 	{
-		if ( abs(heightDifference) > maxFallSpeed)
+		if ( fabs(heightDifference) > maxFallSpeed)
 		{
 			heightDifference = maxFallSpeed;
 

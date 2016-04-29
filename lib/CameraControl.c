@@ -16,6 +16,15 @@ vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 	return SetVector((inverseMat.m)[3], (inverseMat.m)[7], (inverseMat.m)[11]);
 }
 
+mat4 SetCameraPosition(mat4 camPositionMatrix, vec3 position)
+{
+	mat4 inverseMat = InvertMat4(camPositionMatrix); 
+	(inverseMat.m)[3] = position.x;
+	(inverseMat.m)[7] = position.y;
+	(inverseMat.m)[11] = position.z;
+	return InvertMat4(inverseMat);
+}
+
 LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix); //Only needed if there is scaling?
@@ -68,23 +77,24 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3
 	static GLfloat oldAngle = 0;
 
 	//TODO: Make transition smooth when switching between planets
+	/*
 	if( NewGravity == GL_TRUE ) 
 	{
 		vec3 currentUpVector = GetUpDirectionVec(camRotatedMatrix);
 		oldAngle = acos( DotProduct(currentUpVector, newUpVector) );
 		NewGravity = GL_FALSE;
-	}
+	}*/
 	
 	vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
 	
 	GLfloat newAngle = acos( DotProduct(oldUpVector, newUpVector));
-		
+
 	if( newAngle > 0.0001 && newAngle < M_PI - 0.0001)
 	{
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
 
 		//Stop from instant spinning
-		if (abs(newAngle -  oldAngle) > (maxRotationSpeed*passedTime))
+		if (fabs(newAngle -  oldAngle) > (maxRotationSpeed*passedTime))
 			if( newAngle - oldAngle > 0 )
 			{
 				newAngle = oldAngle + (maxRotationSpeed*passedTime);
@@ -111,7 +121,7 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 	{
 		x += mouseX - windowWidth*0.5;
 		
-		GLint check = (abs(y + mouseY - windowHeight*0.5)*4.0*mouseSensitivity < 1);
+		GLint check = (fabs(y + mouseY - windowHeight*0.5)*4.0*mouseSensitivity < 1);
 		if (check) 
 		{
 			y += mouseY - windowHeight*0.5;
@@ -193,42 +203,25 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	if (glutKeyIsDown(GLUT_KEY_ESC))
 		cleanUpAndExit();
 
-	//Switch current planet
-	if(glutKeyIsDown('0'))
-	{
-		SetCurrentPlanet(0);
-	}
-	else if(glutKeyIsDown('1'))
-	{
-		SetCurrentPlanet(1);
-	}
-	else if (glutKeyIsDown('2'))
-	{
-		SetCurrentPlanet(2);
-	}
-	else if (glutKeyIsDown('3'))
-	{
-		SetCurrentPlanet(3);
-	}	
-	else if (glutKeyIsDown('4'))
-	{
-		SetCurrentPlanet(4);
-	}	
-	else if (glutKeyIsDown('5'))
-	{
-		SetCurrentPlanet(5);
-	}	
-	else if (glutKeyIsDown('6'))
-	{
-		SetCurrentPlanet(6);
-	}	
-	else if (glutKeyIsDown('7'))
-	{
-		SetCurrentPlanet(7);
-	}	
-	else if (glutKeyIsDown('8'))
-	{
-		SetCurrentPlanet(8);
+	//Switch current planet	
+	{ //static scope limiter
+		static bool gravitySwitchPressed = false;
+		bool noKeysPressed = true;
+		GLint i;
+		for(i = 0; i < 9; i++)
+		{
+			if(glutKeyIsDown((GLchar)(i + '0')))
+			{
+				if(!gravitySwitchPressed) SetCurrentPlanet(i);
+				gravitySwitchPressed = true;
+				noKeysPressed = false;
+			}
+		}
+		
+		if (noKeysPressed)
+		{
+			gravitySwitchPressed = false;
+		}
 	}	
 
 	{ //static scope limiter

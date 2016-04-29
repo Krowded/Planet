@@ -33,7 +33,7 @@ GLfloat fov = 90;
 vec3 startingUp = {0, 1, 0};
 vec3 startingPosition = {0, 0, 200};
 
-GLfloat maxFallSpeed = 50;
+GLfloat maxFallSpeed = 5;
 GLfloat maxRotationSpeed = 0.001;
 GLfloat cameraHeight = 5;
 GLfloat standardSpeed = 0.02;
@@ -136,8 +136,7 @@ LOCAL void InitTerrain()
 	for(j = 0; j < 1; j++)
 	{
 		CreatePlanet(center, radius, upVec, frontVec, orbitalSpeed, orbitalAxis, rotationalSpeed, rotationalAxis);
-	}
-	
+	}	
 }
 
 

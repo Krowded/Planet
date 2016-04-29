@@ -53,11 +53,24 @@ LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct PlanetStruct plan
 	return upvec;
 }
 
-//Changes the updirection of the camera
-LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpVector)
+//Changes the up direction of the camera
+LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpVector, GLint t)
 {
+	static GLfloat tlast = 0;
+	GLfloat passedTime = t - tlast;
+	tlast = t;
+
 	static vec3 axis = {0, 1, 0};
 	static GLfloat oldAngle = 0;
+
+	//TODO: Make transition smooth when switching between planets
+	if( NewGravity == GL_TRUE ) 
+	{
+		vec3 currentUpVector = GetUpDirectionVec(camRotatedMatrix);
+		oldAngle = acos( DotProduct(currentUpVector, newUpVector) );
+		NewGravity = GL_FALSE;
+	}
+	
 	vec3 oldUpVector = GetOldUpDirectionVec(camPositionMatrix);
 	
 	GLfloat newAngle = acos( DotProduct(oldUpVector, newUpVector));
@@ -66,18 +79,20 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3
 	{
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
 
-		vec3 currentUpVector = GetUpDirectionVec(camRotatedMatrix);
-		GLfloat relativeAngle =  acos( DotProduct(currentUpVector, newUpVector) );
+		
+
+		//fprintf(stderr, "x: %f y: %f z: %f\n", currentUpVector.x, currentUpVector.y, currentUpVector.z);
+		fprintf(stderr, "x: %f y: %f\n", newAngle, oldAngle);
 
 		//Stop from instant spinning
-		if (abs(newAngle -  oldAngle) > maxRotationSpeed)
+		if (abs(newAngle -  oldAngle) > (maxRotationSpeed*passedTime))
 			if( newAngle - oldAngle > 0 )
 			{
-				newAngle = oldAngle + maxRotationSpeed;
-			}
+				newAngle = oldAngle + (maxRotationSpeed*passedTime);
+			}	
 			else
 			{
-				newAngle = oldAngle - maxRotationSpeed;
+				newAngle = oldAngle - (maxRotationSpeed*passedTime);
 			}
 		
 		camPositionMatrix = Mult( ArbRotate(axis, -newAngle), camPositionMatrix);
@@ -118,7 +133,7 @@ void UpdateCamera(GLint t, struct PlanetStruct planet)
 	
 	//Update orientation
 	vec3 newUp = GetNewUpDirectionVec(camBaseMatrix, planet);
-	mat4 camRotatedMatrix = ChangeUpDirection(camBaseMatrix, camMatrix, newUp);
+	mat4 camRotatedMatrix = ChangeUpDirection(camBaseMatrix, camMatrix, newUp, t);
 	camRotatedMatrix = Mult(mouseRotationMatrix, camRotatedMatrix);
 
 
@@ -237,7 +252,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
 
 				//CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec); //Buggy if number of planets == 0
-				CreatePlanet(center, (256/2)/(numberOfPlanets+1), SetVector(0,1,0), SetVector(0,0,1));
+				CreatePlanet(center, (256/2)/(numberOfPlanets+1), SetVector(0,1,0), SetVector(0,0,1), 0.001, SetVector(0,1,0), 0.001, SetVector(1,1,0));
 				fprintf(stderr, "Let there be light!\n");
 				planetKeyPressed = true;
 			}

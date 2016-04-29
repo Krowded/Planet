@@ -1,5 +1,32 @@
 #include "UpdateAndDisplay.h"
 
+void PlanetMovement(GLint t)
+{
+	GLint i, j;
+	mat4 ModelToWorld;
+	for(i = 0; i < numberOfPlanets; i++)
+		for(j = 0; j < 6; j++)
+		{	
+			t = glutGet(GLUT_ELAPSED_TIME) -  planetsList[i].timeOfCreation;
+
+			vec3 arbAxis = {0,1,0};
+			ModelToWorld = ArbRotate(planetsList[i].rotationalAxis, planetsList[i].rotationalSpeed*(GLfloat)t); //IdentityMatrix(); //Rotation around own axis
+			ModelToWorld = Mult(T(planetsList[i].center.x, planetsList[i].center.y, planetsList[i].center.z), ModelToWorld); //Offset
+
+			if(!(planetsList[i].center.x == 0 && planetsList[i].center.y == 0 && planetsList[i].center.z == 0)) //Dont try to orbit when already at 0
+			{	
+				if(abs(planetsList[i].center.x) - arbAxis.x + abs(planetsList[i].center.y) - arbAxis.y + abs(planetsList[i].center.z) - arbAxis.z == 0)
+					arbAxis = SetVector(1,0,0);
+
+				arbAxis = Normalize(CrossProduct(planetsList[i].center, arbAxis));
+
+				ModelToWorld = Mult(ArbRotate(arbAxis, planetsList[i].orbitalSpeed*(GLfloat)t), ModelToWorld); //Orbit
+				planetsList[i].terrainModelToWorld[j] = ModelToWorld;
+			}
+		}
+}
+
+
 void display(void)
 {
 	// clear the screen
@@ -17,6 +44,7 @@ void display(void)
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 
+	PlanetMovement(globalTime);
 	GLint i,j;
 	for(j = 0; j < numberOfPlanets; j++)
 		for(i = 0; i < 6; ++i)

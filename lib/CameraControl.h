@@ -16,7 +16,7 @@ LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetNewUpDirectionVec(mat4 camRotatedMatrix, struct PlanetStruct planet);
-LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpDirection);
+LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpDirection, GLint t);
 
 
 void UpdateCamera(GLint t, struct PlanetStruct planet);

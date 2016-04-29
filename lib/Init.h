@@ -24,6 +24,11 @@ struct PlanetStruct {
 	vec3 upVec;  //Must be normalized
 	vec3 frontVec; //Must be normalized
 	GLfloat radius;
+	GLfloat orbitalSpeed;
+	vec3 orbitalAxis;
+	GLfloat rotationalSpeed;
+	vec3 rotationalAxis;
+	GLfloat timeOfCreation;
 };
 
 extern struct planetStruct Planet;
@@ -40,7 +45,8 @@ void InitWindow(GLint width, GLint height);
 void SetCurrentPlanet(GLuint newCurrent);
 void cleanUpAndExit();
 
-void CreatePlanet(vec3, GLfloat, vec3, vec3);
+void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec, GLfloat orbitalSpeed, vec3 orbitalAxis, GLfloat rotationalSpeed, vec3 rotationalAxis);
+void CreateSun(GLfloat radius);
 
 void RemoveLastPlanet();
 LOCAL void freeTexture(TextureData* texture);

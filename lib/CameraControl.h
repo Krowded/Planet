@@ -7,6 +7,7 @@
 #include "ControlGlobals.h"
 #include "DisplayGlobals.h"
 #include "Init.h"
+#include "PlanetManager.h"
 
 #define LOCAL static
 

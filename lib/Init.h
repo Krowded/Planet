@@ -10,26 +10,13 @@
 #include "LoadTGA.h"
 #include "VectorUtils3.h"
 #include "Terrain.h"
+#include "PlanetManager.h"
 
 #define LOCAL static
 
-void* chkmalloc(size_t sz);
+#define GLUT_ELAPSED_TIME (700)  //Because it didnt make it through the inclusion somehow?
 
-//Because declaration order matters....
-struct PlanetStruct {
-	TextureData* terrainTexture[6]; //Order: Up, left, bottom, right, front, back
-	mat4 terrainModelToWorld[6];	//Same order as terrainTexture
-	Model* terrainModels[6];
-	vec3 center;
-	vec3 upVec;  //Must be normalized
-	vec3 frontVec; //Must be normalized
-	GLfloat radius;
-	GLfloat orbitalSpeed;
-	vec3 orbitalAxis;
-	GLfloat rotationalSpeed;
-	vec3 rotationalAxis;
-	GLfloat timeOfCreation;
-};
+void* chkmalloc(size_t sz);
 
 extern struct planetStruct Planet;
 
@@ -42,14 +29,8 @@ LOCAL void InitTextures();
 LOCAL void InitTerrain();
 void InitModels();
 void InitWindow(GLint width, GLint height);
-void SetCurrentPlanet(GLuint newCurrent);
 void cleanUpAndExit();
 
-void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec, GLfloat orbitalSpeed, vec3 orbitalAxis, GLfloat rotationalSpeed, vec3 rotationalAxis);
-void CreateSun(GLfloat radius);
 
-void RemoveLastPlanet();
-LOCAL void freeTexture(TextureData* texture);
-LOCAL void freePlanet(struct PlanetStruct planet);
 
 #endif

@@ -79,11 +79,6 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3
 	{
 		axis = Normalize( CrossProduct(oldUpVector, newUpVector) );
 
-		
-
-		//fprintf(stderr, "x: %f y: %f z: %f\n", currentUpVector.x, currentUpVector.y, currentUpVector.z);
-		fprintf(stderr, "x: %f y: %f\n", newAngle, oldAngle);
-
 		//Stop from instant spinning
 		if (abs(newAngle -  oldAngle) > (maxRotationSpeed*passedTime))
 			if( newAngle - oldAngle > 0 )

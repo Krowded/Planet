@@ -9,6 +9,10 @@
 #include "loadobj.h"
 #include "LoadTGA.h"
 
+LOCAL void InitCamera();
+LOCAL void InitShaders();
+LOCAL void InitTextures();
+LOCAL void InitTerrain();
 
 void* chkmalloc(size_t sz) 
 {
@@ -45,7 +49,7 @@ GLfloat mouseSensitivity = 0.002;
 GLfloat maxHeight = 100;
 
 GLfloat terrainScale = 20.0;
-GLint roundingDistanceFromEdge = 30;
+GLuint roundingDistanceFromEdge = 30;
 GLfloat simpleInterpolationHeight = 10;
 
 GLint globalTime = 0;
@@ -58,8 +62,8 @@ GLuint tex1, tex2;
 GLfloat maxAngleOfTerrain = 0.78539816339;
 
 struct PlanetStruct* planetsList;
-GLint numberOfPlanets = 0;
-GLint currentPlanet = 0;
+GLuint numberOfPlanets = 0;
+GLuint currentPlanet = 0;
 
 GLfloat orbitSpeed = 0.001;
 
@@ -153,7 +157,7 @@ void InitWindow(GLint width, GLint height)
 
 void cleanUpAndExit()
 {
-	GLint i;
+	GLuint i;
 	for(i = 0; i < numberOfPlanets; i++)
 		freePlanet(planetsList[i]);
 

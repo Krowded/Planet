@@ -14,12 +14,7 @@ void* chkmalloc(size_t sz);
 extern struct planetStruct Planet;
 
 void InitAll();
-LOCAL void InitPhysics();
-LOCAL void InitCamera();
-LOCAL void InitCameraControls();
-LOCAL void InitShaders();
-LOCAL void InitTextures();
-LOCAL void InitTerrain();
+
 void InitModels();
 void InitWindow(GLint width, GLint height);
 void cleanUpAndExit();

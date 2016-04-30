@@ -4,11 +4,24 @@
 #include "Init.h"
 #include "TerrainGlobals.h"
 
-vec3 TerrainOffset = {0, 0, 0};
+
+LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
+LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
+LOCAL GLint SaveAsTGA(char* filename, short int width, short int height, unsigned char* data);
+
+LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
+LOCAL GLfloat RoundingFunction(GLfloat t);
+
+
+vec3 TerrainOffset = {0, 0, 0}; //Should probably be removed
+
+
 
 LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 {
-	GLint x, z;
+	GLuint x, z;
 	GLint vertexCount = tex->width * tex->height;
 	GLfloat *vertexArray = chkmalloc(sizeof(GLfloat) * 3 * vertexCount);
 	for (x = 0; x < tex->width; x++)
@@ -25,7 +38,7 @@ LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 
 LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex)
 {
-	GLint x, z;
+	GLuint x, z;
 	GLint vertexCount = tex->width * tex->height;
 	GLfloat *texCoordArray = chkmalloc(sizeof(GLfloat) * 2 * vertexCount);
 	for (x = 0; x < tex->width; x++)
@@ -41,7 +54,7 @@ LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex)
 
 LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex)
 {
-	GLint x, z;	
+	GLuint x, z;	
 	GLint triangleCount = (tex->width-1) * (tex->height-1) * 2;
 	GLuint *indexArray = chkmalloc(sizeof(GLuint) * triangleCount*3);
 
@@ -63,7 +76,7 @@ LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex)
 
 LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray)
 {
-	GLint x, z;
+	GLuint x, z;
 	GLint vertexCount = tex->width * tex->height;
 	GLfloat *normalArray = chkmalloc(sizeof(GLfloat) * 3 * vertexCount);
 	for (x = 0; x < tex->width-1; x++)
@@ -95,11 +108,46 @@ LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray
 
 }
 
+Model* GenerateTerrainFromTexture(TextureData *tex)
+{
+	GLint vertexCount = tex->width * tex->height;
+	
+
+	GLfloat* vertexArray;
+	GLfloat* normalArray;
+	GLfloat* texCoordArray;
+	GLuint* indexArray;
+
+	vertexArray = GenerateTerrainVertexArray(tex);
+	texCoordArray = GenerateTerrainTextureCoordinateArray(tex);
+	indexArray = GenerateTerrainIndexArray(tex);
+	normalArray = GenerateTerrainNormalArray(tex, vertexArray);		
+	// End of terrain generation
+	
+	// Create Model and upload to GPU:
+
+	GLint triangleCount = (tex->width-1) * (tex->height-1) * 2;
+
+	return LoadDataToModel(
+					vertexArray,
+					normalArray,
+					texCoordArray,
+					NULL,
+					indexArray,
+					vertexCount,
+					triangleCount*3);
+}
 
 
+
+
+/*
+ *	Generates a new terrain of size sideLengt*sideLength and passes it out through newTerrainTexture.
+ *	Also saves the new texture to "testTGA.tga"
+ */
 void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainTexture)
 {
-	GLint size = sideLength*sideLength;
+	GLuint size = sideLength*sideLength;
 	
 
 	kiss_fft_scalar* image = chkmalloc(sizeof(kiss_fft_scalar)*size);
@@ -107,7 +155,7 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 	GLint dims[2] = {sideLength, sideLength};
 	GLint ndims = 2;
 
-	GLint i;
+	GLuint i;
 	for (i = 0; i < size; i++)
 	{
 		float r = (float)rand();
@@ -125,7 +173,7 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 	for(i = 0; i < sideLength/2; ++i)
 		for(j = 0; j < sideLength; ++j)
 		{
-			GLint index = j + i * sideLength;
+			GLuint index = j + i * sideLength;
 			f = sqrt( pow((i - sideLength/2)/(float)sideLength, 2) + pow((float)j - (float)sideLength/2.0f/(float)sideLength,2) );		
 			//fprintf(stderr, "%f\n", pow(((float)j - (float)sideLength/2.0f)/(float)sideLength,2));
 			f = f < 1.0f/sideLength ? 1.0f/sideLength : f;
@@ -191,11 +239,13 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* newTerrainT
 	newTerrainTexture->bpp = 8;
 }
 
+/*
+ *	Saves a data buffer as a TGA image
+ */
 LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned char* data)
 {
 	FILE* file = fopen(filename, "w");
 	unsigned char cGarbage = 0;
-	unsigned char aone = 1;
 	unsigned char pixelDepth = 8 + 16;
 	char TGAuncompressedheader[12]={ 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	// write the header
@@ -239,39 +289,13 @@ LOCAL int SaveAsTGA(char* filename, short int width, short int height, unsigned 
 
 
 
-Model* GenerateTerrainFromTexture(TextureData *tex)
-{
-	GLint vertexCount = tex->width * tex->height;
-	
-
-	GLfloat* vertexArray;
-	GLfloat* normalArray;
-	GLfloat* texCoordArray;
-	GLuint* indexArray;
-
-	vertexArray = GenerateTerrainVertexArray(tex);
-	texCoordArray = GenerateTerrainTextureCoordinateArray(tex);
-	indexArray = GenerateTerrainIndexArray(tex);
-	normalArray = GenerateTerrainNormalArray(tex, vertexArray);		
-	// End of terrain generation
-	
-	// Create Model and upload to GPU:
-
-	GLint triangleCount = (tex->width-1) * (tex->height-1) * 2;
-
-	return LoadDataToModel(
-					vertexArray,
-					normalArray,
-					texCoordArray,
-					NULL,
-					indexArray,
-					vertexCount,
-					triangleCount*3);
-}
-
+/*
+ *	Takes a TextureData object full of vertices and applies a transformation matrix to each one
+ *	and returns a pointer to the array vec3 with the transformed vertices
+ */
 vec3* GetTransformedPositions(TextureData *tex, mat4 transformationMatrix)
 {
-	GLint x, z;
+	GLuint x, z;
 	GLint vertexCount = tex->width * tex->height;
 	vec4* startingPositions = chkmalloc(sizeof(vec4) * vertexCount);
 	vec3* transformedPositions = chkmalloc(sizeof(vec3) * vertexCount);
@@ -290,13 +314,15 @@ vec3* GetTransformedPositions(TextureData *tex, mat4 transformationMatrix)
 	return transformedPositions;
 }
 
+/*
+ *	Performs Bezier interpolation
+ */
 LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u ) 
 {
     vec3* tempPoints = chkmalloc(sizeof(vec3) * numPoints);
     memcpy(tempPoints, points, sizeof(vec3) * numPoints);
-    GLint i = numPoints - 1;
-    GLint k;
-    for (i; i > 0; --i) 
+    GLuint i, k;
+    for (i = numPoints - 1; i > 0; --i) 
     {
         for (k = 0; k < i; k++)
         {
@@ -311,29 +337,30 @@ LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u )
     return interpolatedPoint;
 }
 
-
+/*
+ *	The function used to interpolate between terrain segments
+ */
 LOCAL GLfloat RoundingFunction(GLfloat t)
 {
 	return pow(t,2);
 }
 
-
-Model* GenerateCubeTerrainSimple(struct PlanetStruct planet, TextureData* terrainTexture)
+/*
+ *	Creates a cube the simple way, by interpolation to zero at the edges
+ */
+Model* GenerateCubeTerrainSimple(TextureData* terrainTexture)
 {
 	Model* model;
 	model = GenerateTerrainFromTexture(terrainTexture);
 
-	GLint x, z, edge;	
+	GLuint x, z, edge;	
 
 	GLfloat currentHeight;
-	GLint arrayWidth = terrainTexture->width;
-	GLint arrayHeight = terrainTexture->height;
+	GLuint arrayWidth = terrainTexture->width;
+	GLuint arrayHeight = terrainTexture->height;
 
 	//Set height to go towards zero at the edge
-	GLfloat b = 1;
-	GLfloat c = -1;
-
-
+	
 	//x near 0
 	for (x = 0; x < roundingDistanceFromEdge; ++x)
 		for (z = 0; z < arrayHeight; ++z)
@@ -384,10 +411,12 @@ Model* GenerateCubeTerrainSimple(struct PlanetStruct planet, TextureData* terrai
 }
 
 
-//Turn side of a unit cube to a unit sphere
-Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLint i) //i = index of side
+/*
+ *	Turns the side of a cube to the equivalent but flat side of a sphere and returns it as a Model
+ */
+Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLuint i) //i = index of side
 {
-	GLint x;
+	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
 	{
 		vec4 point = {planet.terrainModels[i]->vertexArray[x + 0],
@@ -416,9 +445,12 @@ Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformati
 				planet.terrainModels[i]->numIndices);
 }
 
-Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLint i) //i = index of side
+/*
+ *	Turns the side of a cube to the equivalent side of a sphere and returns it as a Model
+ */
+Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLuint i) //i = index of side
 {
-	GLint x;
+	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
 	{
 		vec4 transformedPoint = {planet.terrainModels[i]->vertexArray[x + 0],
@@ -455,9 +487,12 @@ Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMa
 }
 
 
+/*
+ *	Takes a position and matches it to the terrain, returning the height of the Model
+ */
 GLfloat GetTerrainHeight(vec3 currentPosition, Model *tm, TextureData tex)
 {
-	GLint x,z;
+	GLuint x,z;
 
 	//Find the quad
 	GLfloat x1 = floor(currentPosition.x - TerrainOffset.x);

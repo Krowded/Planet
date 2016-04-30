@@ -31,7 +31,7 @@ extern GLint globalTime;
 extern const GLfloat radius;
 
 extern struct PlanetStruct* planetsList;
-extern GLint numberOfPlanets;
-extern GLint currentPlanet;
+extern GLuint numberOfPlanets;
+extern GLuint currentPlanet;
 
 #endif

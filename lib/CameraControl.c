@@ -4,11 +4,24 @@
 #include "DisplayGlobals.h"
 #include "PlanetManager.h"
 
-LOCAL mat4 mouseRotationMatrix = {
+// Forward declaration of local functions
+LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix);
+LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix);
+LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix);
+LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix);
+LOCAL vec3 GetNewUpDirectionVec(mat4 camRotatedMatrix, struct PlanetStruct planet);
+LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpDirection, GLint t);
+
+LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet);
+LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct PlanetStruct planet);
+
+LOCAL mat4 mouseRotationMatrix = {{
 				1, 0, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 1, 0,
-				0, 0, 0, 1	};
+				0, 0, 0, 1	}};
+
+
 
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 {
@@ -16,6 +29,9 @@ vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 	return SetVector((inverseMat.m)[3], (inverseMat.m)[7], (inverseMat.m)[11]);
 }
 
+/*
+ * 	Move camera to a specific position
+ */
 mat4 SetCameraPosition(mat4 camPositionMatrix, vec3 position)
 {
 	mat4 inverseMat = InvertMat4(camPositionMatrix); 
@@ -25,6 +41,10 @@ mat4 SetCameraPosition(mat4 camPositionMatrix, vec3 position)
 	return InvertMat4(inverseMat);
 }
 
+
+/*
+ *	Gets the backwards direction relative to where the camera is looking
+ */
 LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix); //Only needed if there is scaling?
@@ -32,6 +52,9 @@ LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix)
 	return Normalize(SetVector( (directions.m)[2], (directions.m)[6], (directions.m)[10]));
 }
 
+/*
+ *	Gets the right direction relative to where the camera is looking
+ */
 LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix);
@@ -39,6 +62,10 @@ LOCAL vec3 GetRightDirectionVec(mat4 camRotatedMatrix)
 	return Normalize(SetVector( (directions.m)[0], (directions.m)[4], (directions.m)[8]));	
 }
 
+
+/*
+ *	Gets the up direction relative to where the camera is looking
+ */
 LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 {
 	//mat4 directions = InvertMat4(camRotatedMatrix);
@@ -46,6 +73,10 @@ LOCAL vec3 GetUpDirectionVec(mat4 camRotatedMatrix)
 	return Normalize(SetVector( (directions.m)[1], (directions.m)[5], (directions.m)[9]));
 }
 
+
+/*
+ *	
+ */
 LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
 {
 	static vec3 upVec = {0, 1, 0};
@@ -56,6 +87,11 @@ LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix)
 	return upVec;
 }
 
+
+/*
+ *	Gets the desired up vector
+ *	No change if gravity off, normal vector from center of planet to camera otherwise	
+ */
 LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	static vec3 upvec = {0, 1, 0};
@@ -66,7 +102,10 @@ LOCAL vec3 GetNewUpDirectionVec(mat4 camPositionMatrix, struct PlanetStruct plan
 	return upvec;
 }
 
-//Changes the up direction of the camera
+
+/*
+ *	Smoothly changes the Up direction of the camera to newUpVector
+ */
 LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpVector, GLint t)
 {
 	static GLfloat tlast = 0;
@@ -95,6 +134,7 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3
 
 		//Stop from instant spinning
 		if (fabs(newAngle -  oldAngle) > (maxRotationSpeed*passedTime))
+		{
 			if( newAngle - oldAngle > 0 )
 			{
 				newAngle = oldAngle + (maxRotationSpeed*passedTime);
@@ -103,7 +143,7 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3
 			{
 				newAngle = oldAngle - (maxRotationSpeed*passedTime);
 			}
-		
+		}
 		camPositionMatrix = Mult( ArbRotate(axis, -newAngle), camPositionMatrix);
 
 		oldAngle = newAngle;
@@ -112,6 +152,9 @@ LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3
 }
 
 
+/*
+ *	Rotates the camera with the mouse movement, locks mouse pointer in middle of screen
+ */
 void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 {		
 	static GLfloat x = 0;
@@ -133,6 +176,10 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 	}
 }
 
+
+/* 
+ * Updates camBaseMatrix and camMatrix as input and physics dictates
+ */
 void UpdateCamera(GLint t, struct PlanetStruct planet)
 {
 	//Read input and update position
@@ -150,7 +197,10 @@ void UpdateCamera(GLint t, struct PlanetStruct planet)
 }
 
 
-//Read keyboard input
+/*
+ *	Reads keyboard input
+ * 	Responsible for player movement
+ */
 LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	static GLfloat averageSpeed;
@@ -170,7 +220,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	vec3 backVec = GetBackDirectionVec(camRotatedMatrix);
 	vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);
 
-	vec3 pos = GetCurrentCameraPosition(camPositionMatrix);
+	//vec3 pos = GetCurrentCameraPosition(camPositionMatrix);
 	//fprintf(stderr, "Position: x %f y %f z %f\n", pos.x, pos.y, pos.z);
 
 	//Can only move perpendicular to planet -> remove projection onto normal
@@ -315,7 +365,9 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	return camPositionMatrix;
 }
 
-
+/*
+ *	Simulates gravity and normal force by moving the camera to slightly above ground
+ */
 LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	if( IsGravityOn() )

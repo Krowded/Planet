@@ -7,10 +7,6 @@
 
 void display(void);
 
-//Update position and rotation of camera
-void MouseUpdate(GLint mouseX, GLint mouseY);
-LOCAL void Update(GLint t);
-
-void timer(GLint integer);
+void timer(GLint time);
 
 #endif

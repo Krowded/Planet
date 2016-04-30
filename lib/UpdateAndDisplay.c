@@ -5,12 +5,16 @@
 #include "Init.h"
 #include "MicroGlut.h"
 
+LOCAL void MouseUpdate(GLint mouseX, GLint mouseY);
+LOCAL void Update(GLint t);
+
+
 void display(void)
 {
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	mat4 total, ModelToWorld;
+	mat4 total;
 	
 	printError("pre display");
 	
@@ -24,7 +28,7 @@ void display(void)
 
 
 	UpdatePlanetMovement(globalTime);
-	GLint i,j;
+	GLuint i,j;
 	for(j = 0; j < numberOfPlanets; j++)
 	{
 		planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].startingPosition)));
@@ -68,13 +72,11 @@ void display(void)
 }
 
 
-
-
-//Update position and rotation of camera
-void MouseUpdate(GLint mouseX, GLint mouseY)
+LOCAL void MouseUpdate(GLint mouseX, GLint mouseY)
 {
 	CameraMouseUpdate(mouseX, mouseY);
 }
+
 
 LOCAL void Update(GLint t)
 {
@@ -86,13 +88,12 @@ LOCAL void Update(GLint t)
 }
 
 
-
-void timer(GLint integer)
+void timer(GLint time)
 { 	
 	globalTime = glutGet(GLUT_ELAPSED_TIME);
 	Update(globalTime);
 
 	glutPostRedisplay();
 
-	glutTimerFunc(10, &timer, globalTime);
+	glutTimerFunc(10, timer, globalTime);
 }

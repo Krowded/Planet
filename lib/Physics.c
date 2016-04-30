@@ -17,6 +17,9 @@ bool IsGravityOn()
 	return isGravityOnBool;
 }
 
+/*
+ *	Checks which side of a planet an object is
+ */
 enum planetSide GetSide(struct PlanetStruct planet, vec3 vectorFromCenter)
 {
 
@@ -98,6 +101,10 @@ enum planetSide GetSide(struct PlanetStruct planet, vec3 vectorFromCenter)
 	}
 }
 
+
+/*
+ *	Gets the height of the ground at a certain position
+ */
 GLfloat GetGroundHeight(vec3 currentPosition, struct PlanetStruct planet)
 {
 	vec3 vectorFromCenter = VectorSub(currentPosition, planet.center);
@@ -115,6 +122,9 @@ GLfloat GetGroundHeight(vec3 currentPosition, struct PlanetStruct planet)
 
 }
 
+/*
+ *	Cross references a models position with the height map and adjusts it
+ */
 mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struct PlanetStruct planet)
 {
 	vec3 heightVector = VectorSub(currentPosition, planet.center);
@@ -144,7 +154,9 @@ mat4 AdjustModelToHeightMap(mat4 ModelToWorldMatrix, vec3 currentPosition, struc
 }
 
 
-
+/*
+ *	Get position of an object that isn't the camera
+ */
 vec3 GetCurrentPosition(mat4 ModelToWorldMatrix)
 {
 	vec3 currentPosition = SetVector((ModelToWorldMatrix.m)[3], (ModelToWorldMatrix.m)[7], (ModelToWorldMatrix.m)[11]); 

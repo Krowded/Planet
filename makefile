@@ -5,7 +5,7 @@ libdir = lib/
 CC=gcc
 CFLAGS= 
 #-Wall -Wextra
-LDFLAGS= -lXt -lX11 -lGL -DGL_GLEXT_PROTOTYPES -lm	
+LDFLAGS= -lXt -lX11 -lGL -DGL_GLEXT_PROTOTYPES -lm -lpthread
 SOURCES= main.c $(wildcard $(libdir)*.c) $(wildcard $(commondir)*.c) $(wildcard $(commondir)Linux/*.c) $(wildcard $(libdir)kiss_fft/*.c)
 INCLUDES= -I$(libdir) -isystem $(commondir) -isystem $(commondir)Linux/ -isystem $(libdir)/kiss_fft
 OBJECTS=$(SOURCES:.cpp=.o)

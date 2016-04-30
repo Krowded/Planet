@@ -9,6 +9,7 @@
 #include "loadobj.h"
 #include "LoadTGA.h"
 
+LOCAL void InitMusic();
 LOCAL void InitCamera();
 LOCAL void InitShaders();
 LOCAL void InitTextures();
@@ -67,17 +68,23 @@ GLuint currentPlanet = 0;
 
 GLfloat orbitSpeed = 0.001;
 
-
+const char* soundfile = "../../test.mp3";
 
 void InitAll()
 {
 	InitWindow(windowWidth, windowHeight);
+	InitMusic();
 	InitTerrain();
 	InitCamera();
 	InitShaders();
 	InitTextures();
 
-}	
+}
+
+LOCAL void InitMusic()
+{
+	PlayAudioFile(soundfile);
+}
 
 LOCAL void InitCamera()
 {
@@ -160,6 +167,8 @@ void cleanUpAndExit()
 	GLuint i;
 	for(i = 0; i < numberOfPlanets; i++)
 		freePlanet(planetsList[i]);
+
+	DeleteAllThreads();
 
 	exit(0);
 }

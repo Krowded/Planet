@@ -4,6 +4,8 @@
 
 #include "DisplayGlobals.h"
 
+#include <signal.h>
+
 void Init(void)
 {
 	// GL Inits
@@ -22,6 +24,12 @@ void Init(void)
 
 int main(int argc, char **argv)
 {
+	atexit(cleanUpAndExit);
+	signal(SIGTERM, exit);
+	signal(SIGINT, exit);
+
+
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitContextVersion(3, 2);
@@ -39,3 +47,5 @@ int main(int argc, char **argv)
 	glutMainLoop();
 	exit(0);
 }
+
+

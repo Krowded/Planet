@@ -139,11 +139,12 @@ LOCAL void InitTerrain()
 	planet.orbitalAxis = SetVector(0,1,0);
 	planet.rotationalSpeed = 0.001;
 	planet.rotationalAxis = SetVector(1,1,0);
+	planet.type = ROUGH_PLANET;
 
 	GLint j;
 	for(j = 0; j < 1; j++)
 	{
-		CreatePlanet(planet, 0);
+		CreatePlanet(planet, NO_SOUND);
 	}	
 }
 

@@ -88,7 +88,17 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 			planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i]);
 
 			Model* oldmodel = planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
-			planet.terrainModels[i] = MapCubeToSphere(planet, terrainTransformationMatrix, i);
+			switch(planet.type)
+			{
+				case SMOOTH_PLANET:
+					planet.terrainModels[i] = MapCubeToFlatSphere(planet, terrainTransformationMatrix, i);
+					break;
+				case ROUGH_PLANET:
+					planet.terrainModels[i] = MapCubeToSphere(planet, terrainTransformationMatrix, i);
+					break;
+				default:
+					fprintf(stderr, "Unknown planet type");
+			}
 			free(oldmodel);
 			freeTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
 		}
@@ -98,7 +108,7 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 		planetsList[numberOfPlanets-1] = planet;
 
 		//Decide if/what sound to play		
-		if(playSound != 0)
+		if(playSound != NO_SOUND)
 			PlayAudioFile(createPlanetNoise);
 
 		printf("Let there be light!\n");
@@ -122,8 +132,9 @@ void CreateSun(GLfloat radius)
 	planet.orbitalAxis = SetVector(0,1,0);
 	planet.rotationalSpeed = 0;
 	planet.rotationalAxis = SetVector(0,1,0);
+	planet.type = SMOOTH_PLANET;
 
-	CreatePlanet(planet, 0);
+	CreatePlanet(planet, NO_SOUND);
 }
 
 

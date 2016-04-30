@@ -292,8 +292,9 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 				planet.orbitalAxis = SetVector(0,1,0);
 				planet.rotationalSpeed = 0.001;
 				planet.rotationalAxis = SetVector(1,1,0);
+				planet.type = ROUGH_PLANET;
 
-				CreatePlanet(planet, 1);
+				CreatePlanet(planet, PLAY_SOUND_1);
 				planetKeyPressed = true;
 			}
 		}

@@ -63,12 +63,10 @@ GLuint tex1, tex2;
 GLfloat maxAngleOfTerrain = 0.78539816339;
 
 struct PlanetStruct* planetsList;
-GLuint numberOfPlanets = 0;
-GLuint currentPlanet = 0;
 
 GLfloat orbitSpeed = 0.001;
 
-const char* soundfile = "audio/test.mp3bbbbbbbbbbbbbbbbbbbbbbbb";
+const char* soundfile = "audio/test.mp3";
 
 void InitAll()
 {
@@ -130,23 +128,22 @@ void InitModels()
 LOCAL void InitTerrain()
 {
 	//Initialize
-	planetsList = malloc(sizeof(struct PlanetStruct)*numberOfPlanets);
 
 	CreateSun(128);
 
 	//Create a starting number of planets, i.e. 1;
-	vec3 center = SetVector(0, 0, -500);
-	GLfloat radius = 256.0f*0.5f;
-	vec3 upVec = SetVector(0, 1, 0);
-	vec3 frontVec = SetVector(0, 0, 1);
-	GLfloat orbitalSpeed = 0.001;
-	vec3 orbitalAxis = SetVector(0, 1, 0);
-	GLfloat rotationalSpeed = 0.001;
-	vec3 rotationalAxis = SetVector(1,1,0);
+	struct PlanetStruct planet;
+	planet.center = SetVector(0, 0, -500);
+	planet.radius = 256.f*0.5f;
+	planet.orbitalSpeed = 0.001;
+	planet.orbitalAxis = SetVector(0,1,0);
+	planet.rotationalSpeed = 0.001;
+	planet.rotationalAxis = SetVector(1,1,0);
+
 	GLint j;
 	for(j = 0; j < 1; j++)
 	{
-		CreatePlanet(center, radius, upVec, frontVec, orbitalSpeed, orbitalAxis, rotationalSpeed, rotationalAxis);
+		CreatePlanet(planet, 0);
 	}	
 }
 
@@ -164,11 +161,8 @@ void InitWindow(GLint width, GLint height)
 
 void cleanUpAndExit()
 {
-	GLuint i;
-	for(i = 0; i < numberOfPlanets; i++)
-		freePlanet(planetsList[i]);
-
+	freeAllPlanets();
 	KillAllAudio();
-	
+
 	exit(0);
 }

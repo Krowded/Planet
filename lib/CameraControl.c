@@ -23,7 +23,7 @@ LOCAL mat4 mouseRotationMatrix = {{
 				0, 0, 0, 1	}};
 
 
-char* createPlanetNoise = "audio/1_person_cheering-Jett_Rifkin-1851518140.mp3";
+
 char* deletePlanetNoise = "audio/Blop-Mark_DiAngelo-79054334.mp3";
 
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
@@ -285,13 +285,15 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		{
 			if(!planetKeyPressed)
 			{
-				//Create planet where you're looking
-				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
+				struct PlanetStruct planet;
+				planet.center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
+				planet.radius = (256/2)/(GetNumberOfPlanets()+1);
+				planet.orbitalSpeed = 0.001;
+				planet.orbitalAxis = SetVector(0,1,0);
+				planet.rotationalSpeed = 0.001;
+				planet.rotationalAxis = SetVector(1,1,0);
 
-				//CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec); //Buggy if number of planets == 0
-				CreatePlanet(center, (256/2)/(numberOfPlanets+1), SetVector(0,1,0), SetVector(0,0,1), 0.001, SetVector(0,1,0), 0.001, SetVector(1,1,0));
-				PlayAudioFile(createPlanetNoise);  //Should probably play inside CreatePlanet() or something rather than here
-				fprintf(stderr, "Let there be light!\n");
+				CreatePlanet(planet, 1);
 				planetKeyPressed = true;
 			}
 		}

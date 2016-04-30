@@ -5,91 +5,109 @@
 #include "ControlGlobals.h"
 
 LOCAL void freeTexture(TextureData* texture);
+LOCAL void freePlanet(struct PlanetStruct planet);
 
+char* createPlanetNoise = "audio/1_person_cheering-Jett_Rifkin-1851518140.mp3";
+
+GLuint numberOfPlanets = 0;
+GLuint maxNumberOfPlanets = 8; //0 for infinite
+GLuint currentPlanet = 0;
+
+
+void CreateCubeHeightMaps(TextureData* terrainTextures[6], mat4 terrainTransformationMatrix[6], struct PlanetStruct* planet)
+{
+		GLuint i;	
+		for(i = 0; i < 6; i++)
+		{
+			terrainTextures[i] = chkmalloc(sizeof(TextureData));
+		}
+
+		// Load terrain data
+		for (i = 0; i < 6; i++)
+			LoadTGATextureData("textures/fft-terrain.tga", terrainTextures[i]);
+
+		//Generate terrain model matrix
+
+		planet->terrainWidth = (GLfloat)terrainTextures[0]->width;
+		planet->terrainHeight = (GLfloat)terrainTextures[0]->height;
+		GLfloat distanceToMiddleX = ((GLfloat)terrainTextures[0]->width*0.5f);
+		GLfloat distanceToMiddleZ = ((GLfloat)terrainTextures[0]->height*0.5f);
+		GLfloat distanceToMiddleY = planet->radius;
+
+		for (i = 0; i < 4; ++i)
+		{
+			terrainTransformationMatrix[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
+			terrainTransformationMatrix[i] = Mult( Rz(M_PI*0.5f*(GLfloat)i), terrainTransformationMatrix[i] );
+		}
+
+		//Last two sides
+		for (i = 0; i < 2; ++i)
+		{
+			terrainTransformationMatrix[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
+			terrainTransformationMatrix[4+i] = Mult( Rx(M_PI*(0.5f+(GLfloat)i)), terrainTransformationMatrix[4+i] );
+		}
+
+		//Weird offset: (Probably size dependent)
+		terrainTransformationMatrix[1] = Mult(T(0, 1, 0), terrainTransformationMatrix[1]);
+		terrainTransformationMatrix[2] = Mult(T(-1, 1, 0), terrainTransformationMatrix[2]);
+		terrainTransformationMatrix[3] = Mult(T(-1, 0, 0), terrainTransformationMatrix[3]);
+		terrainTransformationMatrix[4] = Mult(T(0, 0, -1), terrainTransformationMatrix[4]);
+		terrainTransformationMatrix[5] = Mult(T(0, 1, 0), terrainTransformationMatrix[5]);
+
+}
 
 
 /*
  *	Creates a new planet and appends it to planetsList
  */
-void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec, GLfloat orbitalSpeed, vec3 orbitalAxis, GLfloat rotationalSpeed, vec3 rotationalAxis)
+void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 {
-	numberOfPlanets++;
-	planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
-
-	struct PlanetStruct Planet;
-	Planet.center = center;
-	Planet.startingPosition = center;
-	Planet.radius = radius;
-	Planet.upVec = upVec;
-	Planet.frontVec = frontVec;
-	Planet.orbitalSpeed = orbitalSpeed;
-	Planet.orbitalAxis = orbitalAxis;
-	Planet.rotationalSpeed = rotationalSpeed;
-	Planet.rotationalAxis = rotationalAxis;
-	Planet.timeOfCreation = glutGet(GLUT_ELAPSED_TIME);
-	
-
-	mat4 terrainTransformationMatrix[6];
-	TextureData* terrainTextures[6];
-
-	GLuint i;	
-	for(i = 0; i < 6; i++)
+	if(numberOfPlanets < maxNumberOfPlanets || maxNumberOfPlanets == 0)
 	{
-		terrainTextures[i] = chkmalloc(sizeof(TextureData));
+		numberOfPlanets++;
+		planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
+
+		planet.startingPosition = planet.center;
+		planet.timeOfCreation = glutGet(GLUT_ELAPSED_TIME);
+		planet.upVec = SetVector(0,1,0);
+		planet.frontVec = SetVector(0,0,1);
+
+		mat4 terrainTransformationMatrix[6];
+		TextureData* terrainTextures[6];
+
+		CreateCubeHeightMaps(terrainTextures, terrainTransformationMatrix, &planet);
+
+
+		//Generate terrain
+		//TextureData* tex = chkmalloc(sizeof(TextureData));
+		//GenerateProceduralTerrainTexture(256, tex);
+		//terrainTextures[0] = *tex;
+		GLuint i;
+		for(i = 0; i < 6; i++)
+		{
+			planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i]);
+
+			Model* oldmodel = planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
+			planet.terrainModels[i] = MapCubeToSphere(planet, terrainTransformationMatrix, i);
+			free(oldmodel);
+			freeTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
+		}
+
+		planet.ModelToWorldMatrix = T(planet.center.x, planet.center.y, planet.center.z);
+
+		planetsList[numberOfPlanets-1] = planet;
+
+		//Decide if/what sound to play		
+		if(playSound != 0)
+			PlayAudioFile(createPlanetNoise);
+
+		printf("Let there be light!\n");
 	}
-
-	// Load terrain data
-	for (i = 0; i < 6; i++)
-		LoadTGATextureData("textures/fft-terrain.tga", terrainTextures[i]);
-
-	//Generate terrain model matrix
-
-	Planet.terrainWidth = (GLfloat)terrainTextures[0]->width;
-	Planet.terrainHeight = (GLfloat)terrainTextures[0]->height;
-	GLfloat distanceToMiddleX = ((GLfloat)terrainTextures[0]->width*0.5f);
-	GLfloat distanceToMiddleZ = ((GLfloat)terrainTextures[0]->height*0.5f);
-	GLfloat distanceToMiddleY = Planet.radius;
-
-	for (i = 0; i < 4; ++i)
+	else
 	{
-		terrainTransformationMatrix[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		terrainTransformationMatrix[i] = Mult( Rz(M_PI*0.5f*(GLfloat)i), terrainTransformationMatrix[i] );
+		//Play fail noise?
+		fprintf(stderr, "Max number of planets reached\n");
 	}
-
-	//Last two sides
-	for (i = 0; i < 2; ++i)
-	{
-		terrainTransformationMatrix[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		terrainTransformationMatrix[4+i] = Mult( Rx(M_PI*(0.5f+(GLfloat)i)), terrainTransformationMatrix[4+i] );
-	}
-
-	//Weird offset: (Probably size dependent)
-	terrainTransformationMatrix[1] = Mult(T(0, 1, 0), terrainTransformationMatrix[1]);
-	terrainTransformationMatrix[2] = Mult(T(-1, 1, 0), terrainTransformationMatrix[2]);
-	terrainTransformationMatrix[3] = Mult(T(-1, 0, 0), terrainTransformationMatrix[3]);
-	terrainTransformationMatrix[4] = Mult(T(0, 0, -1), terrainTransformationMatrix[4]);
-	terrainTransformationMatrix[5] = Mult(T(0, 1, 0), terrainTransformationMatrix[5]);
-
-
-
-	//Generate terrain
-	//TextureData* tex = chkmalloc(sizeof(TextureData));
-	//GenerateProceduralTerrainTexture(256, tex);
-	//terrainTextures[0] = *tex;
-	
-	for(i = 0; i < 6; i++)
-	{
-		Planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i]);
-
-		Model* oldmodel = Planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
-		Planet.terrainModels[i] = MapCubeToSphere(Planet, terrainTransformationMatrix, i);
-		free(oldmodel);
-		freeTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
-	}
-
-	Planet.ModelToWorldMatrix = T(Planet.center.x, Planet.center.y, Planet.center.z);
-
-	planetsList[numberOfPlanets-1] = Planet;
 }
 
 /*
@@ -97,86 +115,15 @@ void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec, GLfloa
  */
 void CreateSun(GLfloat radius)
 {
-	numberOfPlanets++;
-	planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
+	struct PlanetStruct planet;
+	planet.center = SetVector(0, 0, 0);
+	planet.radius = radius;
+	planet.orbitalSpeed = 0;
+	planet.orbitalAxis = SetVector(0,1,0);
+	planet.rotationalSpeed = 0;
+	planet.rotationalAxis = SetVector(0,1,0);
 
-	struct PlanetStruct Planet;
-	Planet.center = SetVector(0,0,0);
-	Planet.startingPosition = Planet.center;
-	Planet.radius = radius;
-	Planet.upVec = SetVector(0,1,0);
-	Planet.frontVec = SetVector(0,0,1);
-	Planet.orbitalSpeed = 0;
-	Planet.orbitalAxis = SetVector(0,1,0);
-	Planet.rotationalSpeed = 0;
-	Planet.rotationalAxis = SetVector(0,1,0);
-	Planet.timeOfCreation = glutGet(GLUT_ELAPSED_TIME);
-
-	mat4 terrainTransformationMatrix[6];
-	TextureData* terrainTextures[6];
-
-
-	GLuint i;	
-	for(i = 0; i < 6; i++)
-	{
-		terrainTextures[i] = chkmalloc(sizeof(TextureData));
-	}
-
-	// Load terrain data
-	for (i = 0; i < 6; i++)
-		LoadTGATextureData("textures/fft-terrain.tga", terrainTextures[i]);
-
-	//Generate terrain model matrix
-
-	Planet.terrainWidth = (GLfloat)terrainTextures[0]->width;
-	Planet.terrainHeight = (GLfloat)terrainTextures[0]->height;
-
-	GLfloat distanceToMiddleX = ((GLfloat)terrainTextures[0]->width*0.5f);
-	GLfloat distanceToMiddleZ = ((GLfloat)terrainTextures[0]->height*0.5f);
-	GLfloat distanceToMiddleY = Planet.radius;
-
-	for (i = 0; i < 4; ++i)
-	{
-		terrainTransformationMatrix[i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		terrainTransformationMatrix[i] = Mult( Rz(M_PI*0.5f*(GLfloat)i), terrainTransformationMatrix[i] );
-	}
-
-	//Last two sides
-	for (i = 0; i < 2; ++i)
-	{
-		terrainTransformationMatrix[4+i] = T(-distanceToMiddleX, distanceToMiddleY, -distanceToMiddleZ);
-		terrainTransformationMatrix[4+i] = Mult( Rx(M_PI*(0.5f+(GLfloat)i)), terrainTransformationMatrix[4+i] );
-	}
-
-	//Weird offset: (Probably size dependent)
-	terrainTransformationMatrix[1] = Mult(T(0, 1, 0), terrainTransformationMatrix[1]);
-	terrainTransformationMatrix[2] = Mult(T(-1, 1, 0), terrainTransformationMatrix[2]);
-	terrainTransformationMatrix[3] = Mult(T(-1, 0, 0), terrainTransformationMatrix[3]);
-	terrainTransformationMatrix[4] = Mult(T(0, 0, -1), terrainTransformationMatrix[4]);
-	terrainTransformationMatrix[5] = Mult(T(0, 1, 0), terrainTransformationMatrix[5]);
-
-
-
-	//Generate terrain
-	//TextureData* tex = chkmalloc(sizeof(TextureData));
-	//GenerateProceduralTerrainTexture(256, tex);
-	//terrainTextures[0] = *tex;
-	
-	for(i = 0; i < 6; i++)
-	{
-		Planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i]);
-
-		Model* oldmodel = Planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
-		Planet.terrainModels[i] = MapCubeToFlatSphere(Planet, terrainTransformationMatrix, i);
-		free(oldmodel);
-		freeTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
-	}
-
-	Planet.ModelToWorldMatrix = T(Planet.center.x, Planet.center.y, Planet.center.z);
-
-
-
-	planetsList[numberOfPlanets-1] = Planet;
+	CreatePlanet(planet, 0);
 }
 
 
@@ -235,6 +182,17 @@ void UpdatePlanetMovement(GLint t)
 	}
 }
 
+GLuint GetNumberOfPlanets()
+{
+	return numberOfPlanets;
+}
+
+GLuint GetCurrentPlanet()
+{
+	return currentPlanet;
+}
+
+
 
 /*
  *	Safely frees a TextureData structure
@@ -248,11 +206,18 @@ LOCAL void freeTexture(TextureData* texture)
 /*
  *	Safely frees a PlanetStruct
  */
-void freePlanet(struct PlanetStruct planet)
+LOCAL void freePlanet(struct PlanetStruct planet)
 {
 	GLuint i;
 	for(i = 0; i < 6; i++)
 	{
 		free(planet.terrainModels[i]);
 	}
+}
+
+void freeAllPlanets()
+{
+	GLuint i;
+	for(i = 0; i < numberOfPlanets; i++)
+		freePlanet(planetsList[i]);
 }

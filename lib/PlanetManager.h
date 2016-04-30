@@ -16,27 +16,32 @@ struct PlanetStruct {
 	GLuint terrainWidth;
 	GLuint terrainHeight;
 	vec3 startingPosition;
-	vec3 center;
 	vec3 upVec;  //Must be normalized
 	vec3 frontVec; //Must be normalized
+	GLfloat timeOfCreation;
+
+//These must be initialized before CreatePlanet()
+	vec3 center;
 	GLfloat radius;
 	GLfloat orbitalSpeed;
 	vec3 orbitalAxis;
 	GLfloat rotationalSpeed;
 	vec3 rotationalAxis;
-	GLfloat timeOfCreation;
 };
 
 
-void CreatePlanet(vec3 center, GLfloat radius, vec3 upVec, vec3 frontVec, GLfloat orbitalSpeed, vec3 orbitalAxis, GLfloat rotationalSpeed, vec3 rotationalAxis);
+void CreatePlanet(struct PlanetStruct planet, GLuint playSound);
+
 void CreateSun(GLfloat radius);
 
 void RemoveLastPlanet();
+GLuint GetCurrentPlanet();
 void SetCurrentPlanet(GLuint newCurrent);
+GLuint GetNumberOfPlanets();
+
 void UpdatePlanetMovement(GLint t);
 
-
-void freePlanet(struct PlanetStruct planet);
+void freeAllPlanets();
 
 
 #endif

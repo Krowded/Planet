@@ -29,7 +29,7 @@ void display(void)
 
 	UpdatePlanetMovement(globalTime);
 	GLuint i,j;
-	for(j = 0; j < numberOfPlanets; j++)
+	for(j = 0; j < GetNumberOfPlanets(); j++)
 	{
 		planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].startingPosition)));
 		total = Mult(camMatrix, planetsList[j].ModelToWorldMatrix);
@@ -84,7 +84,7 @@ LOCAL void Update(GLint t)
 	GLint x,y;
 	getCursorPosition(&x, &y);
 	MouseUpdate(x,y);
-	UpdateCamera(t, planetsList[currentPlanet]);
+	UpdateCamera(t, planetsList[GetCurrentPlanet()]);
 }
 
 

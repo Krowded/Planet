@@ -24,6 +24,7 @@ void Init(void)
 
 int main(int argc, char **argv)
 {
+	//Set up proper exit and signal handling
 	atexit(cleanUpAndExit);
 	signal(SIGTERM, exit);
 	signal(SIGINT, exit);

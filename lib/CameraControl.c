@@ -22,10 +22,6 @@ LOCAL mat4 mouseRotationMatrix = {{
 				0, 0, 1, 0,
 				0, 0, 0, 1	}};
 
-
-
-char* deletePlanetNoise = "audio/Blop-Mark_DiAngelo-79054334.mp3";
-
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 {
 	mat4 inverseMat = InvertMat4(camPositionMatrix); 
@@ -306,7 +302,6 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 			if(!removePlanetKeyPressed)
 			{
 				RemoveLastPlanet();
-				PlayAudioFile(deletePlanetNoise);  //Should probably play inside RemoveLastPlanet() or something rather than here
 				removePlanetKeyPressed = true;
 			}
 		}

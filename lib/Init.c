@@ -66,7 +66,7 @@ struct PlanetStruct* planetsList;
 
 GLfloat orbitSpeed = 0.001;
 
-const char* soundfile = "audio/test.mp3";
+const char* soundfile = "audio/test.mp3asfasfasf";
 
 void InitAll()
 {
@@ -129,6 +129,7 @@ LOCAL void InitTerrain()
 {
 	//Initialize
 
+	//Make a sun at the center
 	CreateSun(128);
 
 	//Create a starting number of planets, i.e. 1;

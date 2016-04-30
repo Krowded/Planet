@@ -8,6 +8,7 @@ LOCAL void freeTexture(TextureData* texture);
 LOCAL void freePlanet(struct PlanetStruct planet);
 
 char* createPlanetNoise = "audio/1_person_cheering-Jett_Rifkin-1851518140.mp3";
+char* deletePlanetNoise = "audio/Blop-Mark_DiAngelo-79054334.mp3";
 
 GLuint numberOfPlanets = 0;
 GLuint maxNumberOfPlanets = 8; //0 for infinite
@@ -176,6 +177,7 @@ void RemoveLastPlanet()
 		numberOfPlanets--;
 		if(numberOfPlanets != 0) //Because segfault if realloced to 0
 			planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
+		PlayAudioFile(deletePlanetNoise);
 	}
 }
 

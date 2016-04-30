@@ -137,6 +137,20 @@ void CreateSun(GLfloat radius)
 	CreatePlanet(planet, NO_SOUND);
 }
 
+void CreateStandardPlanet(vec3 center, GLfloat radius, GLuint playSound)
+{
+	struct PlanetStruct planet;
+	planet.center = center;
+	planet.radius = radius;
+	planet.orbitalSpeed = 0.001;
+	planet.orbitalAxis = SetVector(0,1,0);
+	planet.rotationalSpeed = 0.001;
+	planet.rotationalAxis = SetVector(1,1,0);
+	planet.type = ROUGH_PLANET;
+
+	CreatePlanet(planet, playSound);
+}
+
 
 /*
  *	Changes the active planet, i.e. which planet gravity applies to

@@ -132,20 +132,9 @@ LOCAL void InitTerrain()
 	CreateSun(128);
 
 	//Create a starting number of planets, i.e. 1;
-	struct PlanetStruct planet;
-	planet.center = SetVector(0, 0, -500);
-	planet.radius = 256.f*0.5f;
-	planet.orbitalSpeed = 0.001;
-	planet.orbitalAxis = SetVector(0,1,0);
-	planet.rotationalSpeed = 0.001;
-	planet.rotationalAxis = SetVector(1,1,0);
-	planet.type = ROUGH_PLANET;
-
-	GLint j;
-	for(j = 0; j < 1; j++)
-	{
-		CreatePlanet(planet, NO_SOUND);
-	}	
+	vec3 center = SetVector(0, 0, -500);
+	GLfloat radius = 256.f*0.5f;
+	CreateStandardPlanet(center, radius, NO_SOUND);
 }
 
 

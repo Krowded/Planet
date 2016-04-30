@@ -285,16 +285,10 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		{
 			if(!planetKeyPressed)
 			{
-				struct PlanetStruct planet;
-				planet.center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
-				planet.radius = (256/2)/(GetNumberOfPlanets()+1);
-				planet.orbitalSpeed = 0.001;
-				planet.orbitalAxis = SetVector(0,1,0);
-				planet.rotationalSpeed = 0.001;
-				planet.rotationalAxis = SetVector(1,1,0);
-				planet.type = ROUGH_PLANET;
+				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
+				GLfloat radius = (256/2)/(GetNumberOfPlanets()+1);
 
-				CreatePlanet(planet, PLAY_SOUND_1);
+				CreateStandardPlanet(center, radius, PLAY_SOUND_1);
 				planetKeyPressed = true;
 			}
 		}

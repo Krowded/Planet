@@ -22,7 +22,7 @@ void PlayAudioFile(char filename[])
 	system(command);
 }
 
-void KillAudio()
+void KillAllAudio()
 {
 	system("pkill -f vlc");
 }

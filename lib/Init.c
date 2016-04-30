@@ -168,6 +168,7 @@ void cleanUpAndExit()
 	for(i = 0; i < numberOfPlanets; i++)
 		freePlanet(planetsList[i]);
 
-	KillAudio();
+	KillAllAudio();
+	
 	exit(0);
 }

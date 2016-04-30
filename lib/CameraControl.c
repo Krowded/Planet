@@ -207,54 +207,55 @@ void UpdateCamera(GLint t, struct PlanetStruct planet)
 LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet)
 {
 	static GLfloat averageSpeed;
-	static GLint tlast = 0;
+	//Deal with player movement
+	{ //scope limiter
+		static GLint tlast = 0;
 
-	if (averageSpeed <= 0)
-	{
-		averageSpeed = standardSpeed;
-	}
-	
-	GLint passedTime = t - tlast;
-	tlast = t;	
-	
-	GLfloat speed = (GLfloat)passedTime * averageSpeed;
-
-	vec3 upVec = GetUpDirectionVec(camRotatedMatrix);
-	vec3 backVec = GetBackDirectionVec(camRotatedMatrix);
-	vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);
-
-	//vec3 pos = GetCurrentCameraPosition(camPositionMatrix);
-	//fprintf(stderr, "Position: x %f y %f z %f\n", pos.x, pos.y, pos.z);
-
-	//Can only move perpendicular to planet -> remove projection onto normal
-	if ( IsGravityOn() )
-	{
-		vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix, planet);
-
-		vec3 backVecProj = ScalarMult(gravUpVec, DotProduct(backVec, gravUpVec));
-		backVec = Normalize(VectorSub( backVec, backVecProj));
+		if (averageSpeed <= 0)
+		{
+			averageSpeed = standardSpeed;
+		}
 		
-		vec3 rightVecProj = ScalarMult(gravUpVec, DotProduct(rightVec, gravUpVec));
-		rightVec = Normalize(VectorSub( rightVec, rightVecProj));
+		GLint passedTime = t - tlast;
+		tlast = t;	
+		
+		GLfloat speed = (GLfloat)passedTime * averageSpeed;
+
+		vec3 upVec = GetUpDirectionVec(camRotatedMatrix);
+		vec3 backVec = GetBackDirectionVec(camRotatedMatrix);
+		vec3 rightVec = GetRightDirectionVec(camRotatedMatrix);
+
+		//Can only move perpendicular to planet -> remove projection onto normal
+		if ( IsGravityOn() )
+		{
+			vec3 gravUpVec = GetNewUpDirectionVec(camPositionMatrix, planet);
+
+			vec3 backVecProj = ScalarMult(gravUpVec, DotProduct(backVec, gravUpVec));
+			backVec = Normalize(VectorSub( backVec, backVecProj));
+			
+			vec3 rightVecProj = ScalarMult(gravUpVec, DotProduct(rightVec, gravUpVec));
+			rightVec = Normalize(VectorSub( rightVec, rightVecProj));
+		}
+		backVec = ScalarMult(backVec, speed);		
+		rightVec = ScalarMult(rightVec, speed);
+		upVec = ScalarMult(upVec, speed);
+		
+		if (glutKeyIsDown('w') || glutKeyIsDown('W'))
+			camPositionMatrix = Mult( T( backVec.x, backVec.y, backVec.z), camPositionMatrix);
+		if (glutKeyIsDown('a') || glutKeyIsDown('A')) 
+			camPositionMatrix = Mult( T( rightVec.x, rightVec.y, rightVec.z), camPositionMatrix);
+		if (glutKeyIsDown('s') || glutKeyIsDown('S'))
+			camPositionMatrix = Mult( T( -backVec.x, -backVec.y, -backVec.z), camPositionMatrix);
+		if (glutKeyIsDown('d') || glutKeyIsDown('D'))
+			camPositionMatrix = Mult( T( -rightVec.x, -rightVec.y, -rightVec.z), camPositionMatrix);
+		if (glutKeyIsDown('q') || glutKeyIsDown('Q'))
+			camPositionMatrix = Mult( T( upVec.x, upVec.y, upVec.z), camPositionMatrix);
+		if (glutKeyIsDown('e') || glutKeyIsDown('E'))
+			camPositionMatrix = Mult( T( -upVec.x, -upVec.y, -upVec.z), camPositionMatrix);
+		if (glutKeyIsDown(GLUT_KEY_ESC))
+			cleanUpAndExit();
 	}
-	backVec = ScalarMult(backVec, speed);		
-	rightVec = ScalarMult(rightVec, speed);
-	upVec = ScalarMult(upVec, speed);
-	
-	if (glutKeyIsDown('w') || glutKeyIsDown('W'))
-		camPositionMatrix = Mult( T( backVec.x, backVec.y, backVec.z), camPositionMatrix);
-	if (glutKeyIsDown('a') || glutKeyIsDown('A')) 
-		camPositionMatrix = Mult( T( rightVec.x, rightVec.y, rightVec.z), camPositionMatrix);
-	if (glutKeyIsDown('s') || glutKeyIsDown('S'))
-		camPositionMatrix = Mult( T( -backVec.x, -backVec.y, -backVec.z), camPositionMatrix);
-	if (glutKeyIsDown('d') || glutKeyIsDown('D'))
-		camPositionMatrix = Mult( T( -rightVec.x, -rightVec.y, -rightVec.z), camPositionMatrix);
-	if (glutKeyIsDown('q') || glutKeyIsDown('Q'))
-		camPositionMatrix = Mult( T( upVec.x, upVec.y, upVec.z), camPositionMatrix);
-	if (glutKeyIsDown('e') || glutKeyIsDown('E'))
-		camPositionMatrix = Mult( T( -upVec.x, -upVec.y, -upVec.z), camPositionMatrix);
-	if (glutKeyIsDown(GLUT_KEY_ESC))
-		cleanUpAndExit();
+
 
 	//Switch current planet	
 	{ //static scope limiter
@@ -277,28 +278,19 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		}
 	}	
 
+	//Create a new planet 300 units in front of camera
 	{ //static scope limiter
 		static bool planetKeyPressed = false;
 		if(glutKeyIsDown('r') || glutKeyIsDown('R')  || glutMouseIsDown(GLUT_KEY_RIGHT))
 		{
 			if(!planetKeyPressed)
 			{
-			/* Create in a formation
-				vec3 center;
-				if(numberOfPlanets < 6)
-					center = SetVector(cos((numberOfPlanets+1)*2*M_PI/5)*500, 0, sin((numberOfPlanets+1)*2*M_PI/5)*500);
-				else if(numberOfPlanets < 11) 
-					center = SetVector(cos((numberOfPlanets-4)*2*M_PI/5)*500, sin((numberOfPlanets-4)*2*M_PI/5)*500, 0);
-				else
-					center = SetVector(0, cos((numberOfPlanets-9)*2*M_PI/5)*500, sin((numberOfPlanets-9)*2*M_PI/5)*500); 
-				*/
-
 				//Create planet where you're looking
 				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
 
 				//CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec); //Buggy if number of planets == 0
 				CreatePlanet(center, (256/2)/(numberOfPlanets+1), SetVector(0,1,0), SetVector(0,0,1), 0.001, SetVector(0,1,0), 0.001, SetVector(1,1,0));
-				PlayAudioFile(createPlanetNoise);
+				PlayAudioFile(createPlanetNoise);  //Should probably play inside CreatePlanet() or something rather than here
 				fprintf(stderr, "Let there be light!\n");
 				planetKeyPressed = true;
 			}
@@ -309,6 +301,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		}
 	}
 
+	//Remove last created planet
 	{ //static scope limiter
 		static bool removePlanetKeyPressed = false;
 		if(glutKeyIsDown('t') || glutKeyIsDown('T') || glutMouseIsDown(GLUT_KEY_RIGHT))
@@ -316,7 +309,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 			if(!removePlanetKeyPressed)
 			{
 				RemoveLastPlanet();
-				PlayAudioFile(deletePlanetNoise);
+				PlayAudioFile(deletePlanetNoise);  //Should probably play inside RemoveLastPlanet() or something rather than here
 				removePlanetKeyPressed = true;
 			}
 		}
@@ -327,7 +320,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 	}
 
 
-
+	//Turn gravity on and off
 	{ //static scope limiter
 		static bool spacePressed = false;
 		if (glutKeyIsDown(' '))
@@ -344,6 +337,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		}
 	}
 
+	//Turn high speed on and off
 	{	//static scope limiter
 		static bool zPressed = false;
 		if (glutKeyIsDown('z') || glutKeyIsDown('Z'))

@@ -346,7 +346,7 @@ LOCAL GLfloat RoundingFunction(GLfloat t)
 }
 
 /*
- *	Creates a cube the simple way, by interpolation to zero at the edges
+ *	Creates the side of a cube the simple way, with interpolation to zero at the edges
  */
 Model* GenerateCubeTerrainSimple(TextureData* terrainTexture)
 {

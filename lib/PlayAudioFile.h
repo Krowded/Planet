@@ -2,6 +2,6 @@
 #define PLAY_AUDIO_FILE_H
 
 void PlayAudioFile(char filename[]);
-void KillAudio();
+void KillAllAudio();
 
 #endif

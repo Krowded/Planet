@@ -68,7 +68,7 @@ GLuint currentPlanet = 0;
 
 GLfloat orbitSpeed = 0.001;
 
-const char* soundfile = "../../test.mp3";
+const char* soundfile = "audio/test.mp3bbbbbbbbbbbbbbbbbbbbbbbb";
 
 void InitAll()
 {

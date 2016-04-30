@@ -3,6 +3,7 @@
 #include "ControlGlobals.h"
 #include "DisplayGlobals.h"
 #include "PlanetManager.h"
+#include "PlayAudioFile.h"
 
 // Forward declaration of local functions
 LOCAL vec3 GetBackDirectionVec(mat4 camRotatedMatrix);
@@ -22,6 +23,8 @@ LOCAL mat4 mouseRotationMatrix = {{
 				0, 0, 0, 1	}};
 
 
+char* createPlanetNoise = "audio/1_person_cheering-Jett_Rifkin-1851518140.mp3";
+char* deletePlanetNoise = "audio/Blop-Mark_DiAngelo-79054334.mp3";
 
 vec3 GetCurrentCameraPosition(mat4 camPositionMatrix)
 {
@@ -295,6 +298,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 
 				//CreatePlanet(center, planetsList[0].radius/numberOfPlanets, planetsList[0].upVec, planetsList[0].frontVec); //Buggy if number of planets == 0
 				CreatePlanet(center, (256/2)/(numberOfPlanets+1), SetVector(0,1,0), SetVector(0,0,1), 0.001, SetVector(0,1,0), 0.001, SetVector(1,1,0));
+				PlayAudioFile(createPlanetNoise);
 				fprintf(stderr, "Let there be light!\n");
 				planetKeyPressed = true;
 			}
@@ -312,6 +316,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 			if(!removePlanetKeyPressed)
 			{
 				RemoveLastPlanet();
+				PlayAudioFile(deletePlanetNoise);
 				removePlanetKeyPressed = true;
 			}
 		}

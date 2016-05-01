@@ -16,11 +16,11 @@ extern GLfloat nearDrawDistance;
 extern GLfloat fov;
 
 
-extern Model *m, *m2, *terrainModel;
+extern Model *m, *m2, *skyboxm, *terrainModel;
 // Reference to shader program
 extern GLuint terrainProgram, modelProgram;
 //Texture references
-extern GLuint tex1, tex2;
+extern GLuint tex1, tex2, skytex;
 
 extern mat4 camMatrix, camBaseMatrix, projectionMatrix;
 

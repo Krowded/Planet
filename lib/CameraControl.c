@@ -13,6 +13,7 @@ LOCAL vec3 GetOldUpDirectionVec(mat4 camRotatedMatrix);
 LOCAL vec3 GetNewUpDirectionVec(mat4 camRotatedMatrix, struct PlanetStruct planet);
 LOCAL mat4 ChangeUpDirection(mat4 camPositionMatrix, mat4 camRotatedMatrix, vec3 newUpDirection, GLint t);
 
+LOCAL mat4 RotateWithPlanet(GLint t, mat4 camPositionMatrix, struct PlanetStruct planet);
 LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet);
 LOCAL mat4 AdjustCameraToHeightMap(mat4 camPositionMatrix, struct PlanetStruct planet);
 
@@ -182,6 +183,7 @@ void CameraMouseUpdate(GLint mouseX, GLint mouseY)
 void UpdateCamera(GLint t, struct PlanetStruct planet)
 {
 	//Read input and update position
+	camBaseMatrix = RotateWithPlanet(t, camBaseMatrix, planet);
 	camBaseMatrix = CameraControl(t, camMatrix, camBaseMatrix, planet);
 	camBaseMatrix = AdjustCameraToHeightMap(camBaseMatrix, 
 											planet);//GetTerrainHeight(currentPosition, terrainModel, planet.terrainTexture[0]));
@@ -195,6 +197,31 @@ void UpdateCamera(GLint t, struct PlanetStruct planet)
 	camMatrix = camRotatedMatrix;
 }
 
+LOCAL mat4 RotateWithPlanet(GLint t, mat4 camPositionMatrix, struct PlanetStruct planet)
+{
+	static GLint lastTime = 0;
+
+	if(IsGravityOn())
+	{
+
+		vec3 currentPos = GetCurrentCameraPosition(camPositionMatrix);
+		fprintf(stderr, "PosBefore: %f %f %f\n", currentPos.x, currentPos.y, currentPos.z);
+		vec3 vecFromCenter = VectorSub(currentPos, planet.center);
+	
+		mat4 R = ArbRotate(planet.rotationalAxis, planet.rotationalSpeed*((GLfloat)t-lastTime));
+		vec3 rotatedVecFromCenter = MultVec3(R, vecFromCenter);
+
+		vecFromCenter = VectorSub(rotatedVecFromCenter, vecFromCenter);
+
+		camPositionMatrix = Mult(T(-vecFromCenter.x, -vecFromCenter.y, -vecFromCenter.z), camPositionMatrix);
+
+		currentPos = GetCurrentCameraPosition(camPositionMatrix);
+		fprintf(stderr, "PosAfter: %f %f %f\n", currentPos.x, currentPos.y, currentPos.z);
+	}
+
+	lastTime = t;
+	return camPositionMatrix;
+}
 
 /*
  *	Reads keyboard input

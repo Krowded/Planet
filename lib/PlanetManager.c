@@ -131,8 +131,8 @@ void CreateSun(GLfloat radius)
 	planet.radius = radius;
 	planet.orbitalSpeed = 0;
 	planet.orbitalAxis = SetVector(0,1,0);
-	planet.rotationalSpeed = 0;
-	planet.rotationalAxis = SetVector(0,1,0);
+	planet.rotationalSpeed = 0.001;
+	planet.rotationalAxis = SetVector(1,1,0);
 	planet.type = SMOOTH_PLANET;
 
 	CreatePlanet(planet, NO_SOUND);
@@ -204,8 +204,8 @@ void UpdatePlanetMovement(GLint t)
 			arbAxis = Normalize(CrossProduct(planetsList[i].startingPosition, arbAxis));
 
 			ModelToWorld = Mult(ArbRotate(arbAxis, planetsList[i].orbitalSpeed*(GLfloat)t), ModelToWorld); //Orbit
-			planetsList[i].ModelToWorldMatrix = ModelToWorld;
 		}
+		planetsList[i].ModelToWorldMatrix = ModelToWorld;
 	}
 }
 

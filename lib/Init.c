@@ -35,7 +35,6 @@ GLint drawDistance = 10000.0;
 GLfloat nearDrawDistance = 0.2;
 GLfloat fov = 90;
 
-vec3 startingUp = {0, 1, 0};
 vec3 startingPosition = {0, 0, 200};
 
 GLfloat maxFallSpeed = 5;
@@ -110,7 +109,7 @@ LOCAL void InitShaders()
 
 LOCAL void InitTextures()
 {
-	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
 

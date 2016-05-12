@@ -203,20 +203,14 @@ LOCAL mat4 RotateWithPlanet(GLint t, mat4 camPositionMatrix, struct PlanetStruct
 
 	if(IsGravityOn())
 	{
-
-		vec3 currentPos = GetCurrentCameraPosition(camPositionMatrix);
-		fprintf(stderr, "PosBefore: %f %f %f\n", currentPos.x, currentPos.y, currentPos.z);
-		vec3 vecFromCenter = VectorSub(currentPos, planet.center);
+		vec3 vecFromCenter = VectorSub(GetCurrentCameraPosition(camPositionMatrix), planet.center);
 	
 		mat4 R = ArbRotate(planet.rotationalAxis, planet.rotationalSpeed*((GLfloat)t-lastTime));
 		vec3 rotatedVecFromCenter = MultVec3(R, vecFromCenter);
 
-		vecFromCenter = VectorSub(rotatedVecFromCenter, vecFromCenter);
+		vec3 vecDiff = VectorSub(rotatedVecFromCenter, vecFromCenter);
 
-		camPositionMatrix = Mult(T(-vecFromCenter.x, -vecFromCenter.y, -vecFromCenter.z), camPositionMatrix);
-
-		currentPos = GetCurrentCameraPosition(camPositionMatrix);
-		fprintf(stderr, "PosAfter: %f %f %f\n", currentPos.x, currentPos.y, currentPos.z);
+		camPositionMatrix = Mult(T(-vecDiff.x, -vecDiff.y, -vecDiff.z), camPositionMatrix);
 	}
 
 	lastTime = t;
@@ -229,6 +223,9 @@ LOCAL mat4 RotateWithPlanet(GLint t, mat4 camPositionMatrix, struct PlanetStruct
  */
 LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet)
 {
+	vec3 curpos = GetCurrentCameraPosition(camPositionMatrix);
+	fprintf(stderr, "x: %f y: %f z: %f \n", curpos.x, curpos.y, curpos.z);
+
 	static GLfloat averageSpeed;
 	//Deal with player movement
 	{ //scope limiter

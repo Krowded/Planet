@@ -27,13 +27,15 @@ void display(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 
 
+	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
+
 	UpdatePlanetMovement(globalTime);
 	GLuint i,j;
 	for(j = 0; j < GetNumberOfPlanets(); j++)
 	{
 		planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].startingPosition)));
 		total = Mult(camMatrix, planetsList[j].ModelToWorldMatrix);
-		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
+		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[j].ModelToWorldMatrix.m);
 		for(i = 0; i < 6; ++i)
 		{
 			DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");

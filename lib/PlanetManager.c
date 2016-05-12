@@ -92,10 +92,10 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 			switch(planet.type)
 			{
 				case SMOOTH_PLANET:
-					planet.terrainModels[i] = MapCubeToFlatSphere(planet, terrainTransformationMatrix, i);
+					planet.terrainModels[i] = MapCubeToFlatSphere(planet, terrainTransformationMatrix, terrainTextures[i], i);
 					break;
 				case ROUGH_PLANET:
-					planet.terrainModels[i] = MapCubeToSphere(planet, terrainTransformationMatrix, i);
+					planet.terrainModels[i] = MapCubeToSphere(planet, terrainTransformationMatrix, terrainTextures[i], i);
 					break;
 				default:
 					fprintf(stderr, "Unknown planet type");
@@ -131,7 +131,7 @@ void CreateSun(GLfloat radius)
 	planet.radius = radius;
 	planet.orbitalSpeed = 0;
 	planet.orbitalAxis = SetVector(0,1,0);
-	planet.rotationalSpeed = 0.001;
+	planet.rotationalSpeed = 0.000;
 	planet.rotationalAxis = SetVector(1,1,0);
 	planet.type = SMOOTH_PLANET;
 

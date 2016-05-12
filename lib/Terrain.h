@@ -19,8 +19,8 @@ void GenerateCubeTerrain(struct PlanetStruct* planet);
 
 Model* GenerateCubeTerrainSimple(TextureData* terrainTextures);
 
-Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLuint i);
-Model* MapCubeToFlatSphere(struct  PlanetStruct planet, mat4* terrainTransformationMatrices, GLuint i);
+Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
+Model* MapCubeToFlatSphere(struct  PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
 
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);

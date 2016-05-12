@@ -10,8 +10,6 @@ extern GLfloat maxRotationSpeed;
 
 extern GLfloat mouseSensitivity;
 
-extern vec3 startingUp;
-
 extern GLint NewGravity;
 
 #endif

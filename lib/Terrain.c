@@ -14,6 +14,8 @@ LOCAL GLint SaveAsTGA(char* filename, short int width, short int height, unsigne
 LOCAL vec3 GetBezierPoint( vec3* points, int numPoints, float u );
 LOCAL GLfloat RoundingFunction(GLfloat t);
 
+LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* terrainTexture, GLuint i);
+
 
 vec3 TerrainOffset = {0, 0, 0}; //Should probably be removed
 
@@ -410,11 +412,58 @@ Model* GenerateCubeTerrainSimple(TextureData* terrainTexture)
 				triangleCount*3);
 }
 
+LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* terrainTexture, GLuint i)
+{
+	//Free old normalArray, easier to make new one
+	free(planet.terrainModels[i]->normalArray);
+
+	//Generate new one
+	planet.terrainModels[i]->normalArray = GenerateTerrainNormalArray(terrainTexture, planet.terrainModels[i]->vertexArray);
+	
+
+	//Adjust edges
+	vec3 normalToEdge = Normalize(SetVector(planet.terrainModels[i]->vertexArray[(0 + 0 * terrainTexture->width)*3 + 0] - planet.center.x,
+							   				planet.terrainModels[i]->vertexArray[(0 + 0 * terrainTexture->width)*3 + 1] - planet.center.y,
+							   			 	planet.terrainModels[i]->vertexArray[(0 + 0 * terrainTexture->width)*3 + 2] - planet.center.z));
+
+	planet.terrainModels[i]->normalArray[(0 + 0 * terrainTexture->width)*3 + 0] = normalToEdge.x;
+	planet.terrainModels[i]->normalArray[(0 + 0 * terrainTexture->width)*3 + 1] = normalToEdge.y;
+	planet.terrainModels[i]->normalArray[(0 + 0 * terrainTexture->width)*3 + 2] = normalToEdge.z;
+
+	normalToEdge = Normalize(SetVector(planet.terrainModels[i]->vertexArray[(0 + (terrainTexture->height-1) * terrainTexture->width)*3 + 0] - planet.center.x,
+  					   				   planet.terrainModels[i]->vertexArray[(0 + (terrainTexture->height-1) * terrainTexture->width)*3 + 1] - planet.center.y,
+							   		   planet.terrainModels[i]->vertexArray[(0 + (terrainTexture->height-1) * terrainTexture->width)*3 + 2] - planet.center.z));
+
+	planet.terrainModels[i]->normalArray[(0 + (terrainTexture->height-1) * terrainTexture->width)*3 + 0] = normalToEdge.x;
+	planet.terrainModels[i]->normalArray[(0 + (terrainTexture->height-1) * terrainTexture->width)*3 + 1] = normalToEdge.y;
+	planet.terrainModels[i]->normalArray[(0 + (terrainTexture->height-1) * terrainTexture->width)*3 + 2] = normalToEdge.z;
+
+
+	normalToEdge = Normalize(SetVector(planet.terrainModels[i]->vertexArray[((terrainTexture->width-1) + 0 * terrainTexture->width)*3 + 0] - planet.center.x,
+  					   				   planet.terrainModels[i]->vertexArray[((terrainTexture->width-1) + 0 * terrainTexture->width)*3 + 1] - planet.center.y,
+							   		   planet.terrainModels[i]->vertexArray[((terrainTexture->width-1) + 0 * terrainTexture->width)*3 + 2] - planet.center.z));
+
+	planet.terrainModels[i]->normalArray[((terrainTexture->width-1) + 0 * terrainTexture->width)*3 + 0] = normalToEdge.x;
+	planet.terrainModels[i]->normalArray[((terrainTexture->width-1) + 0 * terrainTexture->width)*3 + 1] = normalToEdge.y;
+	planet.terrainModels[i]->normalArray[((terrainTexture->width-1) + 0 * terrainTexture->width)*3 + 2] = normalToEdge.z;
+
+
+	normalToEdge = Normalize(SetVector(planet.terrainModels[i]->vertexArray[((terrainTexture->width-1) + (terrainTexture->height-1) * terrainTexture->width)*3 + 0] - planet.center.x,
+  					   				   planet.terrainModels[i]->vertexArray[((terrainTexture->width-1) + (terrainTexture->height-1) * terrainTexture->width)*3 + 1] - planet.center.y,
+							   		   planet.terrainModels[i]->vertexArray[((terrainTexture->width-1) + (terrainTexture->height-1) * terrainTexture->width)*3 + 2] - planet.center.z));
+
+	planet.terrainModels[i]->normalArray[((terrainTexture->width-1) + (terrainTexture->height-1) * terrainTexture->width)*3 + 0] = normalToEdge.x;
+	planet.terrainModels[i]->normalArray[((terrainTexture->width-1) + (terrainTexture->height-1) * terrainTexture->width)*3 + 1] = normalToEdge.y;
+	planet.terrainModels[i]->normalArray[((terrainTexture->width-1) + (terrainTexture->height-1) * terrainTexture->width)*3 + 2] = normalToEdge.z;
+
+	return planet.terrainModels[i]->normalArray;
+}
+
 
 /*
  *	Turns the side of a cube to the equivalent but flat side of a sphere and returns it as a Model
  */
-Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLuint i) //i = index of side
+Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
 {
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
@@ -435,9 +484,13 @@ Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformati
 		planet.terrainModels[i]->vertexArray[x + 2] = newPoint.z;
 	}
 		
+//	free(planet.terrainModels[i]->normalArray);
+
+	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
+
 	return LoadDataToModel(
 				planet.terrainModels[i]->vertexArray,
-				planet.terrainModels[i]->normalArray,
+				planet.terrainModels[i]->normalArray,//GenerateTerrainNormalArray(terrainTexture, planet.terrainModels[i]->vertexArray),
 				planet.terrainModels[i]->texCoordArray,
 				NULL,
 				planet.terrainModels[i]->indexArray,
@@ -448,7 +501,7 @@ Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformati
 /*
  *	Turns the side of a cube to the equivalent side of a sphere and returns it as a Model
  */
-Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, GLuint i) //i = index of side
+Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
 {
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
@@ -475,7 +528,23 @@ Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMa
 		planet.terrainModels[i]->vertexArray[x + 1] = transformedPoint.y + difference.y;
 		planet.terrainModels[i]->vertexArray[x + 2] = transformedPoint.z + difference.z;
 	}
-		
+
+/*
+	//Free old normalArray, easier to make new one
+	free(planet.terrainModels[i]->normalArray);
+	planet.terrainModels[i]->normalArray = GenerateTerrainNormalArray(terrainTexture, planet.terrainModels[i]->vertexArray);
+	
+
+	planet.terrainModels[i]->normalArray
+
+	normalArray[(x + z * tex->width)*3 + 0] = 0.0;
+	normalArray[(x + z * tex->width)*3 + 1] = 1.0;
+	normalArray[(x + z * tex->width)*3 + 2] = 0.0;
+
+	if (x == 0 && x < tex->width-1 && z > 0 && z < tex->height-1 )
+	*/
+	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
+
 	return LoadDataToModel(
 				planet.terrainModels[i]->vertexArray,
 				planet.terrainModels[i]->normalArray,

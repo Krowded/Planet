@@ -83,7 +83,7 @@ LOCAL void InitTextures()
 
 
 
-	LoadTGATextureSimple("SkyBox512.tga", &skytex)
+	LoadTGATextureSimple("SkyBox512.tga", &skytex);
 
 	printError("Init terrain");	
 }

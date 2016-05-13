@@ -5,7 +5,7 @@ void display(void)
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	mat4 total, ModelToWorld;
+	mat4 total, ModelToWorld, skyTranslation, skyRotation, skyModel, mv, mvp;
 	
 	printError("pre display");
 	
@@ -27,14 +27,14 @@ void display(void)
 	glUseProgram(skyProgram);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-	translation = T(0, 0, 0);
-	rotation = Rx(0);
-	model = Mult(translation, rotation);
-	mv = Mult(camera, model);
+	skyTranslation = T(0, 0, 0);
+	skyRotation = Rx(0);
+	skyModel = Mult(skyTranslation, skyRotation);
+	mv = Mult(camMatrix, skyModel);
 	(mv.m)[3] = 0;
 	(mv.m)[7] = 0;
 	(mv.m)[11] = 0;
-	mvp = Mult(projection, mv);
+	mvp = Mult(projectionMatrix, mv);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "mvp"), 1, GL_TRUE, mvp.m);
 	glBindTexture(GL_TEXTURE_2D, skytex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

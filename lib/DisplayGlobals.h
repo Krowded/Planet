@@ -18,7 +18,7 @@ extern GLfloat fov;
 
 extern Model *m, *m2, *skyboxm, *terrainModel;
 // Reference to shader program
-extern GLuint terrainProgram, modelProgram;
+extern GLuint terrainProgram, modelProgram, skyProgram;
 //Texture references
 extern GLuint tex1, tex2, skytex;
 

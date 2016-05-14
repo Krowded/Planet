@@ -15,7 +15,7 @@ char* deletePlanetNoise = "audio/Blop-Mark_DiAngelo-79054334.mp3";
 GLuint numberOfPlanets = 0;
 GLuint maxNumberOfPlanets = 8; //0 for infinite
 GLuint currentPlanet = 0;
-
+GLuint fuzzy = 0; //Use the failed randomly generated height map
 
 void CreateCubeHeightMaps(TextureData* terrainTextures[6], mat4 terrainTransformationMatrix[6], struct PlanetStruct* planet)
 {
@@ -27,7 +27,11 @@ void CreateCubeHeightMaps(TextureData* terrainTextures[6], mat4 terrainTransform
 
 		// Load terrain data
 		for (i = 0; i < 6; i++)
-			LoadTGATextureData("textures/fft-terrain.tga", terrainTextures[i]);
+			if(fuzzy == 0)
+				LoadTGATextureData("textures/fft-terrain.tga", terrainTextures[i]);
+			else
+				LoadTGATextureData("testTGA.tga", terrainTextures[i]);
+
 
 		//Generate terrain model matrix
 

@@ -16,9 +16,12 @@ extern GLfloat nearDrawDistance;
 extern GLfloat fov;
 
 // Reference to shader program
-extern GLuint terrainProgram, modelProgram, sunProgram;
+extern GLuint terrainProgram, modelProgram, sunProgram, skyboxProgram;
 //Texture references
-extern GLuint tex1, tex2, sunTexture;
+extern GLuint tex1, tex2, sunTexture, skyboxTopTexture, skyboxBottomTexture, 
+skyboxLeftTexture, skyboxRightTexture, skyboxFrontTexture, skyboxBackTexture;
+
+extern Model *skyTop, *skyBottom, *skyLeft, *skyRight, *skyFront, *skyBack;
 
 extern mat4 camMatrix, camBaseMatrix, projectionMatrix;
 

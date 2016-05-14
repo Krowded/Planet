@@ -24,4 +24,6 @@ Model* MapToFlatSphere(struct  PlanetStruct planet, mat4 terrainTransformationMa
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);
 
+Model* GenerateSkyboxSide();
+
 #endif

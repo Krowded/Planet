@@ -10,6 +10,8 @@
 #include "LoadTGA.h"
 #include "PlayAudioFile.h"
 
+#include "Skybox.h"
+
 LOCAL void InitMusic();
 LOCAL void InitCamera();
 LOCAL void InitShaders();
@@ -28,7 +30,7 @@ void* chkmalloc(size_t sz)
 }
 
 //Define globals
-const vec4 backgroundColor = {1,1,1,0};
+const vec4 backgroundColor = {0,0,0,0};
 
 GLfloat windowWidth = 1024.0;
 GLfloat windowHeight = 576.0;
@@ -54,7 +56,8 @@ GLuint roundingDistanceFromEdge = 30;
 GLfloat simpleInterpolationHeight = 10;
 
 mat4 camMatrix, camBaseMatrix, projectionMatrix;	
-GLuint terrainProgram, modelProgram, sunProgram;
+GLuint terrainProgram, modelProgram, sunProgram, skyboxProgram, skyboxTopTexture, skyboxBottomTexture, 
+skyboxLeftTexture, skyboxRightTexture, skyboxFrontTexture, skyboxBackTexture;
 GLuint tex1, tex2, sunTexture;
 
 
@@ -74,6 +77,8 @@ void InitAll()
 	InitCamera();
 	InitShaders();
 	InitTextures();
+
+	InitSkybox();
 
 }
 
@@ -103,6 +108,7 @@ LOCAL void InitShaders()
 	terrainProgram = loadShaders("shaders/terrain.vert", "shaders/terrain.frag");
 	modelProgram = loadShaders("shaders/models.vert", "shaders/models.frag");
 	sunProgram = loadShaders("shaders/sun.vert", "shaders/sun.frag");
+	skyboxProgram = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 	printError("Init shader");
 }
 
@@ -111,6 +117,21 @@ LOCAL void InitTextures()
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
 	LoadTGATextureSimple("textures/sun.tga", &sunTexture);
 
+	LoadTGATextureSimple("textures/bluepurplenebula4096_top3.tga", &skyboxTopTexture);
+	LoadTGATextureSimple("textures/bluepurplenebula4096_bottom4.tga", &skyboxBottomTexture);
+	LoadTGATextureSimple("textures/bluepurplenebula4096_left2.tga", &skyboxLeftTexture);
+	LoadTGATextureSimple("textures/bluepurplenebula4096_right1.tga", &skyboxRightTexture);
+	LoadTGATextureSimple("textures/bluepurplenebula4096_front5.tga", &skyboxFrontTexture);
+	LoadTGATextureSimple("textures/bluepurplenebula4096_back6.tga", &skyboxBackTexture);
+
+/*
+	LoadTGATextureSimple("textures/simpleskybox2048_top3.tga", &skyboxTopTexture);
+	LoadTGATextureSimple("textures/simpleskybox2048_bottom4.tga", &skyboxBottomTexture);
+	LoadTGATextureSimple("textures/simpleskybox2048_left2.tga", &skyboxLeftTexture);
+	LoadTGATextureSimple("textures/simpleskybox2048_right1.tga", &skyboxRightTexture);
+	LoadTGATextureSimple("textures/simpleskybox2048_front5.tga", &skyboxFrontTexture);
+	LoadTGATextureSimple("textures/simpleskybox2048_back6.tga", &skyboxBackTexture);
+*/
 	printError("Init terrain");	
 }
 

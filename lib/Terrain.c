@@ -139,8 +139,6 @@ Model* GenerateTerrainFromTexture(TextureData *tex, GLfloat textureScale)
 }
 
 
-
-
 /*
  *	Generates a new terrain of size sideLengt*sideLength and passes it out through newTerrainTexture.
  *	Also saves the new texture to "testTGA.tga"
@@ -478,7 +476,6 @@ Model* MapToCube(struct PlanetStruct planet, mat4 terrainTransformationMatrices[
 		planet.terrainModels[index]->vertexArray[x + 2] = point.z;
 	}
 
-	//free(planet.terrainModels[index]->normalArray);
 	planet.terrainModels[index]->normalArray = FixTerrainNormalArray(planet, terrainTexture, index);
 
 	return LoadDataToModel(
@@ -516,7 +513,6 @@ Model* MapToFlatSphere(struct PlanetStruct planet, mat4 terrainTransformationMat
 		planet.terrainModels[i]->vertexArray[x + 2] = newPoint.z;
 	}
 
-	//free(planet.terrainModels[i]->normalArray);
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 
 	return LoadDataToModel(
@@ -560,7 +556,6 @@ Model* MapToSphere(struct PlanetStruct planet, mat4 terrainTransformationMatrice
 		planet.terrainModels[i]->vertexArray[x + 2] = transformedPoint.z + difference.z;
 	}
 
-	//free(planet.terrainModels[i]->normalArray);
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 
 	return LoadDataToModel(

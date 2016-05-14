@@ -4,6 +4,10 @@
 #include "DisplayGlobals.h"
 #include "Init.h"
 #include "MicroGlut.h"
+#include "Terrain.h"
+#include "Skybox.h"
+
+
 
 LOCAL void MouseUpdate(GLint mouseX, GLint mouseY);
 LOCAL void Update(GLint t);
@@ -16,8 +20,44 @@ void display(void)
 
 	//Update projection
 	projectionMatrix = perspective(fov, windowWidth/windowHeight, nearDrawDistance, drawDistance);
-	
+
+
 	printError("pre display");
+
+	//Skybox
+	glDisable(GL_DEPTH_TEST);
+	glUseProgram(skyboxProgram);
+	glBindTexture(GL_TEXTURE_2D, sunTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glUniform1i(glGetUniformLocation(skyboxProgram, "tex"), 0); // Texture unit 0	
+
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);	
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
+
+	mat4 m = IdentityMatrix();
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "ModelToWorld"), 1, GL_TRUE, m.m);
+	//glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[0].ModelToWorldMatrix.m);
+	
+	glBindTexture(GL_TEXTURE_2D, skyboxTopTexture);
+	DrawModel(skyTop, skyboxProgram, "inPosition", NULL, "inTexCoord");
+
+	glBindTexture(GL_TEXTURE_2D, skyboxBottomTexture);
+	DrawModel(skyBottom, skyboxProgram, "inPosition", NULL, "inTexCoord");
+ 	glBindTexture(GL_TEXTURE_2D, skyboxLeftTexture);
+	DrawModel(skyLeft, skyboxProgram, "inPosition", NULL, "inTexCoord");
+	glBindTexture(GL_TEXTURE_2D, skyboxRightTexture);
+	DrawModel(skyRight, skyboxProgram, "inPosition", NULL, "inTexCoord");
+	glBindTexture(GL_TEXTURE_2D, skyboxFrontTexture);
+	DrawModel(skyFront, skyboxProgram, "inPosition", NULL, "inTexCoord");
+	glBindTexture(GL_TEXTURE_2D, skyboxBackTexture);
+	DrawModel(skyBack, skyboxProgram, "inPosition", NULL, "inTexCoord");
+	
+	glEnable(GL_DEPTH_TEST);
+
+
+	
+
+	
 
 	//Draw sun
 	if(GetNumberOfPlanets() > 0)
@@ -27,7 +67,6 @@ void display(void)
 		glBindTexture(GL_TEXTURE_2D, sunTexture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		glUniform1i(glGetUniformLocation(sunProgram, "tex"), 0); // Texture unit 0	
-
 
 		glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);	
 		glUniformMatrix4fv(glGetUniformLocation(sunProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
@@ -66,6 +105,7 @@ void display(void)
 			}
 		}
 	}
+	
 	printError("display 2");
 	
 	glutSwapBuffers();

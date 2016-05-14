@@ -1,4 +1,5 @@
 #include "UpdateAndDisplay.h"
+#include "BoxForSky.c"
 
 void display(void)
 {
@@ -9,24 +10,10 @@ void display(void)
 	
 	printError("pre display");
 	
-
-	//Draw terrain
-	glUseProgram(terrainProgram);
-
-	
-	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
-	GLint i;
-	for (i = 0; i < 6; ++i)
-	{
-		total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
-		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
-		DrawModel(terrainModel, terrainProgram, "inPosition", "inNormal", "inTexCoord");
-	}
-
-	//Draw sky
+//Draw sky
 	glUseProgram(skyProgram);
 	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 	skyTranslation = T(0, 0, 0);
 	skyRotation = Rx(0);
 	skyModel = Mult(skyTranslation, skyRotation);
@@ -36,11 +23,76 @@ void display(void)
 	(mv.m)[11] = 0;
 	mvp = Mult(projectionMatrix, mv);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "mvp"), 1, GL_TRUE, mvp.m);
-	glBindTexture(GL_TEXTURE_2D, skytex);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, skytex);
+
+	glBindTexture(GL_TEXTURE_2D, skytex1);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
+        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, skytex2);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
+        glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, skytex3);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
+        glTexCoord2f(0, 0); glVertex3f( -0.5f,  0.5f,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f,  0.5f,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, skytex4);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
+        glTexCoord2f(0, 1); glVertex3f( -0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, skytex5);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
+        glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, skytex6);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
+        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
+ 
+    glEnd();
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	DrawModel(skyboxm, skyProgram, "inPosition", NULL, "inTexCoord");
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);	
+	//DrawModel(skyboxm, skyProgram, "inPosition", NULL, "inTexCoord");
+	//glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	
+
+	//Draw terrain
+	glUseProgram(terrainProgram);	
+	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
+	GLint i;
+	for (i = 0; i < 6; ++i)
+	{
+		total = Mult(camMatrix, Planet.terrainModelToWorld[i]);
+		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
+		DrawModel(terrainModel, terrainProgram, "inPosition", "inNormal", "inTexCoord");
+	}
+
+		
 	
 
 	//Draw models

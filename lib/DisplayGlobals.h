@@ -20,7 +20,7 @@ extern Model *m, *m2, *skyboxm, *terrainModel;
 // Reference to shader program
 extern GLuint terrainProgram, modelProgram, skyProgram;
 //Texture references
-extern GLuint tex1, tex2, skytex;
+extern GLuint tex1, tex2, skytex1, skytex2, skytex3, skytex4, skytex5, skytex6;
 
 extern mat4 camMatrix, camBaseMatrix, projectionMatrix;
 

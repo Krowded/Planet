@@ -26,7 +26,7 @@ GLint globalTime = 0;
 mat4 camMatrix, camBaseMatrix, projectionMatrix;	
 Model *m, *m2, *skyboxm,*terrainModel;
 GLuint terrainProgram, modelProgram, skyProgram;
-GLuint tex1, tex2, skytex;
+GLuint tex1, tex2, skytex1, skytex2, skytex3, skytex4, skytex5, skytex6;
 TextureData terrainTexture;
 
 const GLfloat radius = 128;
@@ -80,10 +80,15 @@ LOCAL void InitTextures()
 	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
+	LoadTGATextureSimple("textures/skyboxtest_right1.tga", &skytex1);
+	LoadTGATextureSimple("textures/skyboxtest_left2.tga", &skytex2);
+	LoadTGATextureSimple("textures/skyboxtest_top3.tga", &skytex3);
+	LoadTGATextureSimple("textures/skyboxtest_bottom4.tga", &skytex4);
+	LoadTGATextureSimple("textures/skyboxtest_front5.tga", &skytex5);
+	LoadTGATextureSimple("textures/skyboxtest_back6.tga", &skytex6);
 
-
-
-	LoadTGATextureSimple("SkyBox512.tga", &skytex);
+	
+	
 
 	printError("Init terrain");	
 }

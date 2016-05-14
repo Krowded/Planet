@@ -8,13 +8,8 @@
 
 #define LOCAL static
 
-#define NO_SOUND 0
-#define PLAY_SOUND_1 1
-
-#define SMOOTH_PLANET 0
-#define ROUGH_PLANET 1
-
-
+enum sounds {NO_SOUND, PLAY_SOUND_1};
+enum planetShape {SMOOTH_PLANET, ROUGH_PLANET, CUBE_PLANET};
 enum planetSide {PLANET_UP, PLANET_LEFT, PLANET_DOWN, PLANET_RIGHT, PLANET_FRONT, PLANET_BACK};
 
 struct PlanetStruct {
@@ -35,7 +30,7 @@ struct PlanetStruct {
 	vec3 orbitalAxis;
 	GLfloat rotationalSpeed;
 	vec3 rotationalAxis;
-	GLuint type;
+	enum planetShape type;
 };
 
 

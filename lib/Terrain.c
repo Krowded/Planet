@@ -457,6 +457,35 @@ LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* te
 	return planet.terrainModels[i]->normalArray;
 }
 
+Model* CreateCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint index)
+{
+	GLuint x;
+	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
+	{
+		vec4 point = {planet.terrainModels[index]->vertexArray[x + 0],
+					  planet.terrainModels[index]->vertexArray[x + 1],
+					  planet.terrainModels[index]->vertexArray[x + 2],
+					  1};
+
+		point = MultVec4(terrainTransformationMatrices[index], point);
+
+		planet.terrainModels[index]->vertexArray[x + 0] = point.x;
+		planet.terrainModels[index]->vertexArray[x + 1] = point.y;
+		planet.terrainModels[index]->vertexArray[x + 2] = point.z;
+	}
+
+	planet.terrainModels[index]->normalArray = FixTerrainNormalArray(planet, terrainTexture, index);
+
+	return LoadDataToModel(
+				planet.terrainModels[index]->vertexArray,
+				planet.terrainModels[index]->normalArray,//GenerateTerrainNormalArray(terrainTexture, planet.terrainModels[i]->vertexArray),
+				planet.terrainModels[index]->texCoordArray,
+				NULL,
+				planet.terrainModels[index]->indexArray,
+				planet.terrainModels[index]->numVertices,
+				planet.terrainModels[index]->numIndices);
+}
+
 
 /*
  *	Turns the side of a cube to the equivalent but flat side of a sphere and returns it as a Model
@@ -481,8 +510,6 @@ Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformati
 		planet.terrainModels[i]->vertexArray[x + 1] = newPoint.y;
 		planet.terrainModels[i]->vertexArray[x + 2] = newPoint.z;
 	}
-		
-//	free(planet.terrainModels[i]->normalArray);
 
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 

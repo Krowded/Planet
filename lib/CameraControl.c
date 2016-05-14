@@ -352,8 +352,13 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		{
 			if(!planetKeyPressed)
 			{
-				if(GetNumberOfPlanets() < 1)
-					CreateSun(128, SMOOTH_PLANET);
+				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
+				GLfloat radius = (256/2)/(GetNumberOfPlanets()+1);
+
+				if(GetNumberOfPlanets() > 0)
+					CreateStandardPlanet(center, radius, SMOOTH_PLANET, PLAY_SOUND_1);
+				else
+					CreateSun(radius, SMOOTH_PLANET);
 				planetKeyPressed = true;
 			}
 		}

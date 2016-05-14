@@ -20,7 +20,7 @@ void main(void)
 
 	float diffuse = 0;//diffuseConst * max(dot(normalize(normal), lightDirection), 0);
 
-	diffuse += diffuseConst * max(dot(normalize(normal), mat3(WorldToView)*SunlightDirection), 0);
+	diffuse += diffuseConst * max(dot(normalize(normal), normalize(mat3(WorldToView)*SunlightDirection)), 0);
 
 	outColor = min(diffuse + ambient, 1) * texture(tex, texCoord);
 } 

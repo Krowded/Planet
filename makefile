@@ -2,7 +2,7 @@
 commondir = common/
 libdir = lib/
 
-CC=gcc
+CC=gcc 
 CFLAGS= 
 #-Wall -Wextra
 LDFLAGS= -lXt -lX11 -lGL -DGL_GLEXT_PROTOTYPES -lm -lpthread

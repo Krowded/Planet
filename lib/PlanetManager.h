@@ -26,6 +26,7 @@ struct PlanetStruct {
 	vec3 upVec;  //Must be normalized
 	vec3 frontVec; //Must be normalized
 	GLfloat timeOfCreation;
+	GLfloat textureScale;
 
 //These must be initialized before CreatePlanet()
 	vec3 center;

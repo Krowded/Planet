@@ -15,20 +15,14 @@ extern GLint drawDistance;
 extern GLfloat nearDrawDistance;
 extern GLfloat fov;
 
-
-extern Model *m, *m2, *terrainModel;
 // Reference to shader program
-extern GLuint terrainProgram, modelProgram;
+extern GLuint terrainProgram, modelProgram, sunProgram;
 //Texture references
-extern GLuint tex1, tex2;
+extern GLuint tex1, tex2, sunTexture;
 
 extern mat4 camMatrix, camBaseMatrix, projectionMatrix;
 
 extern GLfloat cameraHeight;
-
-extern GLint globalTime;
-
-extern const GLfloat radius;
 
 extern struct PlanetStruct* planetsList;
 

@@ -13,59 +13,57 @@ void display(void)
 {
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	mat4 total;
+
+	//Update projection
+	projectionMatrix = perspective(fov, windowWidth/windowHeight, nearDrawDistance, drawDistance);
 	
 	printError("pre display");
-	
 
-	//Draw terrain
+	//Draw sun
+	glUseProgram(sunProgram);
+
+	glBindTexture(GL_TEXTURE_2D, sunTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glUniform1i(glGetUniformLocation(sunProgram, "tex"), 0); // Texture unit 0	
+
+
+	glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);	
+	glUniformMatrix4fv(glGetUniformLocation(sunProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
+
+
+	planetsList[0].center = vec4tovec3(MultVec4(planetsList[0].ModelToWorldMatrix, vec3tovec4(planetsList[0].startingPosition)));
+
+	glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[0].ModelToWorldMatrix.m);
+	GLuint i;
+	for(i = 0; i < 6; ++i)
+	{
+		DrawModel(planetsList[0].terrainModels[i], sunProgram, "inPosition", NULL, "inTexCoord");
+	}
+
+	//Draw planets
 	glUseProgram(terrainProgram);
 
-	
-	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
+	glBindTexture(GL_TEXTURE_2D, tex1);	// Bind Our Texture tex1
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0	
 
-
+	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);
 	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
 
-	UpdatePlanetMovement(globalTime);
-	GLuint i,j;
+	GLuint j;
 	for(j = 0; j < GetNumberOfPlanets(); j++)
 	{
 		planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].startingPosition)));
-		total = Mult(camMatrix, planetsList[j].ModelToWorldMatrix);
+		//total = Mult(camMatrix, planetsList[j].ModelToWorldMatrix);
+
+		vec3 sunlight = Normalize(VectorSub(planetsList[0].center, planetsList[j].center));
+		glUniform3f(glGetUniformLocation(terrainProgram, "SunlightDirection"), sunlight.x, sunlight.y, sunlight.z);
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[j].ModelToWorldMatrix.m);
 		for(i = 0; i < 6; ++i)
 		{
 			DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
 		}
 	}
-
-
-
-/*
-	//Draw models
-	glUseProgram(modelProgram);
-
-	//Sphere
-	ModelToWorld = IdentityMatrix();
-	ModelToWorld = Mult( T(25*globalTime*0.0001, 0, 0), ModelToWorld);
-	vec3 currentPosition = GetCurrentPosition(ModelToWorld);
-	//ModelToWorld = AdjustModelToHeightMap(ModelToWorld, 
-	//	 								  GetTerrainHeight(currentPosition, terrainModel, Planet.terrainTexture[0]));
-	total = Mult(camMatrix, ModelToWorld);
-	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
-	DrawModel(m, modelProgram, "inPosition", "inNormal", "inTexCoord");
-
-	//Octagon
-	ModelToWorld = T( 3, 0, 0);
-	total = Mult(camMatrix, ModelToWorld);
-	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "mdlMatrix"), 1, GL_TRUE, total.m);
-	DrawModel(m2, modelProgram, "inPosition", "inNormal", "inTexCoord");
-	*/
-
-
 
 	printError("display 2");
 	
@@ -87,15 +85,16 @@ LOCAL void Update(GLint t)
 	getCursorPosition(&x, &y);
 	MouseUpdate(x,y);
 	UpdateCamera(t, planetsList[GetCurrentPlanet()]);
+	UpdatePlanetMovement(t);
 }
 
 
 void timer(GLint time)
 { 	
-	globalTime = glutGet(GLUT_ELAPSED_TIME);
-	Update(globalTime);
+	GLint t = glutGet(GLUT_ELAPSED_TIME);
+	Update(t);
 
 	glutPostRedisplay();
 
-	glutTimerFunc(10, timer, globalTime);
+	glutTimerFunc(10, timer, t);
 }

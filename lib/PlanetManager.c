@@ -1,5 +1,6 @@
 #include "PlanetManager.h"
 #include "Terrain.h"
+#include "PlayAudioFile.h"
 
 #include "DisplayGlobals.h"
 #include "ControlGlobals.h"
@@ -86,7 +87,7 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 		GLuint i;
 		for(i = 0; i < 6; i++)
 		{
-			planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i]);
+			planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i], planet.textureScale);
 
 			Model* oldmodel = planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
 			switch(planet.type)
@@ -131,9 +132,10 @@ void CreateSun(GLfloat radius)
 	planet.radius = radius;
 	planet.orbitalSpeed = 0;
 	planet.orbitalAxis = SetVector(0,1,0);
-	planet.rotationalSpeed = 0.000;
+	planet.rotationalSpeed = 0.001;
 	planet.rotationalAxis = SetVector(1,1,0);
 	planet.type = SMOOTH_PLANET;
+	planet.textureScale = 1;
 
 	CreatePlanet(planet, NO_SOUND);
 }
@@ -148,6 +150,7 @@ void CreateStandardPlanet(vec3 center, GLfloat radius, GLuint playSound)
 	planet.rotationalSpeed = 0.001;
 	planet.rotationalAxis = SetVector(1,1,0);
 	planet.type = ROUGH_PLANET;
+	planet.textureScale = 1;
 
 	CreatePlanet(planet, playSound);
 }

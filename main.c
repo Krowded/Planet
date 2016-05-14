@@ -15,11 +15,6 @@ void Init(void)
 	printError("GL Inits");
 
 	InitAll();
-
-	glUseProgram(modelProgram);
-	glUniformMatrix4fv(glGetUniformLocation(modelProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
-
-	InitModels();
 }
 
 int main(int argc, char **argv)
@@ -42,8 +37,7 @@ int main(int argc, char **argv)
 	glutReshapeFunc(InitWindow);
 	Init();
 
-	globalTime = glutGet(GLUT_ELAPSED_TIME);
-	timer(globalTime);
+	timer(glutGet(GLUT_ELAPSED_TIME));
 	
 	glutMainLoop();
 	exit(0);

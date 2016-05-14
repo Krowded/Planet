@@ -8,6 +8,7 @@
 #include "Terrain.h"
 #include "loadobj.h"
 #include "LoadTGA.h"
+#include "PlayAudioFile.h"
 
 LOCAL void InitMusic();
 LOCAL void InitCamera();
@@ -52,11 +53,9 @@ GLfloat terrainScale = 20.0;
 GLuint roundingDistanceFromEdge = 30;
 GLfloat simpleInterpolationHeight = 10;
 
-GLint globalTime = 0;
 mat4 camMatrix, camBaseMatrix, projectionMatrix;	
-Model *m, *m2, *terrainModel;
-GLuint terrainProgram, modelProgram;
-GLuint tex1, tex2;
+GLuint terrainProgram, modelProgram, sunProgram;
+GLuint tex1, tex2, sunTexture;
 
 
 GLfloat maxAngleOfTerrain = 0.78539816339;
@@ -65,7 +64,7 @@ struct PlanetStruct* planetsList;
 
 GLfloat orbitSpeed = 0.001;
 
-const char* soundfile = "audio/test.mp3asfasfasf";
+char* soundfile = "audio/test.mp3asfasfasf";
 
 void InitAll()
 {
@@ -103,26 +102,17 @@ LOCAL void InitShaders()
 	// Load and compile shader
 	terrainProgram = loadShaders("shaders/terrain.vert", "shaders/terrain.frag");
 	modelProgram = loadShaders("shaders/models.vert", "shaders/models.frag");
-	glUseProgram(terrainProgram);
+	sunProgram = loadShaders("shaders/sun.vert", "shaders/sun.frag");
 	printError("Init shader");
 }
 
 LOCAL void InitTextures()
 {
-	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);
-	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("textures/maskros512.tga", &tex1);
+	LoadTGATextureSimple("textures/sun.tga", &sunTexture);
 
 	printError("Init terrain");	
 }
-
-void InitModels()
-{
-	// Load models
-	m = LoadModelPlus("models/groundsphere.obj");
-	m2 = LoadModelPlus("models/octagon.obj");
-}
-
 
 LOCAL void InitTerrain()
 {

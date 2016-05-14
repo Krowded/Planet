@@ -223,8 +223,9 @@ LOCAL mat4 RotateWithPlanet(GLint t, mat4 camPositionMatrix, struct PlanetStruct
  */
 LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix, struct PlanetStruct planet)
 {
-	vec3 curpos = GetCurrentCameraPosition(camPositionMatrix);
-	fprintf(stderr, "x: %f y: %f z: %f \n", curpos.x, curpos.y, curpos.z);
+	//For debug
+	//vec3 curpos = GetCurrentCameraPosition(camPositionMatrix);
+	//fprintf(stderr, "x: %f y: %f z: %f \n", curpos.x, curpos.y, curpos.z);
 
 	static GLfloat averageSpeed;
 	//Deal with player movement

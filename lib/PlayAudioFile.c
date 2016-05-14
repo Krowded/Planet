@@ -14,7 +14,6 @@ const char* programstringBackgroundMusic = "cvlc --repeat --quiet "; //Repeats t
 
 void PlayAudioFile(char filename[])
 {	
-	char* Filename = (char*)filename;
 	char command[strlen(filename)+ strlen(programstring) + strlen(hideConsoleString)];
 	strcpy(command, programstring);
 	strncat(command, filename, strlen(filename));

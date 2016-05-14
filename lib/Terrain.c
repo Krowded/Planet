@@ -6,7 +6,7 @@
 
 
 LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex);
-LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex);
+LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex, GLfloat textureScale);
 LOCAL GLuint* GenerateTerrainIndexArray(TextureData *tex);
 LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray);
 LOCAL GLint SaveAsTGA(char* filename, short int width, short int height, unsigned char* data);
@@ -18,8 +18,6 @@ LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* te
 
 
 vec3 TerrainOffset = {0, 0, 0}; //Should probably be removed
-
-
 
 LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 {
@@ -38,7 +36,7 @@ LOCAL GLfloat* GenerateTerrainVertexArray(TextureData *tex)
 	return vertexArray;
 }
 
-LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex)
+LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex, GLfloat textureScale)
 {
 	GLuint x, z;
 	GLint vertexCount = tex->width * tex->height;
@@ -47,8 +45,8 @@ LOCAL GLfloat* GenerateTerrainTextureCoordinateArray(TextureData *tex)
 		for (z = 0; z < tex->height; z++)
 		{
 			// Texture coordinates. You may want to scale them.
-			texCoordArray[(x + z * tex->width)*2 + 0] = x;//(float)x / tex->width;
-			texCoordArray[(x + z * tex->width)*2 + 1] = z;//(float)z / tex->height;
+			texCoordArray[(x + z * tex->width)*2 + 0] = textureScale*(float)x / tex->width;
+			texCoordArray[(x + z * tex->width)*2 + 1] = textureScale*(float)z / tex->height;
 		}
 
 	return texCoordArray;
@@ -110,7 +108,7 @@ LOCAL GLfloat* GenerateTerrainNormalArray(TextureData *tex, GLfloat *vertexArray
 
 }
 
-Model* GenerateTerrainFromTexture(TextureData *tex)
+Model* GenerateTerrainFromTexture(TextureData *tex, GLfloat textureScale)
 {
 	GLint vertexCount = tex->width * tex->height;
 	
@@ -121,7 +119,7 @@ Model* GenerateTerrainFromTexture(TextureData *tex)
 	GLuint* indexArray;
 
 	vertexArray = GenerateTerrainVertexArray(tex);
-	texCoordArray = GenerateTerrainTextureCoordinateArray(tex);
+	texCoordArray = GenerateTerrainTextureCoordinateArray(tex, textureScale);
 	indexArray = GenerateTerrainIndexArray(tex);
 	normalArray = GenerateTerrainNormalArray(tex, vertexArray);		
 	// End of terrain generation
@@ -350,10 +348,10 @@ LOCAL GLfloat RoundingFunction(GLfloat t)
 /*
  *	Creates the side of a cube the simple way, with interpolation to zero at the edges
  */
-Model* GenerateCubeTerrainSimple(TextureData* terrainTexture)
+Model* GenerateCubeTerrainSimple(TextureData* terrainTexture, GLfloat textureScale)
 {
 	Model* model;
-	model = GenerateTerrainFromTexture(terrainTexture);
+	model = GenerateTerrainFromTexture(terrainTexture, textureScale);
 
 	GLuint x, z, edge;	
 

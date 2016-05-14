@@ -6,7 +6,7 @@ in vec2 inTexCoord;
 out vec2 texCoord;
 out vec3 normal;
 
-// NY
+
 uniform mat4 ModelToWorld;
 uniform mat4 WorldToView;
 uniform mat4 ViewToProjection;

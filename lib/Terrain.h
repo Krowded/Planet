@@ -13,11 +13,11 @@ extern struct PlanetStruct planet;
 
 void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* ter);
 
-Model* GenerateTerrainFromTexture(TextureData *tex);
+Model* GenerateTerrainFromTexture(TextureData *tex, GLfloat textureScale);
 
 void GenerateCubeTerrain(struct PlanetStruct* planet);
 
-Model* GenerateCubeTerrainSimple(TextureData* terrainTextures);
+Model* GenerateCubeTerrainSimple(TextureData* terrainTextures, GLfloat textureScale);
 
 Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
 Model* MapCubeToFlatSphere(struct  PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);

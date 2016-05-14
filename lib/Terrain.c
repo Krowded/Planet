@@ -460,7 +460,7 @@ LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* te
 /*
  *	Transforms the planet sides with terrainTransformationMatrices without any extra transformation
  */
-Model* MapToCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint index)
+Model* MapToCube(struct PlanetStruct planet, mat4 terrainTransformationMatrices[6], TextureData* terrainTexture, GLuint index)
 {
 
 	GLuint x;
@@ -478,6 +478,7 @@ Model* MapToCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices
 		planet.terrainModels[index]->vertexArray[x + 2] = point.z;
 	}
 
+	//free(planet.terrainModels[index]->normalArray);
 	planet.terrainModels[index]->normalArray = FixTerrainNormalArray(planet, terrainTexture, index);
 
 	return LoadDataToModel(
@@ -494,7 +495,7 @@ Model* MapToCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices
  /*
   *	Transforms the planet sides with terrainTransformationMatrices and maps to a flat sphere
   */
-Model* MapToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
+Model* MapToFlatSphere(struct PlanetStruct planet, mat4 terrainTransformationMatrices[6], TextureData* terrainTexture, GLuint i) //i = index of side
 {
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
@@ -515,6 +516,7 @@ Model* MapToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMa
 		planet.terrainModels[i]->vertexArray[x + 2] = newPoint.z;
 	}
 
+	//free(planet.terrainModels[i]->normalArray);
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 
 	return LoadDataToModel(
@@ -530,7 +532,7 @@ Model* MapToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMa
  /*
   *	Transforms the planet sides with terrainTransformationMatrices and maps to a sphere
   */
-Model* MapToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
+Model* MapToSphere(struct PlanetStruct planet, mat4 terrainTransformationMatrices[6], TextureData* terrainTexture, GLuint i) //i = index of side
 {
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
@@ -558,20 +560,7 @@ Model* MapToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatric
 		planet.terrainModels[i]->vertexArray[x + 2] = transformedPoint.z + difference.z;
 	}
 
-/*
-	//Free old normalArray, easier to make new one
-	free(planet.terrainModels[i]->normalArray);
-	planet.terrainModels[i]->normalArray = GenerateTerrainNormalArray(terrainTexture, planet.terrainModels[i]->vertexArray);
-	
-
-	planet.terrainModels[i]->normalArray
-
-	normalArray[(x + z * tex->width)*3 + 0] = 0.0;
-	normalArray[(x + z * tex->width)*3 + 1] = 1.0;
-	normalArray[(x + z * tex->width)*3 + 2] = 0.0;
-
-	if (x == 0 && x < tex->width-1 && z > 0 && z < tex->height-1 )
-	*/
+	//free(planet.terrainModels[i]->normalArray);
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 
 	return LoadDataToModel(

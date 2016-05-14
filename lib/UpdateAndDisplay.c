@@ -20,51 +20,52 @@ void display(void)
 	printError("pre display");
 
 	//Draw sun
-	glUseProgram(sunProgram);
+	if(GetNumberOfPlanets() > 0)
+	{	
+		glUseProgram(sunProgram);
 
-	glBindTexture(GL_TEXTURE_2D, sunTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glUniform1i(glGetUniformLocation(sunProgram, "tex"), 0); // Texture unit 0	
-
-
-	glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);	
-	glUniformMatrix4fv(glGetUniformLocation(sunProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
+		glBindTexture(GL_TEXTURE_2D, sunTexture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		glUniform1i(glGetUniformLocation(sunProgram, "tex"), 0); // Texture unit 0	
 
 
-	planetsList[0].center = vec4tovec3(MultVec4(planetsList[0].ModelToWorldMatrix, vec3tovec4(planetsList[0].startingPosition)));
+		glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);	
+		glUniformMatrix4fv(glGetUniformLocation(sunProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
 
-	glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[0].ModelToWorldMatrix.m);
-	GLuint i;
-	for(i = 0; i < 6; ++i)
-	{
-		DrawModel(planetsList[0].terrainModels[i], sunProgram, "inPosition", NULL, "inTexCoord");
-	}
 
-	//Draw planets
-	glUseProgram(terrainProgram);
+		planetsList[0].center = vec4tovec3(MultVec4(planetsList[0].ModelToWorldMatrix, vec3tovec4(planetsList[0].startingPosition)));
 
-	glBindTexture(GL_TEXTURE_2D, tex1);	// Bind Our Texture tex1
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0	
-
-	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);
-	glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
-
-	GLuint j;
-	for(j = 0; j < GetNumberOfPlanets(); j++)
-	{
-		planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].startingPosition)));
-		//total = Mult(camMatrix, planetsList[j].ModelToWorldMatrix);
-
-		vec3 sunlight = Normalize(VectorSub(planetsList[0].center, planetsList[j].center));
-		glUniform3f(glGetUniformLocation(terrainProgram, "SunlightDirection"), sunlight.x, sunlight.y, sunlight.z);
-		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[j].ModelToWorldMatrix.m);
+		glUniformMatrix4fv(glGetUniformLocation(sunProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[0].ModelToWorldMatrix.m);
+		GLuint i;
 		for(i = 0; i < 6; ++i)
 		{
-			DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
+			DrawModel(planetsList[0].terrainModels[i], sunProgram, "inPosition", NULL, "inTexCoord");
+		}	
+
+		//Draw planets
+		glUseProgram(terrainProgram);
+
+		glBindTexture(GL_TEXTURE_2D, tex1);	// Bind Our Texture tex1
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0	
+
+		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);
+		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "WorldToView"), 1, GL_TRUE, camMatrix.m);
+
+		GLuint j;
+		for(j = 1; j < GetNumberOfPlanets(); j++)
+		{
+			planetsList[j].center = vec4tovec3(MultVec4(planetsList[j].ModelToWorldMatrix, vec3tovec4(planetsList[j].startingPosition)));
+
+			vec3 sunlight = Normalize(VectorSub(planetsList[0].center, planetsList[j].center));
+			glUniform3f(glGetUniformLocation(terrainProgram, "SunlightDirection"), sunlight.x, sunlight.y, sunlight.z);
+			glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ModelToWorld"), 1, GL_TRUE, planetsList[j].ModelToWorldMatrix.m);
+			for(i = 0; i < 6; ++i)
+			{
+				DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
+			}
 		}
 	}
-
 	printError("display 2");
 	
 	glutSwapBuffers();

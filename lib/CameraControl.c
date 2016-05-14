@@ -274,7 +274,7 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 		if (glutKeyIsDown('e') || glutKeyIsDown('E'))
 			camPositionMatrix = Mult( T( -upVec.x, -upVec.y, -upVec.z), camPositionMatrix);
 		if (glutKeyIsDown(GLUT_KEY_ESC))
-			cleanUpAndExit();
+			exit(0);
 	}
 
 
@@ -309,7 +309,51 @@ LOCAL mat4 CameraControl(GLint t, mat4 camRotatedMatrix, mat4 camPositionMatrix,
 				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
 				GLfloat radius = (256/2)/(GetNumberOfPlanets()+1);
 
-				CreateStandardPlanet(center, radius, PLAY_SOUND_1);
+				if(GetNumberOfPlanets() > 0)
+					CreateStandardPlanet(center, radius, ROUGH_PLANET, PLAY_SOUND_1);
+				else
+					CreateSun(radius, ROUGH_PLANET);
+				planetKeyPressed = true;
+			}
+		}
+		else
+		{
+			planetKeyPressed = false;
+		}
+	}
+
+	//Create a new cube planet 300 units in front of camera
+	{ //static scope limiter
+		static bool planetKeyPressed = false;
+		if(glutKeyIsDown('f') || glutKeyIsDown('F') )
+		{
+			if(!planetKeyPressed)
+			{
+				vec3 center = VectorAdd(GetCurrentCameraPosition(camPositionMatrix), ScalarMult(GetBackDirectionVec(camRotatedMatrix), -300));
+				GLfloat radius = (256/2)/(GetNumberOfPlanets()+1);
+				
+				if(GetNumberOfPlanets() > 0)
+					CreateStandardPlanet(center, radius, CUBE_PLANET, PLAY_SOUND_1);
+				else
+					CreateSun(radius, CUBE_PLANET);
+				planetKeyPressed = true;
+			}
+		}
+		else
+		{
+			planetKeyPressed = false;
+		}
+	}
+
+	//Create normal sun
+	{ //static scope limiter
+		static bool planetKeyPressed = false;
+		if(glutKeyIsDown('g') || glutKeyIsDown('G') )
+		{
+			if(!planetKeyPressed)
+			{
+				if(GetNumberOfPlanets() < 1)
+					CreateSun(128, SMOOTH_PLANET);
 				planetKeyPressed = true;
 			}
 		}

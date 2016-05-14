@@ -35,8 +35,8 @@ struct PlanetStruct {
 
 
 void CreatePlanet(struct PlanetStruct planet, GLuint playSound);
-void CreateSun(GLfloat radius);
-void CreateStandardPlanet(vec3 center, GLfloat radius, GLuint playSound);
+void CreateSun(GLfloat radius, enum planetShape shape);
+void CreateStandardPlanet(vec3 center, GLfloat radius, enum planetShape shape, GLuint playSound);
 
 void RemoveLastPlanet();
 GLuint GetCurrentPlanet();
@@ -45,7 +45,7 @@ GLuint GetNumberOfPlanets();
 
 void UpdatePlanetMovement(GLint t);
 
-void freeAllPlanets();
+void deleteAllPlanets();
 
 
 #endif

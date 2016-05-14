@@ -119,12 +119,12 @@ LOCAL void InitTerrain()
 	//Initialize
 
 	//Make a sun at the center
-	CreateSun(128);
+	CreateSun(128, SMOOTH_PLANET);
 
 	//Create a starting number of planets, i.e. 1;
 	vec3 center = SetVector(0, 0, -500);
 	GLfloat radius = 256.f*0.5f;
-	CreateStandardPlanet(center, radius, NO_SOUND);
+	CreateStandardPlanet(center, radius, ROUGH_PLANET, NO_SOUND);
 }
 
 
@@ -141,7 +141,7 @@ void InitWindow(GLint width, GLint height)
 
 void cleanUpAndExit()
 {
-	freeAllPlanets();
+	deleteAllPlanets();
 	KillAllAudio();
 
 	exit(0);

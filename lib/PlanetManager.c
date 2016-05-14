@@ -5,10 +5,11 @@
 #include "DisplayGlobals.h"
 #include "ControlGlobals.h"
 
-LOCAL void freeTexture(TextureData* texture);
-LOCAL void freePlanet(struct PlanetStruct planet);
+LOCAL void deleteTexture(TextureData* texture);
+LOCAL void deletePlanet(struct PlanetStruct planet);
+LOCAL void deleteModel(Model* m);
 
-char* createPlanetNoise = "audio/1_person_cheering-Jett_Rifkin-1851518140.mp3";
+char* createPlanetNoise = "audio/Bow_Fire_Arrow-Stephan_Schutze-2133929391.mp3";
 char* deletePlanetNoise = "audio/Blop-Mark_DiAngelo-79054334.mp3";
 
 GLuint numberOfPlanets = 0;
@@ -81,15 +82,15 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 
 
 		//Generate terrain
-		//TextureData* tex = chkmalloc(sizeof(TextureData));
-		//GenerateProceduralTerrainTexture(256, tex);
-		//terrainTextures[0] = *tex;
+		/*
+		TextureData* tex = chkmalloc(sizeof(TextureData));
+		GenerateProceduralTerrainTexture(256, tex);
+		terrainTextures[0] = tex;*/
 		GLuint i;
 		for(i = 0; i < 6; i++)
 		{
 			planet.terrainModels[i] = GenerateTerrainModelSimple(terrainTextures[i], planet.textureScale);
 
-			Model* oldmodel = planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
 			switch(planet.type)
 			{
 				case SMOOTH_PLANET:
@@ -104,8 +105,7 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 				default:
 					fprintf(stderr, "Unknown planet type");
 			}
-			free(oldmodel);
-			freeTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
+			deleteTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
 		}
 
 		planet.ModelToWorldMatrix = T(planet.center.x, planet.center.y, planet.center.z);
@@ -126,37 +126,42 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 }
 
 /*
- *	Creates a sun and appends it to planetsList. A sun is a planet set at the origin that does not rotate or orbit.
+ *	Creates a sun and appends it to planetsList.
  */
-void CreateSun(GLfloat radius)
+void CreateSun(GLfloat radius, enum planetShape shape)
 {
 	struct PlanetStruct planet;
 	planet.center = SetVector(0, 0, 0);
+	planet.startingPosition = planet.center;
 	planet.radius = radius;
 	planet.orbitalSpeed = 0;
 	planet.orbitalAxis = SetVector(0,1,0);
 	planet.rotationalSpeed = 0.0002;
 	planet.rotationalAxis = SetVector(1,1,0);
-	planet.type = CUBE_PLANET;//SMOOTH_PLANET;
+	planet.type = shape;
 	planet.textureScale = 1;
 
 	CreatePlanet(planet, NO_SOUND);
 }
 
-void CreateStandardPlanet(vec3 center, GLfloat radius, GLuint playSound)
+void CreateStandardPlanet(vec3 center, GLfloat radius, enum planetShape shape, GLuint playSound)
 {
 	struct PlanetStruct planet;
 	planet.center = center;
 	planet.radius = radius;
-	planet.orbitalSpeed = 0;//0.001;
+	planet.orbitalSpeed = 0.001;
 	planet.orbitalAxis = SetVector(0,1,0);
-	planet.rotationalSpeed = 0;//0.001;
+	planet.rotationalSpeed = 0.001;
 	planet.rotationalAxis = SetVector(1,1,0);
-	planet.type = ROUGH_PLANET;
+	planet.type = shape;
 	planet.textureScale = 1;
+
+	if(shape == CUBE_PLANET) //Doesn't scale properly atm
+		planet.radius = 128;
 
 	CreatePlanet(planet, playSound);
 }
+
 
 
 /*
@@ -179,7 +184,7 @@ void RemoveLastPlanet()
 {
 	if(numberOfPlanets > 0)
 	{
-		freePlanet(planetsList[numberOfPlanets-1]);
+		deletePlanet(planetsList[numberOfPlanets-1]);
 		numberOfPlanets--;
 		if(numberOfPlanets != 0) //Because segfault if realloced to 0
 			planetsList = realloc(planetsList, sizeof(struct PlanetStruct)*numberOfPlanets);
@@ -202,14 +207,20 @@ void UpdatePlanetMovement(GLint t)
 		ModelToWorld = ArbRotate(planetsList[i].rotationalAxis, planetsList[i].rotationalSpeed*(GLfloat)t); //IdentityMatrix(); //Rotation around own axis
 		ModelToWorld = Mult(T(planetsList[i].startingPosition.x, planetsList[i].startingPosition.y, planetsList[i].startingPosition.z), ModelToWorld); //Offset
 
-		if(!(planetsList[i].startingPosition.x == 0 && planetsList[i].startingPosition.y == 0 && planetsList[i].startingPosition.z == 0)) //Dont try to orbit when already at 0
+		if(!(planetsList[i].startingPosition.x == planetsList[0].startingPosition.x 
+		  && planetsList[i].startingPosition.y == planetsList[0].startingPosition.y 
+		  && planetsList[i].startingPosition.z == planetsList[0].startingPosition.z )) //Dont try to orbit when already at 0
 		{	
-			if(fabs(planetsList[i].startingPosition.x) - arbAxis.x + fabs(planetsList[i].startingPosition.y) - arbAxis.y + fabs(planetsList[i].startingPosition.z) - arbAxis.z == 0)
+			if(fabs(planetsList[i].startingPosition.x) - arbAxis.x + 
+			   fabs(planetsList[i].startingPosition.y) - arbAxis.y + 
+			   fabs(planetsList[i].startingPosition.z) - arbAxis.z == 0)
 				arbAxis = SetVector(1,0,0);
 
-			arbAxis = Normalize(CrossProduct(planetsList[i].startingPosition, arbAxis));
+			arbAxis = Normalize(CrossProduct(VectorSub(planetsList[i].startingPosition, planetsList[0].startingPosition), arbAxis));
 
+			ModelToWorld = Mult(T(planetsList[0].center.x, planetsList[0].center.y, planetsList[0].center.z), ModelToWorld);
 			ModelToWorld = Mult(ArbRotate(arbAxis, planetsList[i].orbitalSpeed*(GLfloat)t), ModelToWorld); //Orbit
+			ModelToWorld = Mult(T(-planetsList[0].center.x, -planetsList[0].center.y, -planetsList[0].center.z), ModelToWorld);
 		}
 		planetsList[i].ModelToWorldMatrix = ModelToWorld;
 	}
@@ -230,27 +241,52 @@ GLuint GetCurrentPlanet()
 /*
  *	Safely frees a TextureData structure
  */
-LOCAL void freeTexture(TextureData* texture)
+LOCAL void deleteTexture(TextureData* texture)
 {
 	free(texture->imageData);
 	free(texture);
 }
 
+//Fixed version of DisposeModel
+LOCAL void deleteModel(Model* m)
+{
+		if (m->vertexArray != NULL)
+			free(m->vertexArray);
+		if (m->normalArray != NULL)
+			free(m->normalArray);
+		if (m->texCoordArray != NULL)
+			free(m->texCoordArray);
+		if (m->colorArray != NULL) // obsolete?
+			free(m->colorArray);
+		if (m->indexArray != NULL)
+			free(m->indexArray);
+			
+		// Lazy error checking heter since "glDeleteBuffers silently ignores 0's and names that do not correspond to existing buffer objects."
+		
+		glDeleteBuffers(1, &m->vb);
+		glDeleteBuffers(1, &m->ib);
+		glDeleteBuffers(1, &m->nb);
+		glDeleteBuffers(1, &m->tb);
+		glDeleteVertexArrays(1, &m->vao);
+
+		free(m);
+}
+
 /*
  *	Safely frees a PlanetStruct
  */
-LOCAL void freePlanet(struct PlanetStruct planet)
+LOCAL void deletePlanet(struct PlanetStruct planet)
 {
 	GLuint i;
 	for(i = 0; i < 6; i++)
 	{
-		free(planet.terrainModels[i]);
+		deleteModel(planet.terrainModels[i]);
 	}
 }
 
-void freeAllPlanets()
+void deleteAllPlanets()
 {
 	GLuint i;
 	for(i = 0; i < numberOfPlanets; i++)
-		freePlanet(planetsList[i]);
+		deletePlanet(planetsList[i]);
 }

@@ -1116,6 +1116,6 @@ void DisposeModel(Model *m)
 		glDeleteBuffers(1, &m->nb);
 		glDeleteBuffers(1, &m->tb);
 		glDeleteBuffers(1, &m->vao);
-	}
+	}	
 	free(m);
 }

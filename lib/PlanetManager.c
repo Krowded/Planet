@@ -87,19 +87,19 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 		GLuint i;
 		for(i = 0; i < 6; i++)
 		{
-			planet.terrainModels[i] = GenerateCubeTerrainSimple(terrainTextures[i], planet.textureScale);
+			planet.terrainModels[i] = GenerateTerrainModelSimple(terrainTextures[i], planet.textureScale);
 
 			Model* oldmodel = planet.terrainModels[i]; //Try to prevent memory leaks (Need to find more)
 			switch(planet.type)
 			{
 				case SMOOTH_PLANET:
-					planet.terrainModels[i] = MapCubeToFlatSphere(planet, terrainTransformationMatrix, terrainTextures[i], i);
+					planet.terrainModels[i] = MapToFlatSphere(planet, terrainTransformationMatrix, terrainTextures[i], i);
 					break;
 				case ROUGH_PLANET:
-					planet.terrainModels[i] = MapCubeToSphere(planet, terrainTransformationMatrix, terrainTextures[i], i);
+					planet.terrainModels[i] = MapToSphere(planet, terrainTransformationMatrix, terrainTextures[i], i);
 					break;
 				case CUBE_PLANET:
-				planet.terrainModels[i] = CreateCube(planet, terrainTransformationMatrix, terrainTextures[i], i);
+					planet.terrainModels[i] = MapToCube(planet, terrainTransformationMatrix, terrainTextures[i], i);
 					break;
 				default:
 					fprintf(stderr, "Unknown planet type");

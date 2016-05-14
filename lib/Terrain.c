@@ -348,7 +348,7 @@ LOCAL GLfloat RoundingFunction(GLfloat t)
 /*
  *	Creates the side of a cube the simple way, with interpolation to zero at the edges
  */
-Model* GenerateCubeTerrainSimple(TextureData* terrainTexture, GLfloat textureScale)
+Model* GenerateTerrainModelSimple(TextureData* terrainTexture, GLfloat textureScale)
 {
 	Model* model;
 	model = GenerateTerrainFromTexture(terrainTexture, textureScale);
@@ -457,8 +457,12 @@ LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* te
 	return planet.terrainModels[i]->normalArray;
 }
 
-Model* CreateCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint index)
+/*
+ *	Transforms the planet sides with terrainTransformationMatrices without any extra transformation
+ */
+Model* MapToCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint index)
 {
+
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
 	{
@@ -487,10 +491,10 @@ Model* CreateCube(struct PlanetStruct planet, mat4* terrainTransformationMatrice
 }
 
 
-/*
- *	Turns the side of a cube to the equivalent but flat side of a sphere and returns it as a Model
- */
-Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
+ /*
+  *	Transforms the planet sides with terrainTransformationMatrices and maps to a flat sphere
+  */
+Model* MapToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
 {
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)
@@ -523,10 +527,10 @@ Model* MapCubeToFlatSphere(struct PlanetStruct planet, mat4* terrainTransformati
 				planet.terrainModels[i]->numIndices);
 }
 
-/*
- *	Turns the side of a cube to the equivalent side of a sphere and returns it as a Model
- */
-Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
+ /*
+  *	Transforms the planet sides with terrainTransformationMatrices and maps to a sphere
+  */
+Model* MapToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i) //i = index of side
 {
 	GLuint x;
 	for(x = 0; x < (planet.terrainWidth)*(planet.terrainHeight)*3; x += 3)

@@ -15,13 +15,11 @@ void GenerateProceduralTerrainTexture(GLint sideLength, TextureData* ter);
 
 Model* GenerateTerrainFromTexture(TextureData *tex, GLfloat textureScale);
 
-void GenerateCubeTerrain(struct PlanetStruct* planet);
+Model* GenerateTerrainModelSimple(TextureData* terrainTextures, GLfloat textureScale);
 
-Model* GenerateCubeTerrainSimple(TextureData* terrainTextures, GLfloat textureScale);
-
-Model* CreateCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
-Model* MapCubeToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
-Model* MapCubeToFlatSphere(struct  PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
+Model* MapToCube(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
+Model* MapToSphere(struct PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
+Model* MapToFlatSphere(struct  PlanetStruct planet, mat4* terrainTransformationMatrices, TextureData* terrainTexture, GLuint i);
 
 
 GLfloat GetTerrainHeight(vec3, Model*, TextureData);

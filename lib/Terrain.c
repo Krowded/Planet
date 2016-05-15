@@ -391,6 +391,8 @@ Model* GenerateTerrainModelSimple(TextureData* terrainTexture, GLfloat textureSc
 			model->vertexArray[(x + z * arrayWidth)*3 + 1] = currentHeight * RoundingFunction((GLfloat)(edge - z - 1)/(GLfloat)roundingDistanceFromEdge);
 		}
 
+	free(model->indexArray);
+	free(model->normalArray);
 	model->indexArray = GenerateTerrainIndexArray(terrainTexture);
 	model->normalArray = GenerateTerrainNormalArray(terrainTexture, model->vertexArray);
 
@@ -410,9 +412,6 @@ Model* GenerateTerrainModelSimple(TextureData* terrainTexture, GLfloat textureSc
 
 LOCAL GLfloat* FixTerrainNormalArray(struct PlanetStruct planet, TextureData* terrainTexture, GLuint i)
 {
-	//Free old normalArray, easier to make new one
-	free(planet.terrainModels[i]->normalArray);
-
 	//Generate new one
 	planet.terrainModels[i]->normalArray = GenerateTerrainNormalArray(terrainTexture, planet.terrainModels[i]->vertexArray);
 	
@@ -476,6 +475,7 @@ Model* MapToCube(struct PlanetStruct planet, mat4 terrainTransformationMatrices[
 		planet.terrainModels[index]->vertexArray[x + 2] = point.z;
 	}
 
+	free(planet.terrainModels[index]->normalArray);
 	planet.terrainModels[index]->normalArray = FixTerrainNormalArray(planet, terrainTexture, index);
 
 	return LoadDataToModel(
@@ -513,6 +513,7 @@ Model* MapToFlatSphere(struct PlanetStruct planet, mat4 terrainTransformationMat
 		planet.terrainModels[i]->vertexArray[x + 2] = newPoint.z;
 	}
 
+	free(planet.terrainModels[i]->normalArray);
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 
 	return LoadDataToModel(
@@ -556,6 +557,7 @@ Model* MapToSphere(struct PlanetStruct planet, mat4 terrainTransformationMatrice
 		planet.terrainModels[i]->vertexArray[x + 2] = transformedPoint.z + difference.z;
 	}
 
+	free(planet.terrainModels[i]->normalArray);
 	planet.terrainModels[i]->normalArray = FixTerrainNormalArray(planet, terrainTexture, i);
 
 	return LoadDataToModel(

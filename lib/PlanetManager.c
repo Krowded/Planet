@@ -120,12 +120,12 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 		if(playSound != NO_SOUND)
 			PlayAudioFile(createPlanetNoise);
 
-		printf("Let there be light!\n");
+		//printf("Let there be light!\n");
 	}
 	else
 	{
 		//Play fail noise?
-		fprintf(stderr, "Max number of planets reached\n");
+		//fprintf(stderr, "Max number of planets reached\n");
 	}
 }
 

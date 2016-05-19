@@ -1,6 +1,6 @@
 # Directories
 commondir = common/
-libdir = lib/
+libdir = src/
 
 CC=gcc 
 CFLAGS= 

@@ -11,12 +11,12 @@ uniform mat4 WorldToView;
 
 uniform vec3 SunlightDirection;
 
-const float ambient = 0.1;
-const float diffuseConst = 0.9;
+const float ambient = 0.2;
+const float diffuseConst = 0.7;
 
 void main(void)
 {
-	//vec3 lightDirection = normalize(mat3(WorldToView)*vec3(1.0, -1.0, 0.0));
+	//vec3 lightDirection = normalize(mat3(WorldToView)*vec3(1, 0.5, 0));
 
 	float diffuse = 0;//diffuseConst * max(dot(normalize(normal), lightDirection), 0);
 

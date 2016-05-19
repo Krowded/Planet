@@ -109,6 +109,7 @@ void CreatePlanet(struct PlanetStruct planet, GLuint playSound)
 				default:
 					fprintf(stderr, "Unknown planet type");
 			}
+			
 			deleteTexture(terrainTextures[i]); //Dont need them in memory anymore, free properly
 		}
 

@@ -30,7 +30,7 @@ void* chkmalloc(size_t sz)
 }
 
 //Define globals
-const vec4 backgroundColor = {0,0,0,0};
+const vec4 backgroundColor = {1,1,1,0};
 
 GLfloat windowWidth = 1024.0;
 GLfloat windowHeight = 576.0;

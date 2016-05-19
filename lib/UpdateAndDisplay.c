@@ -25,6 +25,7 @@ void display(void)
 	printError("pre display");
 
 	//Skybox
+	
 	glDisable(GL_DEPTH_TEST);
 	glUseProgram(skyboxProgram);
 	glBindTexture(GL_TEXTURE_2D, sunTexture);
@@ -53,7 +54,7 @@ void display(void)
 	DrawModel(skyBack, skyboxProgram, "inPosition", NULL, "inTexCoord");
 	
 	glEnable(GL_DEPTH_TEST);
-
+	
 
 	
 
@@ -62,6 +63,7 @@ void display(void)
 	//Draw sun
 	if(GetNumberOfPlanets() > 0)
 	{	
+		
 		glUseProgram(sunProgram);
 
 		glBindTexture(GL_TEXTURE_2D, sunTexture);
@@ -80,12 +82,13 @@ void display(void)
 		{
 			DrawModel(planetsList[0].terrainModels[i], sunProgram, "inPosition", NULL, "inTexCoord");
 		}	
+		
 
 		//Draw planets
 		glUseProgram(terrainProgram);
 
 		glBindTexture(GL_TEXTURE_2D, tex1);	// Bind Our Texture tex1
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0); // Texture unit 0	
 
 		glUniformMatrix4fv(glGetUniformLocation(terrainProgram, "ViewToProjection"), 1, GL_TRUE, projectionMatrix.m);
@@ -104,6 +107,7 @@ void display(void)
 				DrawModel(planetsList[j].terrainModels[i], terrainProgram, "inPosition", "inNormal", "inTexCoord");
 			}
 		}
+	
 	}
 	
 	printError("display 2");
